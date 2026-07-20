@@ -17,7 +17,7 @@ metadata:
 
 ## Overview
 
-Run a Jobs-To-Be-Done (JTBD) workshop end-to-end. This skill is the workshop facilitation companion to the `execution/job-stories/` skill (the *writing format* for backlog stories). Where `job-stories/` produces When/Want/So statements for individual backlog items, this skill produces the *upstream discovery output* -- the job hierarchy, the forces driving switching behavior, and the desired-outcome statements that anchor product strategy.
+Run a Jobs-To-Be-Done (JTBD) workshop end-to-end. This skill is the workshop facilitation companion to the `reference/job-stories/` skill (the *writing format* for backlog stories). Where `job-stories/` produces When/Want/So statements for individual backlog items, this skill produces the *upstream discovery output* -- the job hierarchy, the forces driving switching behavior, and the desired-outcome statements that anchor product strategy.
 
 The workshop synthesizes four JTBD schools: Christensen's *milkshake* hiring frame, Ulwick's Outcome-Driven Innovation (ODI) with importance/satisfaction scoring, Klement's situation-motivation-outcome canvas (the *job story* format), and Moesta's switch interview method surfacing the four forces of progress (push, pull, anxiety, habit). A well-run workshop produces three artifacts: a ranked job hierarchy with measurable outcome statements, a forces-of-progress map, and a prioritized opportunity list ready to feed PRDs, OKRs, or roadmap themes.
 
@@ -68,9 +68,9 @@ Workshop templates live in `assets/`: `workshop_agenda_2hr.md`, `workshop_agenda
 
 ## Scope & Limitations
 
-**In scope:** 2h/4h/8h formats; switch interview script and four-anchor timeline; forces-of-progress mapping; Ulwick outcome statements with Importance x Satisfaction scoring; Klement situation-motivation-outcome decomposition (bridge to `execution/job-stories/`); pre-work email and participant brief.
+**In scope:** 2h/4h/8h formats; switch interview script and four-anchor timeline; forces-of-progress mapping; Ulwick outcome statements with Importance x Satisfaction scoring; Klement situation-motivation-outcome decomposition (bridge to `reference/job-stories/`); pre-work email and participant brief.
 
-**Out of scope:** writing individual backlog stories (`execution/job-stories/`); quantitative ODI surveying at scale; recording/transcription tooling; recruiting operations; personas (JTBD is segment-by-job, not persona-by-demographic).
+**Out of scope:** writing individual backlog stories (`reference/job-stories/`); quantitative ODI surveying at scale; recording/transcription tooling; recruiting operations; personas (JTBD is segment-by-job, not persona-by-demographic).
 
 **Caveats:** switch interviews require *recent* (90-day) switchers; the 2-hour format is for validation, not primary discovery; ODI scoring is sensitive to who is in the room (internal scores are hypotheses, customer-derived scores are truth); a workshop without customer voice produces team-aligned fiction.
 
@@ -78,12 +78,12 @@ Workshop templates live in `assets/`: `workshop_agenda_2hr.md`, `workshop_agenda
 
 | Integration | Direction | What Flows |
 |-------------|-----------|------------|
-| `discovery/customer-interview-script/` | Receives from | Switch interviews use the base interview script structure |
-| `discovery/interview-synthesis/` | Receives from | Synthesized themes seed the snippet wall on workshop day |
-| `discovery/identify-assumptions/` | Feeds into | Top outcomes become assumptions to test |
-| `discovery/brainstorm-experiments/` | Feeds into | Forces-of-progress weaknesses become experiment hypotheses |
-| `discovery/value-proposition-canvas/` | Feeds into | Jobs, pains, gains populate the Customer Profile |
-| `execution/job-stories/` | Feeds into | Job + outcome decomposition becomes When/Want/So backlog stories |
-| `execution/create-prd/` | Feeds into | Job hierarchy populates PRD Section 5; outcomes populate Section 6 |
-| `execution/outcome-roadmap/` | Feeds into | Top desired outcomes become roadmap themes |
-| `execution/north-star-metric/` | Feeds into | The highest-priority outcome often becomes the input metric tree root |
+| `reference/customer-interview-script/` | Receives from | Switch interviews use the base interview script structure |
+| `reference/interview-synthesis/` | Receives from | Synthesized themes seed the snippet wall on workshop day |
+| `reference/identify-assumptions/` | Feeds into | Top outcomes become assumptions to test |
+| `reference/brainstorm-experiments/` | Feeds into | Forces-of-progress weaknesses become experiment hypotheses |
+| `reference/value-proposition-canvas/` | Feeds into | Jobs, pains, gains populate the Customer Profile |
+| `reference/job-stories/` | Feeds into | Job + outcome decomposition becomes When/Want/So backlog stories |
+| `reference/create-prd/` | Feeds into | Job hierarchy populates PRD Section 5; outcomes populate Section 6 |
+| `reference/outcome-roadmap/` | Feeds into | Top desired outcomes become roadmap themes |
+| `reference/north-star-metric/` | Feeds into | The highest-priority outcome often becomes the input metric tree root |

@@ -81,7 +81,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** Multi-project portfolio health assessment with weighted composite scoring; quantitative risk analysis using EMV, probability/impact matrices, and category weighting; resource capacity planning with utilization optimization and skill-matching; stakeholder mapping with Mendelow's Matrix and targeted communication plans; executive-level reporting with RAG status dashboards and strategic recommendations.
 
-**Out of Scope:** Sprint-level team management (see `scrum-master/`); product backlog management and feature prioritization (see `execution/prioritization-frameworks/`); agile coaching and team maturity (see `agile-coach/`); financial modeling beyond project-level ROI (see `finance/`); contract negotiation and procurement.
+**Out of Scope:** Sprint-level team management (see `scrum-master/`); product backlog management and feature prioritization (see `reference/prioritization-frameworks/`); agile coaching and team maturity (see `agile-coach/`); financial modeling beyond project-level ROI (see `finance/`); contract negotiation and procurement.
 
 **Important Caveats:** Health scores use deterministic formulas, not ML predictions — calibrate thresholds to your portfolio. Risk EMV assumes independent risks; portfolio correlation analysis (Step 4) gives a more accurate combined view but needs cross-project dependency data. Capacity models are weekly snapshots; they do not account for intra-week variability or unplanned spikes.
 
@@ -91,10 +91,10 @@ Load the reference that matches the task — keep this file lean and pull detail
 |------------|-----------|-------------|
 | `scrum-master/` | Receives from | Sprint velocity and health metrics feed portfolio-level health dashboards |
 | `sprint-retrospective/` | Receives from | Retro insights inform stakeholder reports and process improvement tracking |
-| `execution/brainstorm-okrs/` | Feeds into | Portfolio priorities and strategic context shape quarterly OKR themes |
-| `execution/outcome-roadmap/` | Feeds into | Portfolio health data influences roadmap commitment levels (Now/Next/Later) |
-| `discovery/pre-mortem/` | Receives from | Launch-blocking tigers escalate into portfolio risk register |
-| `execution/release-notes/` | Complements | Release notes incorporate stakeholder communication plans from mapper |
+| `reference/brainstorm-okrs/` | Feeds into | Portfolio priorities and strategic context shape quarterly OKR themes |
+| `reference/outcome-roadmap/` | Feeds into | Portfolio health data influences roadmap commitment levels (Now/Next/Later) |
+| `reference/pre-mortem/` | Receives from | Launch-blocking tigers escalate into portfolio risk register |
+| `reference/release-notes/` | Complements | Release notes incorporate stakeholder communication plans from mapper |
 | Jira via Atlassian MCP | Bidirectional | Pull project data for health analysis; push status reports to Confluence |
 | Financial Systems | Receives from | Real-time budget and spend data for variance analysis |
 

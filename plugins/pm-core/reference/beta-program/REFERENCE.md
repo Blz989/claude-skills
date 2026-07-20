@@ -82,7 +82,7 @@ See `references/beta-framework.md` for the full framework tables, step-by-step w
 
 **Out of Scope:**
 - Public open beta or waitlist management (different mechanics; treat as a soft launch via `launch-playbook/`)
-- A/B testing and statistical experiment design (see `discovery/brainstorm-experiments/`)
+- A/B testing and statistical experiment design (see `reference/brainstorm-experiments/`)
 - Pricing experiments (run a dedicated pricing test, not piggybacked on beta)
 - Marketing campaign execution for the beta (light recruitment only; full GTM lives in `launch-playbook/`)
 
@@ -96,8 +96,8 @@ See `references/beta-framework.md` for the full framework tables, step-by-step w
 | Integration | Direction | What Flows |
 |-------------|-----------|------------|
 | `create-prd/` | Receives from | PRD defines the hypothesis and headline outcome that beta gates measure |
-| `discovery/identify-assumptions/` | Receives from | Riskiest assumptions become the beta's primary learning goals |
-| `discovery/brainstorm-experiments/` | Complementary | Beta is one experiment type; brainstorm-experiments covers smaller/faster alternatives |
+| `reference/identify-assumptions/` | Receives from | Riskiest assumptions become the beta's primary learning goals |
+| `reference/brainstorm-experiments/` | Complementary | Beta is one experiment type; brainstorm-experiments covers smaller/faster alternatives |
 | `daci-framework/` | Uses | DACI driver owns the exit-gate decision |
 | `launch-playbook/` | Feeds into | Greenlit beta hands testimonials, case studies, and known issues to launch |
 | `release-notes/` | Feeds into | Beta release notes preview the GA changelog |

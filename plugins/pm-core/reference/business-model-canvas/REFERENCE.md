@@ -76,7 +76,7 @@ Audit the canvas for: empty blocks, ungrounded value-prop / segment matches,
 revenue / cost imbalance, segment-channel-relationship coherence.
 
 ```bash
-python3 project-management/strategy-frameworks/business-model-canvas/scripts/canvas_validator.py \
+python3 scripts/canvas_validator.py \
   --input canvas.json --format markdown
 ```
 
@@ -133,10 +133,10 @@ After using this skill, you should have:
 
 ## Related skills
 
-- `project-management/strategy-frameworks/lean-canvas` — startup-stage variant
-- `project-management/strategy-frameworks/swot-analysis` — internal/external strengths-weaknesses
-- `project-management/strategy-frameworks/porters-five-forces` — competitive dynamics
-- `project-management/discovery/value-proposition-canvas` — deeper on the value-prop block
-- `project-management/execution/north-star-metric` — what to measure once model is set
+- `reference/lean-canvas` — startup-stage variant
+- `reference/swot-analysis` — internal/external strengths-weaknesses
+- `reference/porters-five-forces` — competitive dynamics
+- `reference/value-proposition-canvas` — deeper on the value-prop block
+- `reference/north-star-metric` — what to measure once model is set
 - `business-growth/pricing-strategy` — pricing depth for the revenue block
 - `c-level-advisor/ceo-advisor` — strategic context for the model

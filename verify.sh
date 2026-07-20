@@ -13,6 +13,12 @@ for p in "$root"/plugins/*/; do
       echo "FAIL $name: skills/$(basename "$d")/ has no SKILL.md (would register as an empty/ghost skill)"; fail=1
     fi
   done
+
+  # link integrity within this plugin
+  if [ -d "$p/reference" ]; then
+    stale=$(grep -rhoE '(execution|discovery|strategy-frameworks|gtm|career)/[a-z0-9-]+' "$p"/skills/*/SKILL.md "$p"/reference/*/REFERENCE.md 2>/dev/null | wc -l | tr -d ' ')
+    [ "$stale" = 0 ] || { echo "FAIL $name: $stale stale category-prefixed cross-link(s) (e.g. execution/foo/)"; fail=1; }
+  fi
   reg=$(find "$p/skills" -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
   printf "OK   %-30s %s registered skill(s)\n" "$name" "$reg"
 done

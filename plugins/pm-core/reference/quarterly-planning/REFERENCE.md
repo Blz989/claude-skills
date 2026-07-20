@@ -19,7 +19,7 @@ metadata:
 
 Quarterly planning is the operating cadence that turns annual strategy into quarterly outcomes. Done well, it produces aligned OKRs, a roadmap that delivers them, a capacity plan that respects reality, and a tracking ritual that catches drift before it compounds. Done poorly, it produces OKR theater -- a slide deck of objectives that nobody references after week two.
 
-This skill is the **above-OKR-writing** companion to `execution/brainstorm-okrs/`. Where `brainstorm-okrs/` covers how to write good OKRs, this skill covers the full quarterly cycle around them: pre-quarter homework, kickoff agenda, mid-quarter check-in, close-of-quarter retro, and the weekly/biweekly tracking cadence. The framework synthesizes four sources: Wodtke's *Radical Focus* (Monday-commit / Friday-celebrate rhythm, one OKR per quarter), Reforge's product strategy cycle, Cagan's quarterly product strategy, and the RAD ritual (Reflect-Align-Decide) used inside each meeting.
+This skill is the **above-OKR-writing** companion to `reference/brainstorm-okrs/`. Where `brainstorm-okrs/` covers how to write good OKRs, this skill covers the full quarterly cycle around them: pre-quarter homework, kickoff agenda, mid-quarter check-in, close-of-quarter retro, and the weekly/biweekly tracking cadence. The framework synthesizes four sources: Wodtke's *Radical Focus* (Monday-commit / Friday-celebrate rhythm, one OKR per quarter), Reforge's product strategy cycle, Cagan's quarterly product strategy, and the RAD ritual (Reflect-Align-Decide) used inside each meeting.
 
 ## Core Capabilities
 
@@ -75,7 +75,7 @@ Templates live in `assets/`: `kickoff_agenda_template.md`, `mid_quarter_check_in
 
 **In scope:** pre-quarter homework (strategy, outcomes, capacity); kickoff agenda; weekly Wodtke rhythm; biweekly KR confidence review; mid-quarter check-in; close retro; carry/kill/pivot framework; quarterly review deck outline.
 
-**Out of scope:** writing individual OKRs (`execution/brainstorm-okrs/`); roadmap construction (`execution/outcome-roadmap/`); sprint-level planning (`scrum-master/`); multi-quarter / annual strategy (`c-level-advisor/`); performance management (`career/`); portfolio management (`program-manager/`).
+**Out of scope:** writing individual OKRs (`reference/brainstorm-okrs/`); roadmap construction (`reference/outcome-roadmap/`); sprint-level planning (`scrum-master/`); multi-quarter / annual strategy (`c-level-advisor/`); performance management (`career/`); portfolio management (`program-manager/`).
 
 **Caveats:** the cycle is the system -- skipping one ritual (especially the close retro) degrades the next quarter; OKRs are a tool for focus, not control (Wodtke argues one Objective per team per quarter); the skill assumes a 13-week quarter; it works best where the company has shared OKR practice.
 
@@ -83,15 +83,15 @@ Templates live in `assets/`: `kickoff_agenda_template.md`, `mid_quarter_check_in
 
 | Integration | Direction | What Flows |
 |-------------|-----------|------------|
-| `execution/brainstorm-okrs/` | Bidirectional | Quarterly cycle uses OKRs; OKR drafting is a kickoff sub-skill |
-| `execution/outcome-roadmap/` | Bidirectional | Quarterly OKRs become Now-horizon roadmap; roadmap themes inform candidate outcomes |
-| `execution/north-star-metric/` | Receives from | NSM is the long-term metric; quarterly KRs are short-term moves on it |
-| `execution/product-vision/` | Receives from | Every Objective must trace to a vision pillar |
-| `execution/dependency-map/` | Receives from | Pre-quarter dependency mapping prevents week-6 surprises |
-| `execution/status-update-generator/` | Feeds into | Weekly Wodtke rhythm produces input for exec status updates |
-| `execution/cycle-time-analyzer/` | Receives from | Flow metrics inform capacity assessment |
-| `discovery/customer-interview-script/` | Receives from | Recent customer signal feeds the strategy review |
-| `discovery/jtbd-workshop/` | Receives from | Top desired outcomes seed the outcome candidate list |
+| `reference/brainstorm-okrs/` | Bidirectional | Quarterly cycle uses OKRs; OKR drafting is a kickoff sub-skill |
+| `reference/outcome-roadmap/` | Bidirectional | Quarterly OKRs become Now-horizon roadmap; roadmap themes inform candidate outcomes |
+| `reference/north-star-metric/` | Receives from | NSM is the long-term metric; quarterly KRs are short-term moves on it |
+| `reference/product-vision/` | Receives from | Every Objective must trace to a vision pillar |
+| `reference/dependency-map/` | Receives from | Pre-quarter dependency mapping prevents week-6 surprises |
+| `reference/status-update-generator/` | Feeds into | Weekly Wodtke rhythm produces input for exec status updates |
+| `reference/cycle-time-analyzer/` | Receives from | Flow metrics inform capacity assessment |
+| `reference/customer-interview-script/` | Receives from | Recent customer signal feeds the strategy review |
+| `reference/jtbd-workshop/` | Receives from | Top desired outcomes seed the outcome candidate list |
 | `scrum-master/` | Feeds into | Quarterly OKRs cascade into sprint capacity planning |
 | `senior-pm/` | Feeds into | Quarterly artifacts inform portfolio-level reporting |
-| `career/pm-onboarding/` | Complementary | New PMs use this skill in their 30-60-90 plan to ramp on team cadence |
+| `reference/pm-onboarding/` | Complementary | New PMs use this skill in their 30-60-90 plan to ramp on team cadence |

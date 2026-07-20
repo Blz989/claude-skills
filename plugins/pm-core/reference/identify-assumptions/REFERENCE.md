@@ -67,7 +67,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** systematic assumption identification using PM/Designer/Engineer devil's advocate perspectives; 8-category risk classification; quantitative scoring with Impact x (1 - Confidence); quadrant classification with suggested validation methods; assumption registry with priority sorting and action plans.
 
-**Out of Scope:** running validation experiments (`brainstorm-experiments/`); product strategy or roadmap decisions (`execution/outcome-roadmap/`); technical feasibility deep-dives (`engineering/` skills); financial modeling for viability (`finance/` skills).
+**Out of Scope:** running validation experiments (`brainstorm-experiments/`); product strategy or roadmap decisions (`reference/outcome-roadmap/`); technical feasibility deep-dives (`engineering/` skills); financial modeling for viability (`finance/` skills).
 
 **Important Caveats:** confidence levels map to fixed numeric values (0.8/0.5/0.2) — a simplification of continuous confidence; the "high impact" threshold is 7/10, adjustable for your risk tolerance; assumption mapping works best collaboratively (Product Trio), not solo.
 
@@ -78,6 +78,6 @@ Load the reference that matches the task — keep this file lean and pull detail
 | `brainstorm-ideas/` | Receives from | Ideas generated become the subjects whose assumptions are mapped |
 | `brainstorm-experiments/` | Feeds into | "Test Now" assumptions become hypotheses for experiment design |
 | `pre-mortem/` | Complements | Pre-mortem catches risks that assumption mapping may miss (especially elephants) |
-| `execution/create-prd/` | Feeds into | Validated assumptions populate the PRD Assumptions section (Section 7) |
-| `execution/brainstorm-okrs/` | Feeds into | Viability assumptions inform OKR key result selection and confidence levels |
+| `reference/create-prd/` | Feeds into | Validated assumptions populate the PRD Assumptions section (Section 7) |
+| `reference/brainstorm-okrs/` | Feeds into | Viability assumptions inform OKR key result selection and confidence levels |
 | `senior-pm/` | Feeds into | High-impact assumptions feed into portfolio risk registers |

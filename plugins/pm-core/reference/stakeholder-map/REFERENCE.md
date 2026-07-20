@@ -112,7 +112,7 @@ Audit for: missing key stakeholders by role, blockers without plans,
 power-without-interest gaps, no engagement plan.
 
 ```bash
-python3 project-management/execution/stakeholder-map/scripts/stakeholder_analyzer.py \
+python3 scripts/stakeholder_analyzer.py \
   --input stakeholders.json --format markdown
 ```
 
@@ -203,8 +203,8 @@ has more power than a "high-hierarchy / low-domain" one.
 
 ## Related skills
 
-- `project-management/execution/daci-framework` — decision-rights model
-- `project-management/execution/summarize-meeting` — communication artifacts
+- `reference/daci-framework` — decision-rights model
+- `reference/summarize-meeting` — communication artifacts
 - `c-level-advisor/ceo-advisor` — executive context
 - `c-level-advisor/general-counsel-advisor` — legal stakeholder navigation
 - `business-growth/sales-engineer` — buying-committee mapping

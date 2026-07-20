@@ -86,9 +86,9 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 | Integration | Direction | Description |
 |------------|-----------|-------------|
-| `execution/outcome-roadmap/` | Feeds into | Prioritized items inform Now/Next/Later horizon placement |
-| `execution/create-prd/` | Feeds into | Top-priority items become PRD candidates with P0/P1/P2 feature labels |
-| `execution/brainstorm-okrs/` | Complements | Prioritized initiatives inform which OKR theme to focus on this quarter |
-| `discovery/identify-assumptions/` | Receives from | Assumption risk scores inform item confidence ratings in RICE/ICE |
+| `reference/outcome-roadmap/` | Feeds into | Prioritized items inform Now/Next/Later horizon placement |
+| `reference/create-prd/` | Feeds into | Top-priority items become PRD candidates with P0/P1/P2 feature labels |
+| `reference/brainstorm-okrs/` | Complements | Prioritized initiatives inform which OKR theme to focus on this quarter |
+| `reference/identify-assumptions/` | Receives from | Assumption risk scores inform item confidence ratings in RICE/ICE |
 | `scrum-master/` | Feeds into | Prioritized backlog items feed sprint planning commitment decisions |
 | `senior-pm/` | Receives from | Portfolio-level WSJF or strategic priorities constrain team-level prioritization |

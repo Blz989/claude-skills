@@ -68,7 +68,7 @@ python scripts/prd_scaffolder.py --product-name "MyProduct" \
 
 **In Scope:** 8-section PRD skeleton generation with guided placeholders; section-by-section writing guidance (plain-language, specificity); market-segment definition by jobs-to-be-done; value-proposition mapping with Value Curve; release planning with Now/Next/Later and explicit deferral.
 
-**Out of Scope:** Technical architecture or system design docs (`engineering/`); user story writing and backlog creation (`execution/job-stories/`, `execution/wwas/`); detailed UX research or usability testing plans (`product-team/`); financial business-case modeling (`finance/`).
+**Out of Scope:** Technical architecture or system design docs (`engineering/`); user story writing and backlog creation (`reference/job-stories/`, `reference/wwas/`); detailed UX research or usability testing plans (`product-team/`); financial business-case modeling (`finance/`).
 
 **Important Caveats:** A PRD is a communication tool, not a contract — treat it as a living document. The 8-section framework is proven, but lightweight agile teams may need only sections 1, 3, 4, 7, 8, while regulated contexts may need more. A 2025 Carnegie Mellon SEI study found effective requirements management eliminates 50-80% of project defects.
 
@@ -76,10 +76,10 @@ python scripts/prd_scaffolder.py --product-name "MyProduct" \
 
 | Integration | Direction | Description |
 |------------|-----------|-------------|
-| `discovery/identify-assumptions/` | Receives from | Validated and "Test Now" assumptions populate PRD Section 7 with evidence |
-| `discovery/brainstorm-experiments/` | Receives from | Experiment results validate or invalidate PRD assumptions |
-| `discovery/pre-mortem/` | Receives from | Tiger mitigations become PRD risk sections |
-| `execution/brainstorm-okrs/` | Feeds into | PRD Key Results (Section 4) align with quarterly OKR targets |
-| `execution/outcome-roadmap/` | Feeds into | PRD release plan (Section 8) maps to roadmap Now/Next/Later horizons |
-| `execution/prioritization-frameworks/` | Receives from | Feature priority (P0/P1/P2) in Section 7 informed by RICE/ICE scoring |
+| `reference/identify-assumptions/` | Receives from | Validated and "Test Now" assumptions populate PRD Section 7 with evidence |
+| `reference/brainstorm-experiments/` | Receives from | Experiment results validate or invalidate PRD assumptions |
+| `reference/pre-mortem/` | Receives from | Tiger mitigations become PRD risk sections |
+| `reference/brainstorm-okrs/` | Feeds into | PRD Key Results (Section 4) align with quarterly OKR targets |
+| `reference/outcome-roadmap/` | Feeds into | PRD release plan (Section 8) maps to roadmap Now/Next/Later horizons |
+| `reference/prioritization-frameworks/` | Receives from | Feature priority (P0/P1/P2) in Section 7 informed by RICE/ICE scoring |
 | `senior-pm/` | Feeds into | PRD stakeholder context feeds stakeholder mapper engagement plans |

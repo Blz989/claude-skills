@@ -55,7 +55,7 @@ Stop rule: ask only the 2-3 that most change the output. If the user says "just 
 ## Workflow
 
 ### Step 1 — Confirm the North Star
-Already defined? Use it. Not defined? See `project-management/execution/north-star-metric`.
+Already defined? Use it. Not defined? See `reference/north-star-metric`.
 
 A good NS:
 - Behavioral or business
@@ -101,7 +101,7 @@ Audit: too many top-level metrics, no guardrails, vanity metrics, missing
 owners, missing comparisons.
 
 ```bash
-python3 project-management/discovery/metrics-dashboard/scripts/dashboard_designer.py \
+python3 scripts/dashboard_designer.py \
   --input dashboard_spec.json --format markdown
 ```
 
@@ -194,7 +194,7 @@ A chart with no comparison is a number floating in space.
 
 ## Related skills
 
-- `project-management/execution/north-star-metric` — define THE one number
+- `reference/north-star-metric` — define THE one number
 - `product-team/product-analytics` — metric tree + cohort + funnel
 - `product-team/ab-test-setup` — experimentation
 - `c-level-advisor/chief-data-officer-advisor` — platform context

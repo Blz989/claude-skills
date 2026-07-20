@@ -70,7 +70,7 @@ Templates live in `assets/`: `vision_board_template.md`, `narrative_vision_templ
 
 **In scope:** vision drafting across 4 frameworks (Pichler, Moore, Raskin, Cagan); the Vision Review Checklist; worked examples and templates; translation between formats; integration with downstream artifacts (NSM, OKRs, roadmap, PRDs).
 
-**Out of scope:** mission statement writing; strategy document construction (`c-level-advisor/`); brand positioning and messaging (`marketing/`); Working Backwards PR/FAQ (`execution/prfaq/`); NSM definition (`execution/north-star-metric/`); OKR drafting (`execution/brainstorm-okrs/`).
+**Out of scope:** mission statement writing; strategy document construction (`c-level-advisor/`); brand positioning and messaging (`marketing/`); Working Backwards PR/FAQ (`reference/prfaq/`); NSM definition (`reference/north-star-metric/`); OKR drafting (`reference/brainstorm-okrs/`).
 
 **Caveats:** a vision is *not* a marketing document (marketing language belongs in messaging); a vision that is never used is worse than no vision; the 10-year horizon is uncomfortable for execution-minded teams -- the discomfort is the point; a vision can be wrong -- commit, build, and update on evidence.
 
@@ -78,13 +78,13 @@ Templates live in `assets/`: `vision_board_template.md`, `narrative_vision_templ
 
 | Integration | Direction | What Flows |
 |-------------|-----------|------------|
-| `discovery/value-proposition-canvas/` | Receives from | Customer Profile (jobs, pains, gains) feeds Pichler Board "Needs" block |
-| `discovery/jtbd-workshop/` | Receives from | Job hierarchy and top outcomes inform the vision's customer + outcome |
-| `discovery/customer-interview-script/` | Receives from | Verbatim customer language sharpens vision phrasing |
-| `execution/north-star-metric/` | Feeds into | The NSM derives from the vision -- the vision's outcome becomes the NSM input metric tree root |
-| `execution/outcome-roadmap/` | Feeds into | The roadmap delivers the vision; every roadmap theme should trace back |
-| `execution/brainstorm-okrs/` | Feeds into | OKRs serve the vision -- each quarterly objective should advance one vision pillar |
-| `execution/prfaq/` | Complementary | Working Backwards PR is one expression of the vision; the FAQ stress-tests it |
-| `execution/create-prd/` | Feeds into | PRDs explicitly reference the vision in Section 3 (Background) |
-| `execution/roadmap-communication/` | Feeds into | Vision is the opening frame of every exec/customer roadmap presentation |
+| `reference/value-proposition-canvas/` | Receives from | Customer Profile (jobs, pains, gains) feeds Pichler Board "Needs" block |
+| `reference/jtbd-workshop/` | Receives from | Job hierarchy and top outcomes inform the vision's customer + outcome |
+| `reference/customer-interview-script/` | Receives from | Verbatim customer language sharpens vision phrasing |
+| `reference/north-star-metric/` | Feeds into | The NSM derives from the vision -- the vision's outcome becomes the NSM input metric tree root |
+| `reference/outcome-roadmap/` | Feeds into | The roadmap delivers the vision; every roadmap theme should trace back |
+| `reference/brainstorm-okrs/` | Feeds into | OKRs serve the vision -- each quarterly objective should advance one vision pillar |
+| `reference/prfaq/` | Complementary | Working Backwards PR is one expression of the vision; the FAQ stress-tests it |
+| `reference/create-prd/` | Feeds into | PRDs explicitly reference the vision in Section 3 (Background) |
+| `reference/roadmap-communication/` | Feeds into | Vision is the opening frame of every exec/customer roadmap presentation |
 | `c-level-advisor/cto-advisor/` | Bidirectional | CTO uses vision to drive architecture bets; vision is informed by tech feasibility |

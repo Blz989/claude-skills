@@ -69,7 +69,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 |------------|-----------|-------------|
 | `sprint-retrospective/` | Receives from | Sprint commit data and type distribution inform what changes to include |
 | `senior-pm/` | Complements | Stakeholder communication plans guide release note audience and tone |
-| `execution/create-prd/` | Receives from | PRD feature descriptions (Section 7) become release note entry drafts |
+| `reference/create-prd/` | Receives from | PRD feature descriptions (Section 7) become release note entry drafts |
 | `scrum-master/` | Receives from | Sprint review outputs identify what shipped and needs documentation |
 | `summarize-meeting/` | Receives from | Release planning meeting summaries capture context for release notes |
 | `job-stories/` / `wwas/` | Receives from | User story descriptions inform user-benefit framing of entries |

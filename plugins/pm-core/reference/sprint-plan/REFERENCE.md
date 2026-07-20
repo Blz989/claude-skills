@@ -118,7 +118,7 @@ Audit capacity utilization, commit/stretch split, dependency clarity,
 DoD coverage.
 
 ```bash
-python3 project-management/execution/sprint-plan/scripts/sprint_planner.py \
+python3 scripts/sprint_planner.py \
   --input sprint_plan.json --format markdown
 ```
 
@@ -224,8 +224,8 @@ Discipline: descope early. Heroic late nights = burnout + bugs.
 ## Related skills
 
 - `project-management/scrum-master` — process facilitation
-- `project-management/execution/backlog-refinement` — pre-sprint item prep
-- `project-management/execution/story-splitting` — sizing large stories
-- `project-management/execution/cycle-time-analyzer` — velocity tracking
+- `reference/backlog-refinement` — pre-sprint item prep
+- `reference/story-splitting` — sizing large stories
+- `reference/cycle-time-analyzer` — velocity tracking
 - `project-management/sprint-retrospective` — post-sprint learning
 - `c-level-advisor/vpe-advisor` — capacity planning at scale

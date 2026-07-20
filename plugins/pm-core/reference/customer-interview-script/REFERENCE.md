@@ -17,7 +17,7 @@ metadata:
 
 ## Overview
 
-Running a customer interview is harder than it looks. The difference between a 60-minute conversation that produces three actionable insights and one that produces zero is almost entirely method: what you ask, when you ask it, and what you do *not* ask. This skill is the live-interview companion to `discovery/interview-synthesis/` (post-interview analysis) and `discovery/identify-assumptions/` (which produces the questions you go in to test).
+Running a customer interview is harder than it looks. The difference between a 60-minute conversation that produces three actionable insights and one that produces zero is almost entirely method: what you ask, when you ask it, and what you do *not* ask. This skill is the live-interview companion to `reference/interview-synthesis/` (post-interview analysis) and `reference/identify-assumptions/` (which produces the questions you go in to test).
 
 The script structure draws from four canonical sources: Steve Portigal's *Interviewing Users* (rapport, listening, "tell me about the last time"), Teresa Torres' *Continuous Discovery Habits* (story-based probing, weekly cadence), Rob Fitzpatrick's *The Mom Test* (avoiding compliments, opinions, and futures), and Lewis Lin's behavioral interviewing patterns (concrete-recent-relevant). The goal is to leave each interview with at least one story, one contradiction, and one surprise.
 
@@ -50,9 +50,9 @@ Stop rule: ask only the 2-3 that most change the output. If the user says "just 
 
 ## Quick Start
 
-1. Pull top assumptions from `discovery/identify-assumptions/`; write 2-3 must-answer questions and pick the interview type.
+1. Pull top assumptions from `reference/identify-assumptions/`; write 2-3 must-answer questions and pick the interview type.
 2. Customize `assets/interview_script_template.md` and pull type-specific prompts from `assets/question_bank.md`.
-3. Run the 5-phase script (rapport first, stories in the middle, contradictions at the end); debrief within 30 minutes; hand the transcript to `discovery/interview-synthesis/`.
+3. Run the 5-phase script (rapport first, stories in the middle, contradictions at the end); debrief within 30 minutes; hand the transcript to `reference/interview-synthesis/`.
 
 See `references/interview-execution-playbook.md` for the full method, scripts, question banks, pacing, and troubleshooting.
 
@@ -68,7 +68,7 @@ See `references/interview-execution-playbook.md` for the full method, scripts, q
 
 **In scope:** live discovery interview script structure and pacing; question banks (problem / solution / journey / churn); rapport, listening, and silence techniques; recording consent and retention policy; pair-interviewing role definitions.
 
-**Out of scope:** interview synthesis and theme clustering (`discovery/interview-synthesis/`); assumption mapping before interviews (`discovery/identify-assumptions/`); survey design and quantitative research; usability testing protocols (task-based, not story-based); recruiting operations (panel sourcing, screening, incentives).
+**Out of scope:** interview synthesis and theme clustering (`reference/interview-synthesis/`); assumption mapping before interviews (`reference/identify-assumptions/`); survey design and quantitative research; usability testing protocols (task-based, not story-based); recruiting operations (panel sourcing, screening, incentives).
 
 **Caveats:** this skill produces interview *technique*, not research operations. Story-based interviewing is bounded by participant memory -- events older than 90 days are reconstructions. B2B enterprise interviews often need procurement-style approval; build 2-4 weeks into recruiting. Continuous discovery assumes weekly touchpoints; one-off rounds produce shallower evidence -- weight findings accordingly.
 
@@ -76,10 +76,10 @@ See `references/interview-execution-playbook.md` for the full method, scripts, q
 
 | Integration | Direction | What Flows |
 |-------------|-----------|------------|
-| `discovery/identify-assumptions/` | Receives from | Top assumptions become the must-answer questions for each interview |
-| `discovery/interview-synthesis/` | Feeds into | Transcripts and debrief notes are the input for theme clustering |
-| `discovery/brainstorm-ideas/` | Bidirectional | Pre-interview hypotheses; post-interview ideas seeded by themes |
-| `discovery/brainstorm-experiments/` | Feeds into | Validated pains become experiment hypotheses |
-| `discovery/jtbd-workshop/` | Complementary | Switch interviews use this script structure as their foundation |
-| `discovery/value-proposition-canvas/` | Feeds into | Jobs, pains, and gains captured in stories populate the Customer Profile |
-| `execution/create-prd/` | Feeds into | Direct quotes strengthen PRD Background and Market Segments |
+| `reference/identify-assumptions/` | Receives from | Top assumptions become the must-answer questions for each interview |
+| `reference/interview-synthesis/` | Feeds into | Transcripts and debrief notes are the input for theme clustering |
+| `reference/brainstorm-ideas/` | Bidirectional | Pre-interview hypotheses; post-interview ideas seeded by themes |
+| `reference/brainstorm-experiments/` | Feeds into | Validated pains become experiment hypotheses |
+| `reference/jtbd-workshop/` | Complementary | Switch interviews use this script structure as their foundation |
+| `reference/value-proposition-canvas/` | Feeds into | Jobs, pains, and gains captured in stories populate the Customer Profile |
+| `reference/create-prd/` | Feeds into | Direct quotes strengthen PRD Background and Market Segments |

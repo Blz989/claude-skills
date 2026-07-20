@@ -129,7 +129,7 @@ Two users simultaneously:
 Audit a candidate scenario list for category coverage; flag gaps.
 
 ```bash
-python3 project-management/execution/test-scenarios/scripts/test_scenario_generator.py \
+python3 scripts/test_scenario_generator.py \
   --input feature_spec.json --format markdown
 ```
 
@@ -212,8 +212,8 @@ Not all scenarios need full QA coverage. Apply:
 
 ## Related skills
 
-- `project-management/execution/create-prd` — upstream spec
-- `project-management/execution/wwas` — acceptance criteria
+- `reference/create-prd` — upstream spec
+- `reference/wwas` — acceptance criteria
 - `engineering/senior-qa` — implementation
 - `engineering/code-reviewer` — review coverage
 - `product-team/spec-to-repo` — translating spec to tickets

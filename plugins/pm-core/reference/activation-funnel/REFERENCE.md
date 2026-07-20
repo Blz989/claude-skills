@@ -75,7 +75,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** funnel definition (events, stages, transitions) via AARRR/AAARRR; conversion + drop-off math and bottleneck detection; Mermaid rendering; activation-event selection (Ellis); counter-metric pairing; cohort-vs-snapshot distinction; all 6 output formats.
 
-**Out of Scope:** pulling raw event data (input is JSON — use Amplitude/Mixpanel/PostHog/Looker); statistical significance testing (`discovery/brainstorm-experiments/`, data-analytics); cohort-retention analysis; channel attribution (marketing tools); building the UX/A/B test; forecasting.
+**Out of Scope:** pulling raw event data (input is JSON — use Amplitude/Mixpanel/PostHog/Looker); statistical significance testing (`reference/brainstorm-experiments/`, data-analytics); cohort-retention analysis; channel attribution (marketing tools); building the UX/A/B test; forecasting.
 
 **Caveats:** a funnel implies a linear flow — real products branch and re-enter, so complement with branched analysis. Snapshot funnels mix cohorts and lie; always specify the cohort window. Top-stage gains amplify downstream and can mislead investment — look at both absolute and relative drop. Re-validate the activation event against fresh retention cohorts every 1-2 quarters.
 
@@ -86,8 +86,8 @@ Load the reference that matches the task — keep this file lean and pull detail
 | `north-star-metric/` | Pairs with | Activation rate is often the NSM or a top input metric in the NSM tree |
 | `brainstorm-okrs/` | Feeds into | Funnel-stage targets become KRs (e.g., "improve activation from 28% to 36%") |
 | `prioritization-frameworks/` | Feeds into | Fix-the-funnel projects ranked by RICE / weighted-score |
-| `discovery/brainstorm-experiments/` | Pairs with | Each funnel leak suggests testable experiments to plug it |
-| `discovery/identify-assumptions/` | Pairs with | "Users will complete step 3 if we shorten it" is an assumption to validate |
+| `reference/brainstorm-experiments/` | Pairs with | Each funnel leak suggests testable experiments to plug it |
+| `reference/identify-assumptions/` | Pairs with | "Users will complete step 3 if we shorten it" is an assumption to validate |
 | `status-update-generator/` | Feeds into | Weekly funnel deltas appear in Highlights / Risks |
 | `outcome-roadmap/` | Pairs with | Roadmap items justify themselves by which funnel stage they target |
 | `cycle-time-analyzer/` | Pairs with | Cycle time to fix funnel leaks is part of flow analysis |

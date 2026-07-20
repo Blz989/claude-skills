@@ -117,7 +117,7 @@ Qualification (BANT-style):
 Audit ICP definition for specificity, score account lists against ICP.
 
 ```bash
-python3 project-management/gtm/ideal-customer-profile/scripts/icp_scorer.py \
+python3 scripts/icp_scorer.py \
   --input icp_spec.json --format markdown
 ```
 
@@ -216,9 +216,9 @@ If unreachable, ICP is academic.
 
 ## Related skills
 
-- `project-management/gtm/gtm-strategy` — uses ICP as input
-- `project-management/strategy-frameworks/business-model-canvas` — segments block
-- `project-management/discovery/customer-interview-script` — interview-based ICP discovery
+- `reference/gtm-strategy` — uses ICP as input
+- `reference/business-model-canvas` — segments block
+- `reference/customer-interview-script` — interview-based ICP discovery
 - `marketing/competitive-teardown` — competitive context
 - `c-level-advisor/cro-advisor` — sales context
 - `c-level-advisor/cmo-advisor` — marketing context

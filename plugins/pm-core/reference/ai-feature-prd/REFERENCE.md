@@ -83,6 +83,6 @@ Pull the reference that matches the task; keep this file lean and load detail on
 | `engineering/llm-cost-optimizer/` | Pairs with | Section 11.1 cost model uses the optimizer's math |
 | `ra-qm-team/eu-ai-act-specialist/` | Receives from | Risk tier declaration in Section 10.7 |
 | `ra-qm-team/iso42001-ai-management/` | Pairs with | AI management system documentation aligns with PRD lifecycle in 11.4 |
-| `discovery/pre-mortem/` | Feeds into | AI-specific failure modes (hallucination, jailbreak, drift) populate the pre-mortem |
-| `discovery/identify-assumptions/` | Pairs with | "The base model can do this" is the single biggest AI-PRD assumption; validate before commit |
+| `reference/pre-mortem/` | Feeds into | AI-specific failure modes (hallucination, jailbreak, drift) populate the pre-mortem |
+| `reference/identify-assumptions/` | Pairs with | "The base model can do this" is the single biggest AI-PRD assumption; validate before commit |
 | `status-update-generator/` | Feeds into | Weekly status surfaces eval drift, cost variance, safety incidents |

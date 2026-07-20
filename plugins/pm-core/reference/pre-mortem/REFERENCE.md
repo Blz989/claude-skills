@@ -77,6 +77,6 @@ Load the reference that matches the task — keep this file lean and pull detail
 | `brainstorm-ideas/` | Receives from | Ideas that passed initial validation are subject to pre-mortem before full build |
 | `brainstorm-experiments/` | Receives from | Post-experiment, pre-mortem stress-tests the build decision |
 | `identify-assumptions/` | Bidirectional | Launch-blocking tigers may surface new assumptions; elephants often reveal avoided assumptions |
-| `execution/create-prd/` | Feeds into | Tiger mitigations become PRD risk sections and assumption validation plans |
+| `reference/create-prd/` | Feeds into | Tiger mitigations become PRD risk sections and assumption validation plans |
 | `senior-pm/` | Feeds into | Launch-blocking tigers escalate into portfolio risk registers via `risk_matrix_analyzer.py` |
 | `scrum-master/` | Feeds into | Fast-follow tigers become sprint backlog items with mitigation-focused stories |
