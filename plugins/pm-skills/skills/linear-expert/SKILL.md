@@ -75,7 +75,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** Linear workspace, team, and project configuration; cycle and project planning; Initiative and Roadmap hierarchy; triage workflow design; GitHub PR integration; GraphQL query and mutation authoring; bulk operations via API; webhook configuration; Jira → Linear migration planning and execution.
 
-**Out of Scope:** Jira-side configuration and migration freeze (hand off to `jira-expert/`); Notion documentation pages for Linear roadmaps (hand off to `notion-pm/`); strategic prioritization and OKR setting (hand off to `senior-pm/`, `execution/brainstorm-okrs/`); sprint coaching and team health (hand off to `scrum-master/`); release notes generation from Linear issues (hand off to `execution/release-notes/`).
+**Out of Scope:** Jira-side configuration and migration freeze (hand off to `jira-expert/`); Notion documentation pages for Linear roadmaps (hand off to `notion-pm/`); strategic prioritization and OKR setting (hand off to `senior-pm/`, `brainstorm-okrs`); sprint coaching and team health (hand off to `scrum-master/`); release notes generation from Linear issues (hand off to `release-notes`).
 
 **Limitations:** Linear has no custom fields; all extension happens through labels, descriptions, or external systems. The free tier caps at 250 issues per workspace and excludes Initiatives and SAML. API rate limits are workspace-wide and shared across all keys; heavy automation may require coordination. Importers preserve most history but cannot recreate Jira's custom workflow states; mapping is many-to-five. GraphQL schema evolves continuously; pin client code to the deprecation calendar.
 
@@ -85,11 +85,11 @@ Load the reference that matches the task — keep this file lean and pull detail
 |---|---|---|
 | `jira-expert/` | Jira → Linear | Migration mappings, custom-field translation, freeze coordination |
 | `notion-pm/` | Linear → Notion | Roadmap embeds, Initiative pages, project status rollups |
-| `execution/create-prd/` | PRD → Linear | PRD page becomes the Linear Project description; PRD sections become Milestones |
-| `execution/brainstorm-okrs/` | OKR → Linear | Initiatives mapped to Objectives; Projects tagged with KR identifiers |
-| `execution/outcome-roadmap/` | Roadmap → Linear | Outcome roadmap rows mapped to Linear Initiatives; outputs become Projects |
-| `execution/release-notes/` | Linear → Release Notes | Closed issues in a cycle/project become release note line items |
-| `execution/prioritization-frameworks/` | Scoring → Linear | RICE/WSJF scores written back to labels or description fields |
+| `create-prd` | PRD → Linear | PRD page becomes the Linear Project description; PRD sections become Milestones |
+| `brainstorm-okrs` | OKR → Linear | Initiatives mapped to Objectives; Projects tagged with KR identifiers |
+| `outcome-roadmap` | Roadmap → Linear | Outcome roadmap rows mapped to Linear Initiatives; outputs become Projects |
+| `release-notes` | Linear → Release Notes | Closed issues in a cycle/project become release note line items |
+| `prioritization-frameworks` | Scoring → Linear | RICE/WSJF scores written back to labels or description fields |
 | `scrum-master/` | Linear → Analytics | Cycle data feeds velocity_analyzer.py and sprint_health_scorer.py |
 | `senior-pm/` | Linear → Portfolio | Initiative-level rollups feed project_health_dashboard.py |
 | `delivery-manager/` | Linear → Release | Project completion state and milestone dates feed release coordination |

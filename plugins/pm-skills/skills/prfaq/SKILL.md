@@ -77,11 +77,11 @@ Use `assets/prfaq_template.md` as the fill-in scaffold. See `references/prfaq-pl
 
 | Integration | Direction | Description |
 |-------------|-----------|-------------|
-| `discovery/brainstorm-ideas/` | Receives from | Top-ranked opportunity solutions become PR/FAQ candidates |
-| `discovery/identify-assumptions/` | Receives from | Assumptions populate internal FAQ "what we do not know yet" answers |
-| `discovery/pre-mortem/` | Receives from | Tiger risks populate internal FAQ "failure modes" answers |
-| `execution/create-prd/` | Feeds into | Approved PR/FAQ becomes the prologue and scope anchor for the PRD |
-| `execution/brainstorm-okrs/` | Feeds into | Press release outcomes become OKR candidates |
-| `execution/outcome-roadmap/` | Feeds into | PR/FAQ launch date and v1 scope inform roadmap horizon placement |
-| `execution/roadmap-communication/` | Feeds into | PR/FAQ summary becomes the executive-variant roadmap narrative |
+| `brainstorm-ideas` | Receives from | Top-ranked opportunity solutions become PR/FAQ candidates |
+| `identify-assumptions` | Receives from | Assumptions populate internal FAQ "what we do not know yet" answers |
+| `pre-mortem` | Receives from | Tiger risks populate internal FAQ "failure modes" answers |
+| `create-prd` | Feeds into | Approved PR/FAQ becomes the prologue and scope anchor for the PRD |
+| `brainstorm-okrs` | Feeds into | Press release outcomes become OKR candidates |
+| `outcome-roadmap` | Feeds into | PR/FAQ launch date and v1 scope inform roadmap horizon placement |
+| `roadmap-communication` | Feeds into | PR/FAQ summary becomes the executive-variant roadmap narrative |
 | `marketing/` (skills domain) | Hands off to | After launch approval, marketing teams adapt the PR into actual launch press materials |

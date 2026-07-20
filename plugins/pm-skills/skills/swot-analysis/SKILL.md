@@ -114,7 +114,7 @@ Audit for: generic items, missing evidence, internal/external misclassification,
 no quantification, no TOWS actions, one-sided SWOT.
 
 ```bash
-python3 project-management/strategy-frameworks/swot-analysis/scripts/swot_scorer.py \
+python3 scripts/swot_scorer.py \
   --input swot.json --format markdown
 ```
 
@@ -194,8 +194,8 @@ Skipping any step produces a wall of analysis without action.
 
 ## Related skills
 
-- `project-management/strategy-frameworks/porters-five-forces` — competitive dynamics
-- `project-management/strategy-frameworks/ansoff-matrix` — growth options
-- `project-management/strategy-frameworks/business-model-canvas` — operational view
-- `project-management/strategy-frameworks/lean-canvas` — startup view
+- `porters-five-forces` — competitive dynamics
+- `ansoff-matrix` — growth options
+- `business-model-canvas` — operational view
+- `lean-canvas` — startup view
 - `c-level-advisor/ceo-advisor` — strategic context

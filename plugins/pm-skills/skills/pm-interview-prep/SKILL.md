@@ -71,5 +71,5 @@ External: Lin, L. *Decode and Conquer* (CIRCLES); McDowell, G. & Bavaro, J. *Cra
 | `pm-career-ladder/` | Bidirectional | Use the ladder rubric to understand the level you are interviewing for |
 | `pm-onboarding/` | Feeds into | Once hired, the onboarding skill takes over for first 90 days |
 | `personal-productivity/resume/` | Feeds from | A clean resume with quantified impact feeds the behavioral stories |
-| `discovery/brainstorm-ideas/` | Reuses | Product sense rounds reuse the same ideation discipline as Product Trio sessions |
-| `execution/prioritization-frameworks/` | Reuses | RICE, ICE, and Opportunity Score reasoning shows up in CIRCLES Step 4 (Cut through) |
+| `brainstorm-ideas` | Reuses | Product sense rounds reuse the same ideation discipline as Product Trio sessions |
+| `prioritization-frameworks` | Reuses | RICE, ICE, and Opportunity Score reasoning shows up in CIRCLES Step 4 (Cut through) |

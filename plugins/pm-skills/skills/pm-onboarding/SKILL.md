@@ -82,5 +82,5 @@ External: Watkins, M. *The First 90 Days* (HBR Press, 2013); Bock, L. *Work Rule
 | `pm-career-ladder/` | Feeds into | End-of-90-day retro becomes the baseline self-score on the ladder |
 | `pm-interview-prep/` | Receives from | Pre-offer "Can you do the job?" stories often map to early wins delivered in past 90-day windows |
 | `senior-pm/stakeholder-mapper/` | Reuses | The stakeholder mapping technique scales beyond onboarding into steady-state |
-| `execution/create-prd/` | Feeds into | First-PRD template is a tighter version of the full PRD skill |
-| `discovery/interview-synthesis/` | Reuses | Customer interviews in week 5 use the same synthesis discipline as steady-state discovery |
+| `create-prd` | Feeds into | First-PRD template is a tighter version of the full PRD skill |
+| `interview-synthesis` | Reuses | Customer interviews in week 5 use the same synthesis discipline as steady-state discovery |

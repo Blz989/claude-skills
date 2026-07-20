@@ -128,7 +128,7 @@ Audit for: missing evidence, generic factors, missed sub-factors, no
 strategy implications drawn.
 
 ```bash
-python3 project-management/strategy-frameworks/porters-five-forces/scripts/five_forces_scorer.py \
+python3 scripts/five_forces_scorer.py \
   --input forces.json --format markdown
 ```
 
@@ -169,8 +169,8 @@ python3 project-management/strategy-frameworks/porters-five-forces/scripts/five_
 
 ## Related skills
 
-- `project-management/strategy-frameworks/swot-analysis` — firm-level positioning
-- `project-management/strategy-frameworks/ansoff-matrix` — growth options
-- `project-management/strategy-frameworks/business-model-canvas` — operational view
+- `swot-analysis` — firm-level positioning
+- `ansoff-matrix` — growth options
+- `business-model-canvas` — operational view
 - `marketing/competitive-teardown` — competitor-specific analysis
 - `c-level-advisor/ceo-advisor` — strategic context

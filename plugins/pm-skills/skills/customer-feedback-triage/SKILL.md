@@ -45,7 +45,7 @@ The frameworks behind it are Marty Cagan's separation of *request* from *opportu
 
 ### When not to use
 
-- For genuine product discovery (do not let feedback triage replace discovery — see `discovery/interview-synthesis/`).
+- For genuine product discovery (do not let feedback triage replace discovery — see `interview-synthesis`).
 - For prioritizing already-triaged items against each other (that is `prioritization-frameworks/`).
 - For bug triage (use the bug triage process in your tracker — though the workflow here applies to feature-request items).
 
@@ -86,7 +86,7 @@ The tool ships with `--format json|markdown|mermaid|confluence|notion|linear` pe
 
 **In Scope:** Inbound feedback intake schema, deduplication and clustering, Kano-based categorization, segment-aware volume scoring, response templating, routing to downstream skills (discovery, prioritization, backlog).
 
-**Out of Scope:** Bug triage (use the team's bug tracker process). User research and interview-driven discovery (see `discovery/interview-synthesis/`). Detailed prioritization scoring with RICE/ICE/WSJF (see `prioritization-frameworks/`). Customer-relationship management (CRM is the system of record for the customer, this skill is the system of record for the request). NPS analysis methodology (this skill ingests NPS verbatims as one channel among many).
+**Out of Scope:** Bug triage (use the team's bug tracker process). User research and interview-driven discovery (see `interview-synthesis`). Detailed prioritization scoring with RICE/ICE/WSJF (see `prioritization-frameworks/`). Customer-relationship management (CRM is the system of record for the customer, this skill is the system of record for the request). NPS analysis methodology (this skill ingests NPS verbatims as one channel among many).
 
 **Important Caveats:** The Kano guess and clustering are transparent keyword/word-overlap heuristics — not ML; override liberally and, above ~500 items/month, augment with semantic clustering offline. The scoring formula is a coarse router, not a substitute for RICE/ICE. "Acknowledge, sometimes commit, rarely promise" is a discipline the templates support but cannot enforce; Sales and CS need explicit training to avoid promising in customer conversations.
 
@@ -95,9 +95,9 @@ The tool ships with `--format json|markdown|mermaid|confluence|notion|linear` pe
 | Integration | Direction | What flows |
 |---|---|---|
 | `prioritization-frameworks/` | Feeds into | High-priority triaged Feature requests flow in with volume and Kano context as inputs to RICE/ICE/WSJF |
-| `discovery/identify-assumptions/` | Feeds into | Recurring opportunity themes surface implicit product assumptions |
-| `discovery/interview-synthesis/` | Feeds into | Top customers per cluster become the target list for follow-up interviews |
-| `discovery/brainstorm-experiments/` | Feeds into | High-signal opportunities motivate experiment design |
+| `identify-assumptions` | Feeds into | Recurring opportunity themes surface implicit product assumptions |
+| `interview-synthesis` | Feeds into | Top customers per cluster become the target list for follow-up interviews |
+| `brainstorm-experiments` | Feeds into | High-signal opportunities motivate experiment design |
 | `wwas/` | Feeds into | Backlog-ready items move into Why-What-Acceptance format |
 | `job-stories/` | Feeds into | Final backlog items use Job Stories format if team prefers JTBD framing |
 | `senior-pm/` | Bidirectional | Stakeholder map informs segment weights; triage output informs stakeholder updates |

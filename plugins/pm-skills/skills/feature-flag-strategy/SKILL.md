@@ -74,7 +74,7 @@ See `references/rollout-execution-playbook.md` for the full taxonomy, shape cata
 
 **In scope:** flag taxonomy and lifespan rules; rollout shapes; kill-switch decision tree and thresholds; holdout design; flag-debt retirement workflow + audit; naming and dependency-chain governance; approval, audit-trail, and two-person-rule patterns.
 
-**Out of scope:** wiring flag SDKs into a codebase (engineering side); statistical analysis of experiments (pair with `discovery/brainstorm-experiments/` for design; data-analytics for stats); building gating dashboards (BI tooling); customer launch comms (`launch-playbook/`, `prfaq/`, `release-notes/`); end-of-life narrative (`eol-communication/`); code rollback strategy (git revert + deployment pipelines).
+**Out of scope:** wiring flag SDKs into a codebase (engineering side); statistical analysis of experiments (pair with `brainstorm-experiments` for design; data-analytics for stats); building gating dashboards (BI tooling); customer launch comms (`launch-playbook/`, `prfaq/`, `release-notes/`); end-of-life narrative (`eol-communication/`); code rollback strategy (git revert + deployment pipelines).
 
 **Caveats:** flags reduce launch risk but do not eliminate it -- a flag with a broken kill-switch is worse than no flag. Flag debt grows with velocity. Permission/Ops flags are permanent; release/experiment flags are temporary, and conflating the two is the most common failure mode. Holdouts are politically hard to maintain -- document the policy with leadership sign-off. On mobile, forced-upgrade flows are user-hostile; plan around adoption curves.
 
@@ -87,7 +87,7 @@ See `references/rollout-execution-playbook.md` for the full taxonomy, shape cata
 | `prfaq/` / `release-notes/` | Pairs with | External launch narrative vs the operational rollout plan that produced it |
 | `eol-communication/` | Pairs with | Reverse-ramp (Shape F) is the operational side of a sunset |
 | `ai-feature-prd/` | Pairs with | The AI PRD's deployment ramp (Section 11.3) executes via this skill |
-| `discovery/brainstorm-experiments/` | Pairs with | Experiment toggles operationalize Lean experiments |
-| `discovery/pre-mortem/` | Pairs with | Pre-mortem risks inform kill-switch thresholds |
+| `brainstorm-experiments` | Pairs with | Experiment toggles operationalize Lean experiments |
+| `pre-mortem` | Pairs with | Pre-mortem risks inform kill-switch thresholds |
 | `engineering/llm-cost-optimizer/` | Pairs with | AI ramp gate: cost budget per stage |
 | `status-update-generator/` | Feeds into | Rollout-stage pace + gates appear in weekly status |

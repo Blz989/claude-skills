@@ -66,7 +66,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** XYZ hypothesis formulation and validation; experiment method selection for new products (landing page, pre-order, concierge, explainer video) and existing products (fake door, feature stub, A/B test, Wizard of Oz, in-app survey); automated experiment design from hypothesis keyword analysis; metric selection, success threshold definition, and effort/duration estimation.
 
-**Out of Scope:** statistical power analysis or sample size calculation (use dedicated A/B test platforms); experiment infrastructure setup (feature flags, analytics instrumentation); running the actual experiment (this skill designs, not executes); long-term product strategy or roadmap decisions (`execution/outcome-roadmap/`).
+**Out of Scope:** statistical power analysis or sample size calculation (use dedicated A/B test platforms); experiment infrastructure setup (feature flags, analytics instrumentation); running the actual experiment (this skill designs, not executes); long-term product strategy or roadmap decisions (`outcome-roadmap`).
 
 **Important Caveats:** pretotyping validates demand and value, not usability or performance; in-app surveys are the weakest SITG signal — use only when behavioral experiments are impractical; the tool's keyword-to-signal matching is heuristic — override when domain knowledge dictates a better method.
 
@@ -77,6 +77,6 @@ Load the reference that matches the task — keep this file lean and pull detail
 | `brainstorm-ideas/` | Receives from | Ideas generated become hypotheses for experiment design |
 | `identify-assumptions/` | Receives from | "Test Now" assumptions become hypotheses for this skill |
 | `pre-mortem/` | Feeds into | Experiment results inform pre-mortem risk assessment before full build |
-| `execution/create-prd/` | Feeds into | Validated hypotheses become PRD assumptions with evidence |
-| `execution/brainstorm-okrs/` | Feeds into | Experiment metrics may become OKR key results |
-| `execution/outcome-roadmap/` | Feeds into | Experiment outcomes inform Now/Next/Later roadmap placement |
+| `create-prd` | Feeds into | Validated hypotheses become PRD assumptions with evidence |
+| `brainstorm-okrs` | Feeds into | Experiment metrics may become OKR key results |
+| `outcome-roadmap` | Feeds into | Experiment outcomes inform Now/Next/Later roadmap placement |

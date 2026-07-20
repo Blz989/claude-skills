@@ -75,17 +75,17 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **Out of Scope:** authoring stories from scratch (`wwas/`, `job-stories/`); prioritization/sequencing (`prioritization-frameworks/`); sprint planning/capacity/velocity (`../scrum-master/`); discovery and problem framing (`discovery/`); estimation techniques (`agile-coach/`).
 
-**Caveats:** INVEST is a heuristic — a 6/6 story can still be the wrong story (pair with `prioritization-frameworks/` and `discovery/identify-assumptions/`). DoR/DoD must be team-authored to be enforced. The scorer grades structural form, not strategic substance.
+**Caveats:** INVEST is a heuristic — a 6/6 story can still be the wrong story (pair with `prioritization-frameworks/` and `identify-assumptions`). DoR/DoD must be team-authored to be enforced. The scorer grades structural form, not strategic substance.
 
 ## Integration Points
 
 | Integration | Direction | Description |
 |-------------|-----------|-------------|
-| `execution/wwas/` | Receives from | WWAS-format stories enter refinement to be graded and split |
-| `execution/job-stories/` | Receives from | Job stories enter refinement to be graded and split |
-| `execution/prioritization-frameworks/` | Pairs with | Prioritization sets the sequence; refinement makes the top N executable |
-| `discovery/identify-assumptions/` | Sends to | Stories scoring 0-2 are sent back for assumption mapping |
-| `discovery/brainstorm-experiments/` | Sends to | Stories with unvalidated assumptions become experiment candidates |
+| `wwas` | Receives from | WWAS-format stories enter refinement to be graded and split |
+| `job-stories` | Receives from | Job stories enter refinement to be graded and split |
+| `prioritization-frameworks` | Pairs with | Prioritization sets the sequence; refinement makes the top N executable |
+| `identify-assumptions` | Sends to | Stories scoring 0-2 are sent back for assumption mapping |
+| `brainstorm-experiments` | Sends to | Stories with unvalidated assumptions become experiment candidates |
 | `../scrum-master/` | Feeds into | Refined stories feed sprint planning; refinement quality drives velocity stability |
-| `execution/status-update-generator/` | Indirect | DoD compliance feeds the "what's done this week" section of status updates |
+| `status-update-generator` | Indirect | DoD compliance feeds the "what's done this week" section of status updates |
 | `../jira-expert/` | Pairs with | Refined stories become Jira tickets with structured fields and DoR/DoD checklists |

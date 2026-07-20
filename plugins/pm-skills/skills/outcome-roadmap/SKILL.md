@@ -66,7 +66,7 @@ Each input initiative needs `title`, `description`, `quarter` (format "Q[1-4] YY
 
 **In Scope:** transforming output-based feature lists into outcome-driven items, Now/Next/Later classification by quarter-to-current-date distance, "so what?" chain generation, strategic-question and metric suggestions by initiative type, markdown/text/JSON report output grouped by horizon.
 
-**Out of Scope:** feature prioritization or scoring (`execution/prioritization-frameworks/`), sprint-level planning or capacity allocation (`scrum-master/`), product strategy or vision definition (roadmaps communicate strategy, they don't create it), cross-team dependency management (`program-manager/`).
+**Out of Scope:** feature prioritization or scoring (`prioritization-frameworks`), sprint-level planning or capacity allocation (`scrum-master/`), product strategy or vision definition (roadmaps communicate strategy, they don't create it), cross-team dependency management (`program-manager/`).
 
 **Important Caveats:** outcome roadmaps require a cultural shift — teams used to date-driven lists need coaching on commitment levels; the tool generates outcome-statement templates, not finished outcomes; Later items intentionally lack detailed metrics, and adding false precision undermines credibility.
 
@@ -74,9 +74,9 @@ Each input initiative needs `title`, `description`, `quarter` (format "Q[1-4] YY
 
 | Integration | Direction | Description |
 |------------|-----------|-------------|
-| `execution/brainstorm-okrs/` | Receives from | OKR key results become success metrics for Now/Next roadmap items |
-| `execution/prioritization-frameworks/` | Receives from | RICE/ICE scores inform which initiatives move to Now vs. Next vs. Later |
-| `execution/create-prd/` | Feeds into | Now items with validated outcomes become PRD candidates |
-| `discovery/brainstorm-experiments/` | Receives from | Experiment results validate demand for Next/Later items, promoting them to Now |
+| `brainstorm-okrs` | Receives from | OKR key results become success metrics for Now/Next roadmap items |
+| `prioritization-frameworks` | Receives from | RICE/ICE scores inform which initiatives move to Now vs. Next vs. Later |
+| `create-prd` | Feeds into | Now items with validated outcomes become PRD candidates |
+| `brainstorm-experiments` | Receives from | Experiment results validate demand for Next/Later items, promoting them to Now |
 | `senior-pm/` | Receives from | Portfolio strategic priorities influence roadmap horizon placement |
 | `scrum-master/` | Receives from | Sprint capacity data determines how many Now items the team can support |

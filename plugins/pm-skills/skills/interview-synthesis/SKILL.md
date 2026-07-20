@@ -98,9 +98,9 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 | Integration | Direction | What Flows |
 |-------------|-----------|------------|
-| `discovery/brainstorm-experiments/` | Feeds into | Validated opportunities become hypotheses for lean experiments |
-| `discovery/identify-assumptions/` | Bidirectional | Assumptions inform follow-up questions; interview evidence resolves assumptions |
-| `discovery/brainstorm-ideas/` | Feeds into | Themed insights seed Product Trio ideation sessions |
-| `discovery/pre-mortem/` | Feeds into | Pain themes surface candidate risks for pre-mortem analysis |
-| `execution/create-prd/` | Feeds into | Top opportunities + supporting evidence populate PRD Background and Market Segments sections |
-| `execution/job-stories/` | Feeds into | Klement-format job codes convert directly into When/Want/So job stories |
+| `brainstorm-experiments` | Feeds into | Validated opportunities become hypotheses for lean experiments |
+| `identify-assumptions` | Bidirectional | Assumptions inform follow-up questions; interview evidence resolves assumptions |
+| `brainstorm-ideas` | Feeds into | Themed insights seed Product Trio ideation sessions |
+| `pre-mortem` | Feeds into | Pain themes surface candidate risks for pre-mortem analysis |
+| `create-prd` | Feeds into | Top opportunities + supporting evidence populate PRD Background and Market Segments sections |
+| `job-stories` | Feeds into | Klement-format job codes convert directly into When/Want/So job stories |

@@ -58,9 +58,9 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** Workspace and Component hierarchy setup, Insight inbox triage, Driver configuration and Feature scoring, Releases and Roadmap views (internal and customer-facing), Productboard REST API operations (Features, Insights, Releases, custom fields, webhooks), two-way integration setup with Jira/Linear/Azure DevOps, customer-data sync from Salesforce/HubSpot, bulk operations via API, Portal configuration.
 
-**Out of Scope:** Engineering-side Jira/Linear configuration (see `jira-expert/`, `linear-expert/`). Strategic prioritization framework selection (see `execution/prioritization-frameworks/`). PRD authoring (see `execution/create-prd/`). Customer interview synthesis (see `discovery/interview-synthesis/`).
+**Out of Scope:** Engineering-side Jira/Linear configuration (see `jira-expert/`, `linear-expert/`). Strategic prioritization framework selection (see `prioritization-frameworks`). PRD authoring (see `create-prd`). Customer interview synthesis (see `interview-synthesis`).
 
-**Limitations:** API rate limits are workspace-wide; aggressive scripts can starve the UI. The Salesforce/HubSpot integration is one-way (CRM → Productboard) on a schedule, not real time. Drivers max out at 10 per workspace on most plans. Roadmap views are good for time-bound delivery (Releases) but weaker for outcome-based roadmaps (Now/Next/Later) — augment with `execution/outcome-roadmap/`. Per-Component access control is an Enterprise feature.
+**Limitations:** API rate limits are workspace-wide; aggressive scripts can starve the UI. The Salesforce/HubSpot integration is one-way (CRM → Productboard) on a schedule, not real time. Drivers max out at 10 per workspace on most plans. Roadmap views are good for time-bound delivery (Releases) but weaker for outcome-based roadmaps (Now/Next/Later) — augment with `outcome-roadmap`. Per-Component access control is an Enterprise feature.
 
 ## Integration Points
 
@@ -68,13 +68,13 @@ Load the reference that matches the task — keep this file lean and pull detail
 |---|---|---|
 | `jira-expert/` | Productboard ↔ Jira | Features push as Epics; status flows back; Sprint plan derived from prioritization |
 | `linear-expert/` | Productboard ↔ Linear | Features push as Projects/Issues; Cycle assignment from Release dates |
-| `execution/prioritization-frameworks/` | Bidirectional | Drivers operationalize RICE/ICE/WSJF; external scores import as custom fields |
-| `execution/create-prd/` | Productboard → PRD | High-priority Features become PRDs; PRD link returns as custom field |
-| `execution/outcome-roadmap/` | Bidirectional | Outcome themes map to Objectives; Releases give the delivery side |
-| `execution/roadmap-communication/` | Productboard → Comms | Customer-facing Roadmap variants pull from Portal |
-| `execution/customer-feedback-triage/` | Bidirectional | Triaged feedback clusters become Insights; inbox is the triage entry point |
-| `execution/release-notes/` | Productboard → Release Notes | Completed Features in a Release become release-note line items |
+| `prioritization-frameworks` | Bidirectional | Drivers operationalize RICE/ICE/WSJF; external scores import as custom fields |
+| `create-prd` | Productboard → PRD | High-priority Features become PRDs; PRD link returns as custom field |
+| `outcome-roadmap` | Bidirectional | Outcome themes map to Objectives; Releases give the delivery side |
+| `roadmap-communication` | Productboard → Comms | Customer-facing Roadmap variants pull from Portal |
+| `customer-feedback-triage` | Bidirectional | Triaged feedback clusters become Insights; inbox is the triage entry point |
+| `release-notes` | Productboard → Release Notes | Completed Features in a Release become release-note line items |
 | `senior-pm/` | Productboard → Portfolio | Driver scores and Feature distribution feed portfolio health |
 | `notion-pm/` | Productboard ↔ Notion | Roadmap embeds into Notion; deep PRDs live in Notion linked from Features |
-| `discovery/interview-synthesis/` | Bidirectional | Interview insights become Notes; high-evidence Features motivate interviews |
+| `interview-synthesis` | Bidirectional | Interview insights become Notes; high-evidence Features motivate interviews |
 | `business-growth/customer-success/` | CS → Productboard | CS is a primary Insight source via Salesforce / Intercom integration |

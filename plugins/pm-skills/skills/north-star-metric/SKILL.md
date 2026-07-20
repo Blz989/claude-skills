@@ -73,7 +73,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** NSM selection across 5 archetypes; input-metric tree decomposition with explicit math; leading-indicator selection per input; anti-/counter-metric definition with thresholds; the Python rendering tool; handoff to OKR drafting and roadmap prioritization.
 
-**Out of Scope:** building actual analytics dashboards (BI tools — this produces the spec); statistical experiment design (`discovery/brainstorm-experiments/`); financial/revenue forecasting (`finance/`); OKR drafting (`brainstorm-okrs/`); data quality validation (`data-analytics/`).
+**Out of Scope:** building actual analytics dashboards (BI tools — this produces the spec); statistical experiment design (`brainstorm-experiments`); financial/revenue forecasting (`finance/`); OKR drafting (`brainstorm-okrs/`); data quality validation (`data-analytics/`).
 
 **Caveats:** an NSM exposes strategic disagreement but does not resolve it — escalate the strategy decision, not the metric debate. Pure financial outputs (revenue, ARR) are usually too lagging; pick a customer-value proxy that revenue follows from. The NSM aligns; teams still need component metrics for diagnostics. A team without instrumentation cannot operate against an NSM — spend on telemetry first.
 
@@ -81,11 +81,11 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 | Integration | Direction | Description |
 |-------------|-----------|-------------|
-| `discovery/brainstorm-ideas/` | Receives from | Opportunity discovery defines what value to deliver; NSM measures it |
-| `discovery/identify-assumptions/` | Receives from | NSM candidates surface assumptions about what customers value |
-| `execution/brainstorm-okrs/` | Feeds into | NSM becomes the quarterly Objective; inputs become Key Results |
-| `execution/outcome-roadmap/` | Feeds into | Roadmap items justify themselves by which input metric they target |
-| `execution/prioritization-frameworks/` | Pairs with | NSM impact is one of the scoring criteria (e.g., RICE Impact, Weighted) |
-| `execution/status-update-generator/` | Feeds into | NSM and input movements feature in Highlights of weekly updates |
+| `brainstorm-ideas` | Receives from | Opportunity discovery defines what value to deliver; NSM measures it |
+| `identify-assumptions` | Receives from | NSM candidates surface assumptions about what customers value |
+| `brainstorm-okrs` | Feeds into | NSM becomes the quarterly Objective; inputs become Key Results |
+| `outcome-roadmap` | Feeds into | Roadmap items justify themselves by which input metric they target |
+| `prioritization-frameworks` | Pairs with | NSM impact is one of the scoring criteria (e.g., RICE Impact, Weighted) |
+| `status-update-generator` | Feeds into | NSM and input movements feature in Highlights of weekly updates |
 | `data-analytics/` (domain) | Pairs with | NSM spec becomes the schema for dashboards and event taxonomies |
 | `executive-reporting/` (senior-pm) | Feeds into | Monthly board packets lead with NSM trend |

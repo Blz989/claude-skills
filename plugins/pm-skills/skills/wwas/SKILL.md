@@ -67,7 +67,7 @@ Load the reference that matches the task; keep this file lean and pull detail on
 
 **In Scope:** Writing items in WWAS format, applying INVEST gates, connecting work to strategic objectives, facilitating refinement, converting existing items to WWAS, integrating with Jira.
 
-**Out of Scope:** Situation-driven requirements (`job-stories/`), ideation/discovery (`discovery/brainstorm-ideas/`), OKR definition (`execution/brainstorm-okrs/`), detailed technical specs, sprint planning/capacity (`../scrum-master/`).
+**Out of Scope:** Situation-driven requirements (`job-stories/`), ideation/discovery (`brainstorm-ideas`), OKR definition (`brainstorm-okrs`), detailed technical specs, sprint planning/capacity (`../scrum-master/`).
 
 **Limitations:** WWAS adds most value with clearly defined objectives (OKRs, North Star). Without strategic context the Why becomes a forced exercise. It fits product/feature work better than pure tech-debt/infra items. Teams transitioning from user stories may need 2-3 sprints to build fluency.
 
@@ -78,6 +78,6 @@ Load the reference that matches the task; keep this file lean and pull detail on
 | `job-stories/` | Complementary | Job stories add situational context (When); WWAS adds strategic context (Why). Use both for complete requirements |
 | `summarize-meeting/` | Meetings -> WWAS | Refinement discussions produce the What; decisions produce acceptance criteria |
 | `../jira-expert/` | WWAS -> Jira | WWAS items become Jira tickets with structured description fields |
-| `execution/brainstorm-okrs/` | OKRs -> WWAS | Team OKRs provide the strategic objectives that Why statements reference |
-| `execution/prioritization-frameworks/` | WWAS -> Prioritization | WWAS items scored via RICE or other frameworks for backlog ordering |
-| `discovery/brainstorm-ideas/` | Ideas -> WWAS | Validated ideas decompose into WWAS backlog items with strategic traceability |
+| `brainstorm-okrs` | OKRs -> WWAS | Team OKRs provide the strategic objectives that Why statements reference |
+| `prioritization-frameworks` | WWAS -> Prioritization | WWAS items scored via RICE or other frameworks for backlog ordering |
+| `brainstorm-ideas` | Ideas -> WWAS | Validated ideas decompose into WWAS backlog items with strategic traceability |

@@ -89,7 +89,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **Out of Scope:**
 - Portfolio-level project management (see `senior-pm/` skill)
-- Product backlog prioritization and roadmap decisions (see `execution/prioritization-frameworks/`)
+- Product backlog prioritization and roadmap decisions (see `prioritization-frameworks`)
 - Individual performance evaluation -- this skill measures team-level metrics only
 - Real-time Jira/Confluence integration (see `jira-expert/` and `confluence-expert/` skills)
 - SAFe-specific PI planning or cross-team dependency management (see `program-manager/`)
@@ -105,8 +105,8 @@ Load the reference that matches the task — keep this file lean and pull detail
 |------------|-----------|-------------|
 | `senior-pm/` | Feeds into | Sprint velocity and health data informs portfolio-level health dashboards and executive reporting |
 | `sprint-retrospective/` | Complements | Git-based velocity analysis complements this skill's JSON-based sprint data analysis |
-| `execution/brainstorm-okrs/` | Feeds into | Sprint capacity data helps set realistic OKR targets for the quarter |
-| `execution/prioritization-frameworks/` | Receives from | Prioritized backlog items feed into sprint planning commitment decisions |
-| `discovery/pre-mortem/` | Receives from | Launch-blocking tigers may surface as sprint blockers requiring SM intervention |
+| `brainstorm-okrs` | Feeds into | Sprint capacity data helps set realistic OKR targets for the quarter |
+| `prioritization-frameworks` | Receives from | Prioritized backlog items feed into sprint planning commitment decisions |
+| `pre-mortem` | Receives from | Launch-blocking tigers may surface as sprint blockers requiring SM intervention |
 | Jira via Atlassian MCP | Bidirectional | Pull sprint data for analysis; push health reports to Confluence dashboards |
 | CI/CD Pipelines | Receives from | Deployment frequency and lead time data supplement velocity metrics |

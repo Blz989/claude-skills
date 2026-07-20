@@ -105,7 +105,7 @@ Audit for: missing blocks, generic content, no early adopter named,
 no existing alternatives, no Key Metrics, vague Unfair Advantage.
 
 ```bash
-python3 project-management/strategy-frameworks/lean-canvas/scripts/lean_canvas_validator.py \
+python3 scripts/lean_canvas_validator.py \
   --input canvas.json --format markdown
 ```
 
@@ -189,9 +189,9 @@ weakness as a moat.
 
 ## Related skills
 
-- `project-management/strategy-frameworks/business-model-canvas` — operating-scale variant
-- `project-management/discovery/value-proposition-canvas` — deeper on UVP
-- `project-management/discovery/identify-assumptions` — assumption register
-- `project-management/discovery/pre-mortem` — risk discovery
-- `project-management/execution/north-star-metric` — Key Metric definition
+- `business-model-canvas` — operating-scale variant
+- `value-proposition-canvas` — deeper on UVP
+- `identify-assumptions` — assumption register
+- `pre-mortem` — risk discovery
+- `north-star-metric` — Key Metric definition
 - `c-level-advisor/ceo-advisor` — strategic context

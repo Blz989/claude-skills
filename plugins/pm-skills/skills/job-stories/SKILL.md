@@ -73,7 +73,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** Writing job stories using JTBD "When/Want/So" format, applying INVEST quality criteria, writing outcome-focused acceptance criteria, converting existing user stories to job stories, facilitating story-writing workshops, integrating job stories with Jira backlog items.
 
-**Out of Scope:** Strategic backlog items with business context (hand off to `wwas/`), product ideation and opportunity discovery (hand off to `discovery/brainstorm-ideas/`), detailed technical specifications, UX research and user interviewing methodology.
+**Out of Scope:** Strategic backlog items with business context (hand off to `wwas/`), product ideation and opportunity discovery (hand off to `brainstorm-ideas`), detailed technical specifications, UX research and user interviewing methodology.
 
 **Limitations:** Job stories work best when the team has access to real user research (interviews, observation, support data). Without user context, teams will invent situations that may not reflect reality. The format is less natural for purely technical or infrastructure work where there is no direct user situation. Job stories and user stories are complementary -- some teams use both formats for different types of work.
 
@@ -84,6 +84,6 @@ Load the reference that matches the task — keep this file lean and pull detail
 | `wwas/` | Complementary | WWAS adds strategic "Why" context; job stories add situational "When" context. Use both when needed |
 | `summarize-meeting/` | Meetings -> Stories | Discovery conversations and refinement sessions produce the situations that inform job stories |
 | `../jira-expert/` | Stories -> Jira | Completed job stories become Jira tickets with structured descriptions |
-| `discovery/brainstorm-ideas/` | Ideas -> Stories | Validated product ideas decompose into job stories for the backlog |
-| `execution/brainstorm-okrs/` | OKRs -> Stories | Team objectives define the outcomes that job stories should connect to |
-| `execution/prioritization-frameworks/` | Stories -> Prioritization | Job stories scored via RICE or other frameworks for sprint planning |
+| `brainstorm-ideas` | Ideas -> Stories | Validated product ideas decompose into job stories for the backlog |
+| `brainstorm-okrs` | OKRs -> Stories | Team objectives define the outcomes that job stories should connect to |
+| `prioritization-frameworks` | Stories -> Prioritization | Job stories scored via RICE or other frameworks for sprint planning |

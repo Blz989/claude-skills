@@ -20,7 +20,7 @@ metadata:
 
 A post-mortem is a structured, blameless review held after an incident, outage, regression, missed launch, or failed experiment. The goal is not to assign fault but to learn how the system (people, process, code, and organization) produced the outcome, and to commit to durable changes that reduce the chance of recurrence.
 
-This skill operationalizes the Google SRE blameless post-mortem template, the Etsy "morgue" tradition, John Allspaw's "How Complex Systems Fail" reading, Charles Perrow's Normal Accident Theory, and Sidney Dekker's *Field Guide to Understanding "Human Error"*. Where the companion `discovery/pre-mortem/` skill imagines failure before it happens, post-mortem learns from failure that already did.
+This skill operationalizes the Google SRE blameless post-mortem template, the Etsy "morgue" tradition, John Allspaw's "How Complex Systems Fail" reading, Charles Perrow's Normal Accident Theory, and Sidney Dekker's *Field Guide to Understanding "Human Error"*. Where the companion `pre-mortem` skill imagines failure before it happens, post-mortem learns from failure that already did.
 
 ## Core Capabilities
 
@@ -75,7 +75,7 @@ The blameless principles, severity thresholds, full template, workflow, and root
 
 **In Scope:** Post-mortem authoring for incidents, outages, regressions, missed launches, failed experiments, customer escalations, and near misses. Severity classification, blameless facilitation, 5 Whys, Causal Tree analysis, action-item tracking, distribution and archival practice.
 
-**Out of Scope:** Live incident command and on-call coordination (see `delivery-manager/`). Sprint retrospectives on team practice (see `sprint-retrospective/`). Risk surfacing before launch (see `discovery/pre-mortem/`). Quantitative reliability engineering and error-budget policy (see `engineering/` skills if present).
+**Out of Scope:** Live incident command and on-call coordination (see `delivery-manager/`). Sprint retrospectives on team practice (see `sprint-retrospective/`). Risk surfacing before launch (see `pre-mortem`). Quantitative reliability engineering and error-budget policy (see `engineering/` skills if present).
 
 **Important Caveats:** Blameless culture is a prerequisite, not an output — if management uses post-mortems as a performance signal, the documents become sanitized; establish the separation in writing. Regulated industries (medical devices, aviation, financial services) that require named accountability should run a parallel internal blameless post-mortem alongside the regulator-facing report. A post-mortem is a learning artifact, not a fixing artifact: the fix lives in the action items and their follow-through, so one with zero completed action items is a failed post-mortem. (Cook's 4-page "How Complex Systems Fail" is worth reading before facilitating a complex Sev 0/1 — linked in the blameless culture guide.)
 
@@ -83,11 +83,11 @@ The blameless principles, severity thresholds, full template, workflow, and root
 
 | Integration | Direction | What flows |
 |---|---|---|
-| `discovery/pre-mortem/` | Bidirectional | Post-mortem findings update next launch's pre-mortem risk register; pre-mortem mitigations become post-mortem-checked controls |
+| `pre-mortem` | Bidirectional | Post-mortem findings update next launch's pre-mortem risk register; pre-mortem mitigations become post-mortem-checked controls |
 | `delivery-manager/` | Receives from | Incident response context, severity classification, on-call handoffs |
 | `sprint-retrospective/` | Bidirectional | Team-practice retros surface incident patterns; post-mortems feed retro themes |
 | `daci-framework/` | Feeds into | Action items use DACI to assign owner (D), accountable (A), consulted, informed |
-| `execution/dependency-map/` | Receives from | Cross-team contributing factors map to dependency-graph nodes |
-| `execution/status-update-generator/` | Feeds into | Sev 0/1 incidents surface in weekly executive status updates |
+| `dependency-map` | Receives from | Cross-team contributing factors map to dependency-graph nodes |
+| `status-update-generator` | Feeds into | Sev 0/1 incidents surface in weekly executive status updates |
 | `senior-pm/` | Feeds into | Repeated incident classes feed portfolio risk register via `risk_matrix_analyzer.py` |
 | `scrum-master/` | Feeds into | Action items become sprint backlog items with mitigation-focused stories |

@@ -48,9 +48,9 @@ Stop rule: ask only the 2-3 that most change the output. If the user says "just 
 
 ## Quick Start
 
-1. Pick one segment; run 5-7 interviews via `discovery/customer-interview-script/`.
-2. Fill the Customer Profile (jobs/pains/gains, ranked) from `discovery/interview-synthesis/` themes; then draft the Value Map so each top item has a pain reliever or gain creator.
-3. Run `assets/fit_validation_checklist.md`, list the top unaddressed pains/gains, and feed the canvas into `execution/create-prd/` Sections 5-6.
+1. Pick one segment; run 5-7 interviews via `customer-interview-script`.
+2. Fill the Customer Profile (jobs/pains/gains, ranked) from `interview-synthesis` themes; then draft the Value Map so each top item has a pain reliever or gain creator.
+3. Run `assets/fit_validation_checklist.md`, list the top unaddressed pains/gains, and feed the canvas into `create-prd` Sections 5-6.
 
 See `references/canvas-construction-playbook.md` for the full two-side method, three fit levels, template, worked example, and troubleshooting.
 
@@ -66,21 +66,21 @@ See `references/canvas-construction-playbook.md` for the full two-side method, t
 
 ## Scope & Limitations
 
-**In scope:** Customer Profile (jobs, pains, gains) construction and ranking; Value Map construction; problem-solution fit validation; mapping the canvas into PRD inputs (`execution/create-prd/` Sections 5 and 6); sales-enablement translation.
+**In scope:** Customer Profile (jobs, pains, gains) construction and ranking; Value Map construction; problem-solution fit validation; mapping the canvas into PRD inputs (`create-prd` Sections 5 and 6); sales-enablement translation.
 
 **Out of scope:** Business Model Canvas (sister tool, 9 blocks); unit economics and business-model fit (`finance/` skills); detailed financial modeling, LTV/CAC; persona generation (the VPC is segment-level); competitive positioning (`marketing/` or `c-level-advisor/competitive-strategy/`).
 
-**Caveats:** the VPC is a thinking aid, not a roadmap -- solutions still need experimentation (`discovery/brainstorm-experiments/`). Problem-solution fit is the minimum bar, necessary but not sufficient for product-market fit. Strategyzer methodology is CC-BY-SA; attribute to Strategyzer / Osterwalder when sharing externally. A beautifully filled canvas with no customer interviews is fiction.
+**Caveats:** the VPC is a thinking aid, not a roadmap -- solutions still need experimentation (`brainstorm-experiments`). Problem-solution fit is the minimum bar, necessary but not sufficient for product-market fit. Strategyzer methodology is CC-BY-SA; attribute to Strategyzer / Osterwalder when sharing externally. A beautifully filled canvas with no customer interviews is fiction.
 
 ## Integration Points
 
 | Integration | Direction | What Flows |
 |-------------|-----------|------------|
-| `discovery/customer-interview-script/` | Receives from | Verbatim customer quotes populate the Customer Profile |
-| `discovery/interview-synthesis/` | Receives from | Themed insights become jobs, pains, and gains |
-| `discovery/jtbd-workshop/` | Complementary | JTBD workshop produces the job hierarchy; VPC adds pains and gains |
-| `discovery/identify-assumptions/` | Bidirectional | Unaddressed pains become risk assumptions; assumptions inform validation focus |
-| `execution/create-prd/` | Feeds into | Canvas populates PRD Section 5 (Market Segments) and Section 6 (Value Propositions) |
-| `execution/product-vision/` | Bidirectional | Vision defines the long-term promise; VPC validates current-day delivery |
-| `execution/prioritization-frameworks/` | Feeds into | Unaddressed top pains and gains become candidate features |
+| `customer-interview-script` | Receives from | Verbatim customer quotes populate the Customer Profile |
+| `interview-synthesis` | Receives from | Themed insights become jobs, pains, and gains |
+| `jtbd-workshop` | Complementary | JTBD workshop produces the job hierarchy; VPC adds pains and gains |
+| `identify-assumptions` | Bidirectional | Unaddressed pains become risk assumptions; assumptions inform validation focus |
+| `create-prd` | Feeds into | Canvas populates PRD Section 5 (Market Segments) and Section 6 (Value Propositions) |
+| `product-vision` | Bidirectional | Vision defines the long-term promise; VPC validates current-day delivery |
+| `prioritization-frameworks` | Feeds into | Unaddressed top pains and gains become candidate features |
 | `marketing/` | Feeds into | Pain relievers and gain creators become marketing talking points and proof points |

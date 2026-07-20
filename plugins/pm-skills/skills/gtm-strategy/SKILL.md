@@ -62,7 +62,7 @@ Stop rule: ask only the 2-3 that most change the output. If the user says "just 
 - Job-to-be-done
 - Trigger event (why now)
 
-See `project-management/gtm/ideal-customer-profile`.
+See `ideal-customer-profile`.
 
 ### Step 2 — Pick the beachhead
 Start narrow:
@@ -127,7 +127,7 @@ Audit GTM doc for: ICP specificity, motion fit, channel coherence,
 messaging clarity, metric definition, sequence realism.
 
 ```bash
-python3 project-management/gtm/gtm-strategy/scripts/gtm_strategy_validator.py \
+python3 scripts/gtm_strategy_validator.py \
   --input gtm.json --format markdown
 ```
 
@@ -218,8 +218,8 @@ If channel-product fit is off, channel won't deliver regardless of effort.
 
 ## Related skills
 
-- `project-management/gtm/ideal-customer-profile` — ICP definition
-- `project-management/strategy-frameworks/business-model-canvas` — model behind GTM
+- `ideal-customer-profile` — ICP definition
+- `business-model-canvas` — model behind GTM
 - `marketing/launch-strategy` — marketing execution layer
 - `business-growth/customer-success-manager` — post-sale GTM
 - `c-level-advisor/cro-advisor` — sales / revenue strategy

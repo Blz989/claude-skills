@@ -154,7 +154,7 @@ you're betting the company.
 Score each initiative; surface mix; flag risky concentration.
 
 ```bash
-python3 project-management/strategy-frameworks/ansoff-matrix/scripts/ansoff_growth_scorer.py \
+python3 scripts/ansoff_growth_scorer.py \
   --input initiatives.json --format markdown
 ```
 
@@ -238,9 +238,9 @@ When diversification fails:
 
 ## Related skills
 
-- `project-management/strategy-frameworks/business-model-canvas` — operational view of each quadrant
-- `project-management/strategy-frameworks/swot-analysis` — strategic context
-- `project-management/strategy-frameworks/porters-five-forces` — industry analysis
+- `business-model-canvas` — operational view of each quadrant
+- `swot-analysis` — strategic context
+- `porters-five-forces` — industry analysis
 - `c-level-advisor/ceo-advisor` — strategic context
 - `c-level-advisor/cmo-advisor` — Q1/Q2 marketing context
 - `c-level-advisor/cpo-advisor` — Q3 product development context

@@ -57,7 +57,7 @@ Pull the reference that matches the task; keep this file lean and load detail on
 
 **In Scope:** Notion workspace and Teamspace setup, database design for PRDs/OKRs/Roadmap/Decisions/Reviews/1:1s, view design, property and relation modeling, page architecture, Notion REST API authoring, sync pattern design with Jira/Linear/GitHub, governance and review cadences.
 
-**Out of Scope:** Notion administration (SCIM, SAML, billing) at the workspace level beyond Teamspace setup. Jira space and project configuration (hand off to `jira-expert/` and `confluence-expert/`). Linear configuration (hand off to `linear-expert/`). Strategic OKR setting (hand off to `execution/brainstorm-okrs/`). Story splitting and backlog refinement (hand off to `execution/backlog-refinement/`, `execution/story-splitting/`).
+**Out of Scope:** Notion administration (SCIM, SAML, billing) at the workspace level beyond Teamspace setup. Jira space and project configuration (hand off to `jira-expert/` and `confluence-expert/`). Linear configuration (hand off to `linear-expert/`). Strategic OKR setting (hand off to `brainstorm-okrs`). Story splitting and backlog refinement (hand off to `backlog-refinement`, `story-splitting`).
 
 **Limitations:** Notion's API rate limits (~3 req/s) make it unsuitable for very high-throughput sync; batch and queue. Status properties cannot have options created via the API in lower plan tiers; pre-create options manually. Rollups cannot reference rollups in older API versions; chain via formulas where needed. Page-level permissions can be overridden in unexpected ways by Teamspace-level changes. Notion is not a real-time collaboration substitute for chat; do not try to replace Slack with comments.
 
@@ -68,11 +68,11 @@ Pull the reference that matches the task; keep this file lean and load detail on
 | `jira-expert/` | Notion ↔ Jira | PRD-to-Epic creation; Jira issue embeds in PRD pages |
 | `confluence-expert/` | Migration | When moving from Confluence to Notion, structure and content mapping |
 | `linear-expert/` | Notion ↔ Linear | PRD-to-Project creation; Linear progress rollups into Notion |
-| `execution/create-prd/` | PRD → Notion | PRD scaffolder output rendered as Notion blocks via `--format notion` |
-| `execution/brainstorm-okrs/` | OKR → Notion | OKR validator output written to the OKR DB |
-| `execution/outcome-roadmap/` | Roadmap → Notion | Roadmap rows materialized in the Roadmap DB |
-| `execution/daci-framework/` | Decision → Notion | DACI decisions logged in the Decisions DB |
-| `execution/status-update-generator/` | Notion → Status | Weekly status pulls aggregates from PRDs/OKRs DBs |
-| `execution/release-notes/` | Notion → Release | Shipped PRDs feed release notes input |
+| `create-prd` | PRD → Notion | PRD scaffolder output rendered as Notion blocks via `--format notion` |
+| `brainstorm-okrs` | OKR → Notion | OKR validator output written to the OKR DB |
+| `outcome-roadmap` | Roadmap → Notion | Roadmap rows materialized in the Roadmap DB |
+| `daci-framework` | Decision → Notion | DACI decisions logged in the Decisions DB |
+| `status-update-generator` | Notion → Status | Weekly status pulls aggregates from PRDs/OKRs DBs |
+| `release-notes` | Notion → Release | Shipped PRDs feed release notes input |
 | `senior-pm/` | Notion → Portfolio | OKR and Roadmap DBs feed portfolio reports |
-| `discovery/interview-synthesis/` | Research → Notion | Customer research database populated from interview synth output |
+| `interview-synthesis` | Research → Notion | Customer research database populated from interview synth output |

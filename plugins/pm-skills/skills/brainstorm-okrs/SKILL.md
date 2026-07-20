@@ -86,7 +86,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 |------------|-----------|-------------|
 | `scrum-master/` | Receives from | Sprint velocity and capacity data inform realistic KR target-setting |
 | `senior-pm/` | Receives from | Portfolio strategic priorities shape quarterly OKR themes |
-| `execution/outcome-roadmap/` | Feeds into | OKR key results become success metrics for roadmap Now/Next items |
-| `execution/prioritization-frameworks/` | Complements | Prioritized initiatives inform which OKR theme to focus on |
-| `discovery/identify-assumptions/` | Receives from | Validated assumptions increase confidence in OKR target feasibility |
-| `discovery/brainstorm-experiments/` | Feeds into | Experiment metrics may become OKR key results when validated |
+| `outcome-roadmap` | Feeds into | OKR key results become success metrics for roadmap Now/Next items |
+| `prioritization-frameworks` | Complements | Prioritized initiatives inform which OKR theme to focus on |
+| `identify-assumptions` | Receives from | Validated assumptions increase confidence in OKR target feasibility |
+| `brainstorm-experiments` | Feeds into | Experiment metrics may become OKR key results when validated |

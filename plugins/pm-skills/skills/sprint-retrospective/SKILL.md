@@ -87,6 +87,6 @@ Load the reference that matches the task — keep this file lean and pull detail
 | `senior-pm/` | Feeds into | Retro velocity trends inform executive reporting and portfolio health dashboards |
 | `delivery-manager/` | Feeds into | Velocity trends help forecast sprint capacity and release timing |
 | `agile-coach/` | Feeds into | Retro trend data identifies systemic patterns for coaching interventions |
-| `execution/release-notes/` | Feeds into | Sprint commit data and type distribution inform release note generation |
+| `release-notes` | Feeds into | Sprint commit data and type distribution inform release note generation |
 | CI/CD Workflows | Automated | GitHub Actions runs the 4-tool pipeline on a cron schedule (see workflows reference) |
 | `.retro-history/` | Bidirectional | Save sprint snapshots for trend tracking; load previous snapshots for comparison |

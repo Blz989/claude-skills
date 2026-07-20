@@ -125,7 +125,7 @@ Audit for: missing outcome, opportunities written as solutions,
 single-solution branches, no assumption tests, tree without recent updates.
 
 ```bash
-python3 project-management/discovery/opportunity-solution-tree/scripts/ost_validator.py \
+python3 scripts/ost_validator.py \
   --input ost.json --format markdown
 ```
 
@@ -147,7 +147,7 @@ Wrong: "Make customers happy" (vague)
 Wrong: "Hit $20M ARR" (too high; many teams)
 
 Right: One number a team can move. Decompose company OKRs to team-level
-outcome. See `project-management/execution/north-star-metric`.
+outcome. See `north-star-metric`.
 
 ### Opportunity vs solution test
 
@@ -235,10 +235,10 @@ Spend the minimum to learn the most.
 
 ## Related skills
 
-- `project-management/discovery/identify-assumptions` — assumption surfacing
-- `project-management/discovery/brainstorm-experiments` — test design
-- `project-management/discovery/customer-interview-script` — interview prep
-- `project-management/discovery/interview-synthesis` — turn interviews into opportunities
-- `project-management/execution/north-star-metric` — outcome definition
-- `project-management/strategy-frameworks/lean-canvas` — strategic context
+- `identify-assumptions` — assumption surfacing
+- `brainstorm-experiments` — test design
+- `customer-interview-script` — interview prep
+- `interview-synthesis` — turn interviews into opportunities
+- `north-star-metric` — outcome definition
+- `lean-canvas` — strategic context
 - `product-team/research-summarizer` — interview synthesis

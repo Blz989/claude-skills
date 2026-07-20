@@ -60,7 +60,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** Structured ideation facilitation using Product Trio approach, Opportunity Solution Tree mapping, idea prioritization with weighted scoring, SCAMPER and HMW supplementary techniques, idea documentation with validation plans, integration with downstream discovery skills.
 
-**Out of Scope:** Assumption testing and experiment design (hand off to `brainstorm-experiments/` and `identify-assumptions/`), detailed product requirements (hand off to `execution/create-prd/`), market research and competitive analysis, financial modeling for ideas.
+**Out of Scope:** Assumption testing and experiment design (hand off to `brainstorm-experiments/` and `identify-assumptions/`), detailed product requirements (hand off to `create-prd`), market research and competitive analysis, financial modeling for ideas.
 
 **Limitations:** Ideation quality is bounded by the diversity of perspectives in the room -- remote-only sessions may reduce creative energy. Scoring models provide structured comparison but are not objective truth; they encode the biases of the scorers. Opportunity Solution Trees require ongoing user research to populate -- they are not a substitute for customer interviews.
 
@@ -71,6 +71,6 @@ Load the reference that matches the task — keep this file lean and pull detail
 | `identify-assumptions/` | Ideas -> Assumptions | Top 5 ideas feed into assumption mapping for risk assessment |
 | `brainstorm-experiments/` | Ideas -> Experiments | Riskiest assumptions from ideas become experiment candidates |
 | `pre-mortem/` | Ideas -> Risk | Selected ideas run through pre-mortem before build commitment |
-| `execution/create-prd/` | Ideas -> PRD | Validated ideas become PRD inputs with problem statement and success metrics |
-| `execution/brainstorm-okrs/` | OKRs -> Ideas | Team OKRs define the target outcomes that frame ideation sessions |
-| `execution/prioritization-frameworks/` | Ideas -> Prioritization | Scored ideas feed into RICE or other frameworks for backlog ordering |
+| `create-prd` | Ideas -> PRD | Validated ideas become PRD inputs with problem statement and success metrics |
+| `brainstorm-okrs` | OKRs -> Ideas | Team OKRs define the target outcomes that frame ideation sessions |
+| `prioritization-frameworks` | Ideas -> Prioritization | Scored ideas feed into RICE or other frameworks for backlog ordering |

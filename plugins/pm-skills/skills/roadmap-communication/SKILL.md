@@ -99,13 +99,13 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 | Integration | Direction | Description |
 |-------------|-----------|-------------|
-| `execution/outcome-roadmap/` | Receives from | Outcome decomposition feeds the executive variant |
-| `execution/north-star-metric/` | Receives from | NSM and inputs are the executive variant's metrics |
-| `execution/brainstorm-okrs/` | Receives from | KRs map to internal roadmap items |
-| `execution/create-prd/` | Receives from | Each Now-quarter feature in the internal variant links to its PRD |
-| `execution/prfaq/` | Receives from | PR/FAQ summaries become the seed of customer variant theme descriptions |
-| `execution/prioritization-frameworks/` | Receives from | Prioritization scores determine which items make Now / Next / Later |
-| `execution/dependency-map/` | Pairs with | Internal-variant dependencies are sourced from the dependency map |
-| `execution/status-update-generator/` | Feeds into | Weekly status updates reference roadmap variant deltas |
+| `outcome-roadmap` | Receives from | Outcome decomposition feeds the executive variant |
+| `north-star-metric` | Receives from | NSM and inputs are the executive variant's metrics |
+| `brainstorm-okrs` | Receives from | KRs map to internal roadmap items |
+| `create-prd` | Receives from | Each Now-quarter feature in the internal variant links to its PRD |
+| `prfaq` | Receives from | PR/FAQ summaries become the seed of customer variant theme descriptions |
+| `prioritization-frameworks` | Receives from | Prioritization scores determine which items make Now / Next / Later |
+| `dependency-map` | Pairs with | Internal-variant dependencies are sourced from the dependency map |
+| `status-update-generator` | Feeds into | Weekly status updates reference roadmap variant deltas |
 | `../senior-pm/` | Feeds into | Portfolio roll-ups aggregate executive variants across teams |
 | `marketing/` (skills domain) | Hands off to | Customer variant feeds product marketing content calendars and launch comms |
