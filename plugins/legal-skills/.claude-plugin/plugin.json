@@ -1,0 +1,10 @@
+{
+  "name": "legal-skills",
+  "description": "17 legal skills: EXPERIMENTAL: contract review, NDA, privacy, DPIA, breach response, risk assessment, and mediation",
+  "version": "1.0.0",
+  "author": {
+    "name": "borghei"
+  },
+  "repository": "https://github.com/borghei/Claude-Skills",
+  "license": "MIT + Commons Clause"
+}

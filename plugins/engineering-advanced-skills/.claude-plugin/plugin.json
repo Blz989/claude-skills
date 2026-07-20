@@ -1,0 +1,10 @@
+{
+  "name": "engineering-advanced-skills",
+  "description": "82 engineering skills: architecture, fullstack, DevOps, security, AI/ML, data engineering, and agent tooling",
+  "version": "1.0.0",
+  "author": {
+    "name": "borghei"
+  },
+  "repository": "https://github.com/borghei/Claude-Skills",
+  "license": "MIT + Commons Clause"
+}
