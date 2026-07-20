@@ -73,7 +73,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **In Scope:** INVEST grading of individual stories; vertical splitting (9 Lawrence patterns + SPIDR); DoR/DoD templates and enforcement; refinement session structure and cadence; the Python scorer.
 
-**Out of Scope:** authoring stories from scratch (`wwas/`, `job-stories/`); prioritization/sequencing (`prioritization-frameworks/`); sprint planning/capacity/velocity (`../scrum-master/`); discovery and problem framing (`discovery/`); estimation techniques (`agile-coach/`).
+**Out of Scope:** authoring stories from scratch (`wwas/`, `job-stories/`); prioritization/sequencing (`prioritization-frameworks/`); sprint planning/capacity/velocity (`../../skills/scrum-master/`); discovery and problem framing (`discovery/`); estimation techniques (`agile-coach/`).
 
 **Caveats:** INVEST is a heuristic — a 6/6 story can still be the wrong story (pair with `prioritization-frameworks/` and `discovery/identify-assumptions/`). DoR/DoD must be team-authored to be enforced. The scorer grades structural form, not strategic substance.
 
@@ -86,6 +86,6 @@ Load the reference that matches the task — keep this file lean and pull detail
 | `execution/prioritization-frameworks/` | Pairs with | Prioritization sets the sequence; refinement makes the top N executable |
 | `discovery/identify-assumptions/` | Sends to | Stories scoring 0-2 are sent back for assumption mapping |
 | `discovery/brainstorm-experiments/` | Sends to | Stories with unvalidated assumptions become experiment candidates |
-| `../scrum-master/` | Feeds into | Refined stories feed sprint planning; refinement quality drives velocity stability |
+| `../../skills/scrum-master/` | Feeds into | Refined stories feed sprint planning; refinement quality drives velocity stability |
 | `execution/status-update-generator/` | Indirect | DoD compliance feeds the "what's done this week" section of status updates |
-| `../jira-expert/` | Pairs with | Refined stories become Jira tickets with structured fields and DoR/DoD checklists |
+| `../../skills/jira-expert/` | Pairs with | Refined stories become Jira tickets with structured fields and DoR/DoD checklists |

@@ -56,14 +56,14 @@ Load the reference that matches the task — keep this file lean and pull detail
 ## Integration with Other Skills
 
 - Feed decisions into `wwas/` to create backlog items with strategic context.
-- Use action items to create tickets via `../jira-expert/`.
-- Document recurring meeting outcomes in `../confluence-expert/` templates.
+- Use action items to create tickets via `../../skills/jira-expert/`.
+- Document recurring meeting outcomes in `../../skills/confluence-expert/` templates.
 
 ## Scope & Limitations
 
 **In Scope:** Capturing meeting metadata, extracting key discussion points, documenting decisions with rationale, recording action items with owners and due dates, capturing open questions, distributing summaries, maintaining consistent naming conventions and storage.
 
-**Out of Scope:** Meeting facilitation and agenda design, real-time transcription (use a transcription tool as input), project status tracking (hand off to `../jira-expert/`), strategic decision frameworks (hand off to `../senior-pm/`), recording or video management.
+**Out of Scope:** Meeting facilitation and agenda design, real-time transcription (use a transcription tool as input), project status tracking (hand off to `../../skills/jira-expert/`), strategic decision frameworks (hand off to `../../skills/senior-pm/`), recording or video management.
 
 **Limitations:** Summary quality is bounded by the quality of input notes or transcript. Automated transcription tools may introduce errors that the summarizer must catch. The skill does not replace the need for a skilled facilitator -- poorly run meetings produce poor summaries regardless of template quality. Sensitive or confidential meetings may require restricted distribution that the standard workflow does not address.
 
@@ -73,7 +73,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 |-------------|-----------|------------|
 | `wwas/` | Meetings -> WWAS | Decisions and commitments from meetings become WWAS backlog items |
 | `job-stories/` | Meetings -> Stories | Discovery discussions surface situations and motivations for job stories |
-| `../jira-expert/` | Meetings -> Jira | Action items create Jira tickets; decisions update issue comments |
-| `../confluence-expert/` | Meetings -> Confluence | Summaries stored in Confluence using meeting notes template |
-| `../senior-pm/` | Meetings -> PM | Steering committee and stakeholder meeting summaries feed portfolio reporting |
-| `../delivery-manager/` | Meetings -> DM | Release planning and incident review meeting outcomes feed delivery tracking |
+| `../../skills/jira-expert/` | Meetings -> Jira | Action items create Jira tickets; decisions update issue comments |
+| `../../skills/confluence-expert/` | Meetings -> Confluence | Summaries stored in Confluence using meeting notes template |
+| `../../skills/senior-pm/` | Meetings -> PM | Steering committee and stakeholder meeting summaries feed portfolio reporting |
+| `../../skills/delivery-manager/` | Meetings -> DM | Release planning and incident review meeting outcomes feed delivery tracking |

@@ -78,7 +78,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 **Out of Scope:**
 - Pulling data directly from Jira or Linear APIs (use the Atlassian MCP, Linear MCP, or `linear-expert/`/`jira-expert/` skills to export the JSON first)
-- Sprint analytics or velocity calculation (use `../scrum-master/`)
+- Sprint analytics or velocity calculation (use `../../skills/scrum-master/`)
 - Incident communication or postmortems (use `delivery-manager/`)
 - Long-form retrospective output (use `sprint-retrospective/`)
 - Tailoring updates to multiple audiences in different framings (use `roadmap-communication/`)
@@ -92,11 +92,11 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 | Integration | Direction | Description |
 |-------------|-----------|-------------|
-| `../jira-expert/` | Receives from | Jira JQL exports or MCP pulls feed the input JSON |
+| `../../skills/jira-expert/` | Receives from | Jira JQL exports or MCP pulls feed the input JSON |
 | `linear-expert/` | Receives from | Linear GraphQL exports feed the input JSON |
-| `../senior-pm/` | Feeds into | Weekly updates aggregate into monthly portfolio reports; risks lift into the portfolio risk register |
-| `../scrum-master/` | Pairs with | Sprint health scores supply the Highlights/Risks context |
+| `../../skills/senior-pm/` | Feeds into | Weekly updates aggregate into monthly portfolio reports; risks lift into the portfolio risk register |
+| `../../skills/scrum-master/` | Pairs with | Sprint health scores supply the Highlights/Risks context |
 | `roadmap-communication/` | Pairs with | Weekly status feeds the executive-variant roadmap narrative |
 | `sprint-retrospective/` | Feeds into | Four weeks of status archives become retrospective input |
-| `../program-manager/` | Feeds into | Cross-team status aggregation rolls up multiple team updates |
-| `../delivery-manager/` | Pairs with | Release windows and incident references show up in Highlights and Risks |
+| `../../skills/program-manager/` | Feeds into | Cross-team status aggregation rolls up multiple team updates |
+| `../../skills/delivery-manager/` | Pairs with | Release windows and incident references show up in Highlights and Risks |

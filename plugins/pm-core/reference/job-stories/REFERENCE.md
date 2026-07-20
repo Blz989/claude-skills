@@ -83,7 +83,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 |-------------|-----------|------------|
 | `wwas/` | Complementary | WWAS adds strategic "Why" context; job stories add situational "When" context. Use both when needed |
 | `summarize-meeting/` | Meetings -> Stories | Discovery conversations and refinement sessions produce the situations that inform job stories |
-| `../jira-expert/` | Stories -> Jira | Completed job stories become Jira tickets with structured descriptions |
+| `../../skills/jira-expert/` | Stories -> Jira | Completed job stories become Jira tickets with structured descriptions |
 | `discovery/brainstorm-ideas/` | Ideas -> Stories | Validated product ideas decompose into job stories for the backlog |
 | `execution/brainstorm-okrs/` | OKRs -> Stories | Team objectives define the outcomes that job stories should connect to |
 | `execution/prioritization-frameworks/` | Stories -> Prioritization | Job stories scored via RICE or other frameworks for sprint planning |

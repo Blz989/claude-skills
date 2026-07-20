@@ -39,7 +39,7 @@ This skill produces three variants of the same underlying roadmap, each tailored
 ### When NOT to Use
 
 - For a single-team backlog with one stakeholder (one roadmap suffices).
-- For tactical sprint planning (use `../scrum-master/` outputs).
+- For tactical sprint planning (use `../../skills/scrum-master/` outputs).
 - For incident communication or in-flight project status (use `status-update-generator/`).
 
 ## Clarify First
@@ -85,7 +85,7 @@ Load the reference that matches the task — keep this file lean and pull detail
 - OKR drafting (use `brainstorm-okrs/`)
 - NSM definition (use `north-star-metric/`)
 - Outcome-roadmap transformation (use `outcome-roadmap/`)
-- Sprint planning (use `../scrum-master/`)
+- Sprint planning (use `../../skills/scrum-master/`)
 - Marketing launch copy (handoff to marketing skills)
 - Detailed dependency graphs (use `dependency-map/`)
 
@@ -107,5 +107,5 @@ Load the reference that matches the task — keep this file lean and pull detail
 | `execution/prioritization-frameworks/` | Receives from | Prioritization scores determine which items make Now / Next / Later |
 | `execution/dependency-map/` | Pairs with | Internal-variant dependencies are sourced from the dependency map |
 | `execution/status-update-generator/` | Feeds into | Weekly status updates reference roadmap variant deltas |
-| `../senior-pm/` | Feeds into | Portfolio roll-ups aggregate executive variants across teams |
+| `../../skills/senior-pm/` | Feeds into | Portfolio roll-ups aggregate executive variants across teams |
 | `marketing/` (skills domain) | Hands off to | Customer variant feeds product marketing content calendars and launch comms |

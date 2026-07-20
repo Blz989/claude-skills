@@ -96,4 +96,4 @@ Load the reference that matches the task — keep this file lean and pull detail
 
 
 ## Bundled reference library
-Fifty-three companion PM skills (discovery, execution, strategy frameworks, GTM, career) are bundled as sibling folders in this plugin's skills/ directory, each with a REFERENCE.md instead of SKILL.md. When a task touches one of those areas (e.g. ../create-prd/, ../prioritization-frameworks/, ../stakeholder-map/, ../swot-analysis/), read that folder's REFERENCE.md and use its frameworks and scripts as part of this skill.
+Fifty-three companion PM skills (discovery, execution, strategy frameworks, GTM, career) live in this plugin's reference/ directory, each as a folder with a REFERENCE.md. When a task touches one of those areas, read ../../reference/<name>/REFERENCE.md and use its frameworks and scripts. Examples: ../../reference/create-prd/, ../../reference/prioritization-frameworks/, ../../reference/stakeholder-map/, ../../reference/swot-analysis/.
