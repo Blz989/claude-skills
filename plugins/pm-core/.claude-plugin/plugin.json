@@ -1,0 +1,10 @@
+{
+  "name": "pm-core",
+  "description": "13 PM persona skills (senior-pm, delivery-manager, program-manager, agile-coach, scrum-master, sprint-retrospective, and Jira/Linear/Notion/Confluence/Productboard/Atlassian experts) with a bundled 53-skill reference library (discovery, execution, strategy frameworks, GTM, career) available as sibling REFERENCE.md folders.",
+  "version": "1.0.0",
+  "author": {
+    "name": "borghei"
+  },
+  "repository": "https://github.com/borghei/Claude-Skills",
+  "license": "MIT + Commons Clause"
+}
