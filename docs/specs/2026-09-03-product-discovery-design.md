@@ -1,0 +1,42 @@
+# Product discovery tracker design
+
+Date: 2026-09-03
+Status: approved and implemented in `apps/product-discovery/index.html`
+
+## Goal
+
+Replace a paid Jira Product Discovery seat for a single user with a tool that costs nothing to run and keeps its data in a file the user controls.
+
+## Decisions
+
+- **Single user, file-based.** One `.json` project file synced through Box or Drive. No backend, no accounts.
+- **One HTML file.** No build toolchain, no dependencies beyond Google Fonts, which fall back to system fonts when offline.
+- **Standalone.** Delivery work is a free-text reference on the idea, not a live Jira link.
+- **Features in scope.** Ideas table with custom fields and a computed score, board by status, impact-vs-effort matrix, Now / Next / Later roadmap, insights and comments per idea, filters and search, Auto / Light / Dark theme.
+
+## Approaches considered
+
+1. Single HTML file using the File System Access API. Chosen. Works today in Chrome and Edge with zero setup. Safari and Firefox degrade to browser storage plus export/import.
+2. Tauri or Electron desktop app. Works in any engine but adds a build chain and installers for a one-person tool.
+3. Local Python server owning the file. Works everywhere but the user must start a process each session.
+
+## Architecture
+
+Everything lives in one file with four layers:
+
+- **Data model.** `{version, name, seq, ideas[]}`. Each idea: `id, key, title, description, status, impact 1-5, effort 1-5, confidence 0-100, reach, labels[], owner, delivery, bucket, insights[], comments[], history[], created, updated`. Statuses and buckets are fixed lists.
+- **Persistence.** Every change writes to `localStorage` immediately. When a file handle is connected, a debounced write goes to the file 700 ms later. The handle is stored in IndexedDB so the file reconnects after reload; the browser may require one click to re-grant permission. Export and import cover browsers without file access.
+- **Views.** `render()` applies filters and sort, then dispatches to list, board, matrix, or roadmap renderers. Board and roadmap share one column renderer with HTML5 drag and drop.
+- **Detail panel.** Slide-over editor for a single idea. Field changes append a history entry describing old and new values.
+
+Score is `reach × impact × (confidence ÷ 100) ÷ effort`, rounded to one decimal.
+
+## Error handling
+
+- File write failures show in the rail with the browser's error message and the data stays in browser storage.
+- Import rejects files without an `ideas` array.
+- Leaving the page with an unsaved file write pending prompts the browser's unload warning.
+
+## Testing
+
+Manual: syntax check of the script, a headless render of the list, matrix, and board views in light and dark, and exercising the sample data. No automated suite, matching the one-file scope.
