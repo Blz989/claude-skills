@@ -171,6 +171,24 @@ tfoot td{color:var(--ink-3);font-size:12px;background:var(--surface-2)}
 .legend .row{display:flex;justify-content:space-between;gap:8px;font-size:13px}
 .legend .row .num{color:var(--ink-2)}
 
+/* ---------- grouping + custom fields ---------- */
+tr.grp td{background:var(--surface-2);font-weight:600;cursor:pointer;padding:6px 10px;border-top:1px solid var(--line)}
+tr.grp .tri{display:inline-block;width:14px;color:var(--ink-3);font-size:11px}
+tr.grp .count,tr.grp .sum{font-family:var(--mono);font-weight:400;color:var(--ink-3);font-size:12px;margin-left:8px}
+.tl-row.tl-grp .tl-side{height:32px;background:var(--surface-2);cursor:pointer;flex-direction:row;align-items:center;gap:8px;font-weight:600}
+.tl-row.tl-grp .tl-track{height:32px;background:var(--surface-2)}
+.tl-row.tl-grp .count{font-family:var(--mono);font-weight:400;color:var(--ink-3);font-size:12px}
+.tl-row.tl-grp .tri{color:var(--ink-3);font-size:11px}
+.checks{display:flex;flex-wrap:wrap;gap:4px 12px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.checks label{display:inline-flex;align-items:center;gap:5px;font-size:13px}
+.field .one{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px}
+.fdef{border:1px solid var(--line);border-radius:6px;padding:10px;display:grid;grid-template-columns:1fr 110px auto;gap:8px;align-items:start;background:var(--bg)}
+.fdef input,.fdef textarea{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 8px;width:100%}
+.fdef textarea{grid-column:1/-1;min-height:64px;resize:vertical;font-family:var(--mono);font-size:12px}
+.fdef .type{font-size:12px;color:var(--ink-3);padding-top:8px}
+.modal .box.wide{width:min(680px,94vw);max-height:90vh;overflow:auto}
+.fdefs{display:flex;flex-direction:column;gap:8px}
+
 /* ---------- timeline ---------- */
 .tl{display:flex;flex-direction:column;gap:14px}
 .tl-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -189,7 +207,7 @@ tfoot td{color:var(--ink-3);font-size:12px;background:var(--surface-2)}
 .tl-m{top:22px}
 .tl-line{position:absolute;top:0;bottom:0;border-left:1px solid var(--line)}
 .tl-today{position:absolute;top:0;bottom:0;border-left:2px solid var(--crit);z-index:1;pointer-events:none}
-.tl-today-lbl{position:absolute;top:24px;font-size:10px;font-weight:600;color:var(--crit);letter-spacing:.06em;text-transform:uppercase;padding-left:4px;border-left:2px solid var(--crit);height:20px;line-height:20px;z-index:1}
+.tl-today-lbl{position:absolute;top:24px;font-size:10px;font-weight:600;color:var(--crit);letter-spacing:.06em;text-transform:uppercase;padding:0 6px 0 4px;border-left:2px solid var(--crit);height:20px;line-height:20px;z-index:1;background:var(--surface-2)}
 .tl-bar{position:absolute;top:9px;height:26px;border-radius:5px;color:var(--surface);font-size:12px;font-weight:600;line-height:26px;padding:0 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,.2);touch-action:none;box-sizing:border-box}
 .tl-bar i{position:absolute;top:0;bottom:0;width:9px;cursor:ew-resize}
 .tl-bar i.hl{left:0} .tl-bar i.hr{right:0}
@@ -288,6 +306,11 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
       <div class="small muted" id="fsNote"></div>
     </div>
 
+    <div class="rail-section">
+      <div class="eyebrow">Fields</div>
+      <button class="btn sm" id="btnFields">Manage fields <span class="muted" id="fieldsCount"></span></button>
+    </div>
+
     <div class="rail-section" style="margin-top:auto">
       <div class="eyebrow">Theme</div>
       <div class="seg" id="themeSeg">
@@ -308,6 +331,8 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
       </select>
       <select id="fLabel" aria-label="Filter by label"><option value="">Any label</option></select>
       <select id="fOwner" aria-label="Filter by owner"><option value="">Any owner</option></select>
+      <select id="groupBy" aria-label="Group by" hidden></select>
+      <select id="boardBy" aria-label="Board columns" hidden></select>
       <div class="chips" id="statusChips"></div>
       <div class="spacer"></div>
       <button class="btn ghost sm" id="btnClear" hidden>Clear filters</button>
@@ -333,6 +358,20 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
     <button class="btn sm danger" id="pDelete">Delete idea</button>
   </div>
 </aside>
+
+<div class="modal" id="fieldsModal" hidden>
+  <div class="box wide">
+    <h2>Custom fields</h2>
+    <p class="small muted" style="margin:0">Fields show up in the Ideas table, the idea panel, Group by, and (for selects and checkboxes) as Board columns. Options are one per line.</p>
+    <div class="fdefs" id="fdefs"></div>
+    <form id="addField" class="add-row" style="grid-template-columns:1fr 170px auto">
+      <input name="name" placeholder="New field name, e.g. Domain" required autocomplete="off">
+      <select name="type"><option value="select">Single select</option><option value="multiselect">Multi select</option><option value="checkbox">Checkbox</option><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="rating">Rating 1 to 5</option></select>
+      <button class="btn sm primary">Add field</button>
+    </form>
+    <div class="btn-row" style="justify-content:flex-end"><button class="btn" id="fieldsClose">Done</button></div>
+  </div>
+</div>
 
 <div class="modal" id="newModal" hidden>
   <div class="box">
@@ -424,8 +463,14 @@ function sampleData(){
     mk('Close checklist with owner sign-off', {status:'discovery', impact:4, effort:2, confidence:75, reach:45, labels:['close'], owner:'Priya', bucket:'next', start:rel(45), end:rel(90),
       insights:[{id:uid(),text:'Controller asked for a single view of what is still open on day 4.',url:'',weight:2,created:now()}]}),
   ];
-  ideas.forEach((i,n)=>{ i.key='IDEA-'+(n+1); i.history=[{ts:i.created,text:'Created'}]; });
-  return {version:1, name:'Finance Tech discovery (sample)', seq:ideas.length, ideas};
+  const domains=['r2r','r2r','r2r','p2p','trs','r2r','p2p','r2r','r2r','r2r'];
+  const committed=[true,false,false,false,true,true,false,false,true,false];
+  ideas.forEach((i,n)=>{ i.key='IDEA-'+(n+1); i.history=[{ts:i.created,text:'Created'}]; i.custom={domain:domains[n],committed:committed[n]}; });
+  const fields=[
+    {id:'domain',name:'Domain',type:'select',options:[{id:'r2r',name:'Record to Report',color:OPTION_COLORS[0]},{id:'p2p',name:'Procure to Pay',color:OPTION_COLORS[1]},{id:'o2c',name:'Order to Cash',color:OPTION_COLORS[2]},{id:'trs',name:'Treasury',color:OPTION_COLORS[3]}]},
+    {id:'committed',name:'Committed',type:'checkbox'}
+  ];
+  return {version:1, name:'Finance Tech discovery (sample)', seq:ideas.length, ideas, fields};
 }
 
 /* ---------- persistence ---------- */
@@ -515,6 +560,8 @@ function normalize(d){
   d.version = d.version||1;
   d.name = d.name||'Untitled project';
   d.ideas = (d.ideas||[]).map(i=>Object.assign({description:'',status:'discovery',impact:3,effort:3,confidence:50,reach:0,labels:[],owner:'',delivery:'',bucket:'none',start:'',end:'',insights:[],comments:[],history:[],created:now(),updated:now()}, i));
+  d.fields = (d.fields||[]).map(f=>Object.assign({options:[]},f));
+  d.ideas.forEach(i=>{ i.custom=i.custom||{}; });
   d.seq = Math.max(d.seq||0, ...d.ideas.map(i=>Number((i.key||'').split('-')[1])||0));
   return d;
 }
@@ -532,6 +579,66 @@ function importJSON(file){
 
 /* ---------- ideas ---------- */
 function ideaById(id){ return data.ideas.find(i=>i.id===id); }
+
+/* ---------- field registry: built-in and custom fields behave the same ---------- */
+const OPTION_COLORS=['var(--st-discovery)','var(--st-prioritized)','var(--st-delivery)','var(--st-shipped)','var(--st-wontdo)','var(--st-parked)'];
+function fieldDefs(){
+  return [
+    {id:'status',name:'Status',type:'select',options:STATUSES},
+    {id:'bucket',name:'Bucket',type:'select',options:BUCKETS},
+    {id:'owner',name:'Owner',type:'text'},
+    {id:'labels',name:'Labels',type:'multiselect',options:allLabels().map(l=>({id:l,name:l}))},
+    {id:'impact',name:'Impact',type:'rating'},
+    {id:'effort',name:'Effort',type:'rating'},
+    {id:'start',name:'Start date',type:'date'},
+    {id:'end',name:'Target date',type:'date'},
+    ...(data.fields||[]).map(f=>Object.assign({},f,{custom:true}))
+  ];
+}
+const fieldById = id => fieldDefs().find(f=>f.id===id);
+const customFields = () => (data.fields||[]);
+function getVal(i,f){ return f.custom ? (i.custom||{})[f.id] : i[f.id]; }
+const optName=(f,id)=>{ const o=(f.options||[]).find(o=>o.id===id); return o?o.name:String(id); };
+const isEmpty=v=>v==null||v===''||(Array.isArray(v)&&!v.length);
+function showVal(f,v){ if(isEmpty(v)) return 'empty'; if(f.type==='checkbox') return v?'yes':'no'; if(f.options){ return (Array.isArray(v)?v:[v]).map(o=>optName(f,o)).join(', '); } return String(v); }
+function setVal(i,f,v){
+  if(!f.custom) return setField(i,f.id,v,f.name);
+  i.custom=i.custom||{};
+  const old=i.custom[f.id];
+  if(JSON.stringify(old??null)===JSON.stringify(v??null)) return false;
+  if(isEmpty(v)) delete i.custom[f.id]; else i.custom[f.id]=v;
+  addHistory(i, f.name+': '+showVal(f,old)+' → '+showVal(f,v));
+  return true;
+}
+/* Which group(s) an idea belongs to for a field. Multi-selects put an idea in every group it carries. */
+function groupKeys(i,f){
+  const v=getVal(i,f);
+  const none={id:'__none',name:'No '+f.name.toLowerCase()};
+  switch(f.type){
+    case 'multiselect': return (Array.isArray(v)&&v.length)?v.map(o=>({id:o,name:optName(f,o)})):[none];
+    case 'select': { if(!v) return [none]; const o=(f.options||[]).find(o=>o.id===v)||{}; return [{id:v,name:optName(f,v),color:o.color}]; }
+    case 'checkbox': return [v?{id:'yes',name:f.name+': yes'}:{id:'no',name:f.name+': no'}];
+    case 'date': { if(!v) return [none]; return [{id:v.slice(0,7),name:parseD(v).toLocaleDateString(undefined,{month:'long',year:'numeric'})}]; }
+    case 'rating': case 'number': return isEmpty(v)?[none]:[{id:String(v),name:f.name+' '+v}];
+    default: return isEmpty(v)?[none]:[{id:String(v),name:String(v)}];
+  }
+}
+function groupList(list,f){
+  const map=new Map();
+  list.forEach(i=>groupKeys(i,f).forEach(g=>{ if(!map.has(g.id)) map.set(g.id,Object.assign({items:[]},g)); map.get(g.id).items.push(i); }));
+  const order=f.options?f.options.map(o=>o.id):null;
+  return [...map.values()].sort((a,b)=>{
+    if(a.id==='__none') return 1; if(b.id==='__none') return -1;
+    if(order) return order.indexOf(a.id)-order.indexOf(b.id);
+    if(f.type==='rating'||f.type==='number') return Number(b.id)-Number(a.id);
+    if(f.type==='checkbox') return a.id==='yes'?-1:1;
+    return a.name.localeCompare(b.name,undefined,{numeric:true});
+  });
+}
+let groupBy={list:localStorage.getItem('discovery-desk:group:list')||'', timeline:localStorage.getItem('discovery-desk:group:timeline')||''};
+let boardBy=localStorage.getItem('discovery-desk:boardby')||'status';
+const collapsed=new Set();
+const groupHeaderLabel=g=>(g.color?'<span class="status" style="--sc:'+g.color+'">'+esc(g.name)+'</span>':esc(g.name));
 function addHistory(i, text){ i.history.push({ts:now(), text}); if(i.history.length>60) i.history.splice(0, i.history.length-60); i.updated=now(); }
 function setField(i, field, value, label){
   const old = i[field];
@@ -545,6 +652,7 @@ function setField(i, field, value, label){
 function createIdea(title){
   data.seq=(data.seq||0)+1;
   const i={id:uid(), key:'IDEA-'+data.seq, title, description:'', status:'discovery', impact:3, effort:3, confidence:50, reach:0, labels:[], owner:'', delivery:'', bucket:'none', start:'', end:'', insights:[], comments:[], history:[{ts:now(),text:'Created'}], created:now(), updated:now()};
+  i.custom={};
   data.ideas.unshift(i);
   commit();
   openPanel(i.id);
@@ -559,21 +667,23 @@ function deleteIdea(id){
 /* ---------- filtering + sorting ---------- */
 function visibleIdeas(){
   const q=filters.q.trim().toLowerCase();
+  const cdefs=customFields().map(f=>Object.assign({},f,{custom:true}));
   return data.ideas.filter(i=>{
     if(filters.statuses.size && !filters.statuses.has(i.status)) return false;
     if(filters.bucket && (i.bucket||'none')!==filters.bucket) return false;
     if(filters.label && !i.labels.includes(filters.label)) return false;
     if(filters.owner && i.owner!==filters.owner) return false;
     if(q){
-      const hay=[i.key,i.title,i.description,i.owner,i.delivery,...i.labels,...i.insights.map(x=>x.text),...i.comments.map(c=>c.text)].join(' ').toLowerCase();
+      const hay=[i.key,i.title,i.description,i.owner,i.delivery,...i.labels,...i.insights.map(x=>x.text),...i.comments.map(c=>c.text),...cdefs.flatMap(f=>isEmpty(getVal(i,f))?[]:[showVal(f,getVal(i,f))])].join(' ').toLowerCase();
       if(!hay.includes(q)) return false;
     }
     return true;
   });
 }
+function customSortVal(i,id){ const f=fieldById(id); if(!f) return ''; const v=getVal(i,f); if(isEmpty(v)) return f.type==='number'||f.type==='rating'?-Infinity:'\uffff'; if(f.type==='checkbox') return v?1:0; if(f.options){ const first=Array.isArray(v)?v[0]:v; return f.options.findIndex(o=>o.id===first); } return v; }
 function sorted(list){
   const k=sort.key, d=sort.dir;
-  const val = i => k==='score'?score(i):k==='insights'?insightWeight(i):k==='status'?STATUSES.findIndex(s=>s.id===i.status):k==='bucket'?BUCKETS.findIndex(b=>b.id===(i.bucket||'none')):k==='key'?Number(i.key.split('-')[1]):k==='labels'?i.labels.join(','):(k==='start'||k==='end')?(i[k]||'\uffff'):i[k];
+  const val = i => k==='score'?score(i):k==='insights'?insightWeight(i):k==='status'?STATUSES.findIndex(s=>s.id===i.status):k==='bucket'?BUCKETS.findIndex(b=>b.id===(i.bucket||'none')):k==='key'?Number(i.key.split('-')[1]):k==='labels'?i.labels.join(','):(k==='start'||k==='end')?(i[k]||'\uffff'):k.startsWith('c:')?customSortVal(i,k.slice(2)):i[k];
   return [...list].sort((a,b)=>{ const x=val(a), y=val(b); if(x==null&&y==null) return 0; if(typeof x==='number'&&typeof y==='number') return (x-y)*d; return String(x??'').localeCompare(String(y??''),undefined,{numeric:true,sensitivity:'base'})*d; });
 }
 function allLabels(){ return [...new Set(data.ideas.flatMap(i=>i.labels))].sort(); }
@@ -590,6 +700,11 @@ function renderToolbar(){
   fill($('#fLabel'),allLabels(),filters.label,'Any label');
   fill($('#fOwner'),allOwners(),filters.owner,'Any owner');
   $('#fBucket').value=filters.bucket;
+  const gsel=$('#groupBy'); gsel.hidden=!(view==='list'||view==='timeline');
+  if(!gsel.hidden){ const cur=groupBy[view]; gsel.innerHTML='<option value="">No grouping</option>'+fieldDefs().map(f=>'<option value="'+esc(f.id)+'"'+(f.id===cur?' selected':'')+'>Group: '+esc(f.name)+'</option>').join(''); }
+  const bsel=$('#boardBy'); bsel.hidden=view!=='board';
+  if(!bsel.hidden){ bsel.innerHTML=fieldDefs().filter(f=>(f.type==='select'&&f.id!=='bucket')||f.type==='checkbox').map(f=>'<option value="'+esc(f.id)+'"'+(f.id===boardBy?' selected':'')+'>Columns: '+esc(f.name)+'</option>').join(''); }
+  $('#fieldsCount').textContent=customFields().length?'('+customFields().length+')':'';
   $('#btnClear').hidden = !(filters.q||filters.statuses.size||filters.bucket||filters.label||filters.owner);
 }
 function render(){
@@ -611,11 +726,19 @@ const nums = [1,2,3,4,5].map(n=>({id:String(n),name:String(n)}));
 
 /* ---------- list view ---------- */
 function renderList(c, list){
-  const cols=[['key','Key'],['title','Idea'],['status','Status'],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket','Bucket'],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],['delivery','Delivery'],['updated','Updated']];
+  const cf=customFields().map(f=>Object.assign({},f,{custom:true}));
+  const cols=[['key','Key'],['title','Idea'],['status','Status'],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket','Bucket'],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],...cf.map(f=>['c:'+f.id,f.name]),['delivery','Delivery'],['updated','Updated']];
   const rows=sorted(list);
-  const wrap=document.createElement('div'); wrap.className='table-wrap';
-  wrap.innerHTML='<table><thead><tr>'+cols.map(([k,n,al])=>'<th data-sort="'+k+'" class="'+(al||'')+(sort.key===k?' sorted':'')+'">'+n+(sort.key===k?'<span class="arrow">'+(sort.dir>0?'▲':'▼')+'</span>':'')+'</th>').join('')+'</tr></thead><tbody>'+
-    rows.map(i=>'<tr data-id="'+i.id+'">'+
+  const gf=groupBy.list?fieldById(groupBy.list):null;
+  const customCell=(i,f)=>{ const v=getVal(i,f);
+    if(f.type==='select') return '<td>'+selectHtml([{id:'',name:'—'},...f.options],v||'','data-c="'+f.id+'"')+'</td>';
+    if(f.type==='multiselect') return '<td>'+(Array.isArray(v)&&v.length?v.map(o=>'<span class="label">'+esc(optName(f,o))+'</span>').join(''):'<span class="muted small">—</span>')+'</td>';
+    if(f.type==='checkbox') return '<td><input type="checkbox" data-c="'+f.id+'"'+(v?' checked':'')+'></td>';
+    if(f.type==='rating') return '<td>'+selectHtml([{id:'',name:'—'},...nums],isEmpty(v)?'':String(v),'data-c="'+f.id+'"')+'</td>';
+    if(f.type==='number') return '<td class="right"><input class="num" type="number" data-c="'+f.id+'" value="'+(isEmpty(v)?'':v)+'" style="width:80px;text-align:right"></td>';
+    if(f.type==='date') return '<td><input type="date" data-c="'+f.id+'" value="'+esc(v||'')+'"></td>';
+    return '<td><input data-c="'+f.id+'" value="'+esc(v||'')+'" style="width:140px"></td>'; };
+  const rowHtml=i=>'<tr data-id="'+i.id+'">'+
       '<td class="key">'+esc(i.key)+'</td>'+
       '<td style="min-width:280px"><div class="title">'+esc(i.title)+'</div></td>'+
       '<td>'+selectHtml(STATUSES,i.status,'data-f="status"')+'</td>'+
@@ -630,30 +753,46 @@ function renderList(c, list){
       '<td class="small">'+(fmtD(i.end)||'<span class="muted">—</span>')+'</td>'+
       '<td>'+esc(i.owner||'')+'</td>'+
       '<td>'+labelsHtml(i.labels)+'</td>'+
+      cf.map(f=>customCell(i,f)).join('')+
       '<td class="key">'+esc(i.delivery||'')+'</td>'+
       '<td class="small muted">'+fmtDate(i.updated)+'</td>'+
-    '</tr>').join('')+
-    '</tbody><tfoot><tr><td colspan="16">'+rows.length+' of '+data.ideas.length+' ideas · score = reach × impact × confidence ÷ effort</td></tr></tfoot></table>';
+    '</tr>';
+  const body = gf
+    ? groupList(rows,gf).map(g=>{ const key='list:'+g.id, open=!collapsed.has(key); return '<tr class="grp" data-g="'+esc(key)+'"><td colspan="'+cols.length+'"><span class="tri">'+(open?'▾':'▸')+'</span>'+groupHeaderLabel(g)+'<span class="count">'+g.items.length+'</span><span class="sum">Σ '+Math.round(g.items.reduce((a,i)=>a+score(i),0))+'</span></td></tr>'+(open?g.items.map(rowHtml).join(''):''); }).join('')
+    : rows.map(rowHtml).join('');
+  const wrap=document.createElement('div'); wrap.className='table-wrap';
+  wrap.innerHTML='<table><thead><tr>'+cols.map(([k,n,al])=>'<th data-sort="'+k+'" class="'+(al||'')+(sort.key===k?' sorted':'')+'">'+esc(n)+(sort.key===k?'<span class="arrow">'+(sort.dir>0?'▲':'▼')+'</span>':'')+'</th>').join('')+'</tr></thead><tbody>'+body+
+    '</tbody><tfoot><tr><td colspan="'+cols.length+'">'+rows.length+' of '+data.ideas.length+' ideas · score = reach × impact × confidence ÷ effort</td></tr></tfoot></table>';
   c.appendChild(wrap);
   wrap.querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.sort; if(sort.key===k) sort.dir*=-1; else sort={key:k,dir:k==='score'||k==='insights'||k==='updated'?-1:1}; render(); });
-  wrap.querySelectorAll('tbody tr').forEach(tr=>{
+  wrap.querySelectorAll('tr.grp').forEach(tr=>tr.onclick=()=>{ const k=tr.dataset.g; collapsed.has(k)?collapsed.delete(k):collapsed.add(k); render(); });
+  wrap.querySelectorAll('tbody tr[data-id]').forEach(tr=>{
     tr.addEventListener('click',e=>{ if(e.target.closest('select,input')) return; openPanel(tr.dataset.id); });
     tr.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('change',()=>{ const i=ideaById(tr.dataset.id); const f=el.dataset.f; const v=(f==='status'||f==='bucket')?el.value:Number(el.value); if(setField(i,f,v)) commit(); }));
+    tr.querySelectorAll('[data-c]').forEach(el=>el.addEventListener('change',()=>{ const i=ideaById(tr.dataset.id); const f=fieldById(el.dataset.c); if(setVal(i,f,customInputValue(f,el))) commit(); }));
   });
 }
 
 /* ---------- board + roadmap (shared column renderer) ---------- */
-function renderColumns(c, list, groups, field){
+function customInputValue(f,el){
+  if(f.type==='checkbox') return el.checked;
+  if(f.type==='number'||f.type==='rating') return el.value===''?'':Number(el.value);
+  return el.value;
+}
+function renderColumns(c, list, f){
+  const groups = f.type==='checkbox' ? [{id:'yes',name:f.name+': yes'},{id:'no',name:f.name+': no'}]
+    : [...(f.options||[]).map(o=>({id:o.id,name:o.name,color:o.color})), ...(f.custom?[{id:'',name:'No '+f.name.toLowerCase()}]:[])];
+  const keyOf=i=>{ const v=getVal(i,f); return f.type==='checkbox'?(v?'yes':'no'):(v||(f.id==='bucket'?'none':'')); };
   const wrap=document.createElement('div'); wrap.className='columns';
   groups.forEach(g=>{
-    const items=sorted(list.filter(i=>(field==='bucket'?(i.bucket||'none'):i[field])===g.id)).sort((a,b)=>score(b)-score(a));
+    const items=sorted(list.filter(i=>keyOf(i)===g.id)).sort((a,b)=>score(b)-score(a));
     const col=document.createElement('div'); col.className='col'; col.dataset.group=g.id;
     col.innerHTML='<div class="col-h">'+(g.color?'<span class="status" style="--sc:'+g.color+'">'+esc(g.name)+'</span>':'<b>'+esc(g.name)+'</b>')+'<span class="count">'+items.length+'</span><span class="sum" title="Total score">Σ '+Math.round(items.reduce((a,i)=>a+score(i),0))+'</span></div>'+
-      items.map(i=>'<div class="card" draggable="true" data-id="'+i.id+'"><div class="meta"><span class="key">'+esc(i.key)+'</span>'+(field==='bucket'?statusBadge(i.status):bucketBadge(i.bucket))+'</div><div class="t">'+esc(i.title)+'</div><div class="meta"><span class="score" title="Score">'+score(i)+'</span>'+pips(i.impact)+pips(i.effort,'effort')+(i.insights.length?'<span title="Insights">◆ '+i.insights.length+'</span>':'')+(i.owner?'<span>'+esc(i.owner)+'</span>':'')+'</div>'+(i.labels.length?'<div>'+labelsHtml(i.labels)+'</div>':'')+'</div>').join('');
+      items.map(i=>'<div class="card" draggable="true" data-id="'+i.id+'"><div class="meta"><span class="key">'+esc(i.key)+'</span>'+(f.id==='status'?bucketBadge(i.bucket):statusBadge(i.status))+'</div><div class="t">'+esc(i.title)+'</div><div class="meta"><span class="score" title="Score">'+score(i)+'</span>'+pips(i.impact)+pips(i.effort,'effort')+(i.insights.length?'<span title="Insights">◆ '+i.insights.length+'</span>':'')+(i.owner?'<span>'+esc(i.owner)+'</span>':'')+'</div>'+(i.labels.length?'<div>'+labelsHtml(i.labels)+'</div>':'')+'</div>').join('');
     wrap.appendChild(col);
     col.addEventListener('dragover',e=>{ e.preventDefault(); col.classList.add('over'); });
     col.addEventListener('dragleave',()=>col.classList.remove('over'));
-    col.addEventListener('drop',e=>{ e.preventDefault(); col.classList.remove('over'); const id=e.dataTransfer.getData('text/plain'); const i=ideaById(id); if(i&&setField(i,field,g.id)) commit(); });
+    col.addEventListener('drop',e=>{ e.preventDefault(); col.classList.remove('over'); const id=e.dataTransfer.getData('text/plain'); const i=ideaById(id); if(!i) return; const v=f.type==='checkbox'?(g.id==='yes'):g.id; if(setVal(i,f,v)) commit(); });
   });
   c.appendChild(wrap);
   wrap.querySelectorAll('.card').forEach(card=>{
@@ -662,8 +801,8 @@ function renderColumns(c, list, groups, field){
     card.addEventListener('click',()=>openPanel(card.dataset.id));
   });
 }
-function renderBoard(c,list){ renderColumns(c,list,STATUSES,'status'); }
-function renderRoadmap(c,list){ renderColumns(c,list,BUCKETS,'bucket'); }
+function renderBoard(c,list){ renderColumns(c,list,fieldById(boardBy)||fieldById('status')); }
+function renderRoadmap(c,list){ renderColumns(c,list,fieldById('bucket')); }
 
 /* ---------- timeline view ---------- */
 let tlScale = localStorage.getItem('discovery-desk:tlscale')||'month';
@@ -680,6 +819,10 @@ function renderTimeline(c, list){
   const months=[]; for(let d=new Date(min); d<=max; d=new Date(d.getFullYear(),d.getMonth()+1,1)){ const end=new Date(d.getFullYear(),d.getMonth()+1,0); months.push({d,left:x(d),width:(dayDiff(d,end)+1)*PX}); }
   const quarters={}; months.forEach(m=>{ const q=m.d.getFullYear()+' Q'+(Math.floor(m.d.getMonth()/3)+1); if(!quarters[q]) quarters[q]={left:m.left,width:0}; quarters[q].width+=m.width; });
   const lines=months.map(m=>'<i class="tl-line" style="left:'+m.left+'px"></i>').join('');
+  const gf=groupBy.timeline?fieldById(groupBy.timeline):null;
+  const tlRows=(items,rowHtml)=> gf
+    ? groupList(items,gf).map(g=>{ const key='tl:'+g.id, open=!collapsed.has(key); return '<div class="tl-row tl-grp" data-g="'+esc(key)+'"><div class="tl-side"><span class="tri">'+(open?'▾':'▸')+'</span>'+groupHeaderLabel(g)+'<span class="count">'+g.items.length+'</span></div><div class="tl-track" style="width:'+W+'px">'+lines+'</div></div>'+(open?g.items.map(rowHtml).join(''):''); }).join('')
+    : items.map(rowHtml).join('');
   const wrap=document.createElement('div'); wrap.className='tl';
   wrap.innerHTML=
     '<div class="tl-top"><div class="seg" id="tlScale"><button data-s="month" class="'+(tlScale==='month'?'on':'')+'">Months</button><button data-s="quarter" class="'+(tlScale==='quarter'?'on':'')+'">Quarters</button></div>'+
@@ -690,9 +833,9 @@ function renderTimeline(c, list){
         months.map(m=>'<div class="tl-m" style="left:'+m.left+'px;width:'+m.width+'px">'+m.d.toLocaleDateString(undefined,{month:'short'})+(tlScale==='month'?' '+String(m.d.getFullYear()).slice(2):'')+'</div>').join('')+
         '<div class="tl-today-lbl" style="left:'+x(today)+'px">Today</div>'+
       '</div></div>'+
-      sched.map(i=>{ const s=parseD(i.start), e=parseD(i.end); const left=x(s), width=Math.max(PX*3,(dayDiff(s,e)+1)*PX);
+      tlRows(sched, i=>{ const s=parseD(i.start), e=parseD(i.end); const left=x(s), width=Math.max(PX*3,(dayDiff(s,e)+1)*PX);
         return '<div class="tl-row"><div class="tl-side" data-open="'+i.id+'"><div class="t"><span class="key">'+esc(i.key)+'</span> '+esc(i.title)+'</div><div class="d">'+fmtD(i.start)+' → '+fmtD(i.end)+' · '+statusOf(i.status).name+'</div></div>'+
-          '<div class="tl-track" style="width:'+W+'px">'+lines+'<div class="tl-bar" data-id="'+i.id+'" style="left:'+left+'px;width:'+width+'px;background:'+statusOf(i.status).color+'" title="'+esc(i.title)+'"><i class="hl"></i>'+esc(i.title)+'<i class="hr"></i></div></div></div>'; }).join('')+
+          '<div class="tl-track" style="width:'+W+'px">'+lines+'<div class="tl-bar" data-id="'+i.id+'" style="left:'+left+'px;width:'+width+'px;background:'+statusOf(i.status).color+'" title="'+esc(i.title)+'"><i class="hl"></i>'+esc(i.title)+'<i class="hr"></i></div></div></div>'; })+
       (sched.length?'':'<div class="tl-row"><div class="tl-side muted">No scheduled ideas</div><div class="tl-track" style="width:'+W+'px">'+lines+'</div></div>')+
       '<div class="tl-today" style="left:'+(270+x(today))+'px"></div>'+
     '</div></div>'+
@@ -706,6 +849,7 @@ function renderTimeline(c, list){
   wrap.querySelector('#tlToday').onclick=jump;
   requestAnimationFrame(jump);
   wrap.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>openPanel(el.dataset.open)));
+  wrap.querySelectorAll('.tl-grp').forEach(el=>el.onclick=()=>{ const k=el.dataset.g; collapsed.has(k)?collapsed.delete(k):collapsed.add(k); render(); });
   wrap.querySelectorAll('[data-sched]').forEach(b=>b.onclick=()=>{ const i=ideaById(b.dataset.sched); setField(i,'start',isoD(today),'Start'); setField(i,'end',isoD(addDays(today,30)),'Target'); commit(); });
 
   wrap.querySelectorAll('.tl-bar').forEach(bar=>{
@@ -784,6 +928,17 @@ function renderPanel(){
       '<div class="field wide"><label>Labels</label><input data-f="labels" value="'+esc(i.labels.join(', '))+'" placeholder="comma, separated" list="labelList"><datalist id="labelList">'+allLabels().map(o=>'<option value="'+esc(o)+'">').join('')+'</datalist></div>'+
       '<div class="field wide"><label>Description</label><textarea data-f="description" placeholder="Problem, who has it, what we would build.">'+esc(i.description)+'</textarea></div>'+
     '</div>'+
+    '<div><div class="section-h"><h3>Fields</h3><span class="count">'+customFields().length+'</span><span class="spacer"></span><button class="btn sm ghost" id="pManageFields">Manage</button></div>'+
+      (customFields().length?'<div class="fields" style="margin-top:8px">'+customFields().map(f=>{ f=Object.assign({},f,{custom:true}); const v=getVal(i,f); let ctl='';
+        if(f.type==='select') ctl=selectHtml([{id:'',name:'—'},...f.options],v||'','data-c="'+f.id+'"');
+        else if(f.type==='multiselect') ctl='<div class="checks" data-multi="'+f.id+'">'+(f.options.length?f.options.map(o=>'<label><input type="checkbox" value="'+esc(o.id)+'"'+((v||[]).includes(o.id)?' checked':'')+'>'+esc(o.name)+'</label>').join(''):'<span class="muted small">No options yet</span>')+'</div>';
+        else if(f.type==='checkbox') ctl='<label class="one"><input type="checkbox" data-c="'+f.id+'"'+(v?' checked':'')+'> '+esc(f.name)+'</label>';
+        else if(f.type==='rating') ctl='<div class="rating" data-crating="'+f.id+'">'+[1,2,3,4,5].map(n=>'<button class="'+(v===n?'on':'')+'" data-v="'+n+'">'+n+'</button>').join('')+'</div>';
+        else if(f.type==='number') ctl='<input class="num" type="number" data-c="'+f.id+'" value="'+(isEmpty(v)?'':v)+'">';
+        else if(f.type==='date') ctl='<input type="date" data-c="'+f.id+'" value="'+esc(v||'')+'">';
+        else ctl='<input data-c="'+f.id+'" value="'+esc(v||'')+'">';
+        return '<div class="field'+(f.type==='multiselect'?' wide':'')+'"><label>'+esc(f.name)+'</label>'+ctl+'</div>'; }).join('')+'</div>'
+      :'<div class="small muted" style="margin-top:6px">No custom fields yet. Add Domain, Committed, or anything else you group by.</div>')+'</div>'+
     '<div><div class="section-h"><h3>Insights</h3><span class="count">'+i.insights.length+' · weight '+insightWeight(i)+'</span></div>'+
       '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">'+
         i.insights.map(x=>'<div class="insight"><div class="txt">'+esc(x.text)+'</div><div class="m"><span class="weight">w'+(x.weight||1)+'</span>'+(x.url?'<a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.url.replace(/^https?:\/\//,''))+'</a>':'')+'<span>'+fmtDate(x.created)+'</span><button class="btn sm ghost x" data-del-insight="'+x.id+'" title="Remove">✕</button></div></div>').join('')+
@@ -797,6 +952,11 @@ function renderPanel(){
   // wire fields
   const commitField=(f,raw)=>{ let v=raw; if(f==='labels') v=raw.split(',').map(s=>s.trim()).filter(Boolean); else if(['confidence','reach'].includes(f)) v=Number(raw)||0; if(setField(i,f,v)) { persist(); render(); refreshPanelLite(i); } };
   b.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('change',()=>commitField(el.dataset.f,el.value)));
+  const commitCustom=(f,v)=>{ if(setVal(i,f,v)){ persist(); render(); refreshPanelLite(i); } };
+  b.querySelectorAll('[data-c]').forEach(el=>el.addEventListener('change',()=>commitCustom(fieldById(el.dataset.c),customInputValue(fieldById(el.dataset.c),el))));
+  b.querySelectorAll('[data-multi]').forEach(g=>g.addEventListener('change',()=>commitCustom(fieldById(g.dataset.multi),[...g.querySelectorAll('input:checked')].map(x=>x.value))));
+  b.querySelectorAll('[data-crating]').forEach(g=>g.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{ const f=fieldById(g.dataset.crating); const n=Number(btn.dataset.v); commitCustom(f, getVal(i,f)===n?'':n); }));
+  $('#pManageFields').onclick=openFields;
   b.querySelectorAll('[data-rating]').forEach(g=>g.querySelectorAll('button').forEach(btn=>btn.onclick=()=>commitField(g.dataset.rating,Number(btn.dataset.v))));
   $('#pTitle').addEventListener('change',e=>{ const t=e.target.value.trim(); if(t&&setField(i,'title',t)){ persist(); render(); } });
   $('#insightForm').addEventListener('submit',e=>{ e.preventDefault(); const fd=new FormData(e.target); i.insights.push({id:uid(),text:fd.get('text').trim(),url:fd.get('url').trim(),weight:Number(fd.get('weight')),created:now()}); addHistory(i,'Insight added'); commit(); });
@@ -812,6 +972,24 @@ function refreshPanelLite(i){
   b.querySelector('.score-tile .big').textContent=score(i);
   b.querySelector('.score-tile .formula').textContent=i.reach+' × '+i.impact+' × '+i.confidence+'% ÷ '+i.effort;
   $('#pMeta').textContent='Created '+fmtDate(i.created)+' · updated '+fmtTs(i.updated);
+}
+
+/* ---------- custom field manager ---------- */
+function openFields(){ renderFields(); $('#fieldsModal').hidden=false; }
+function closeFields(){ $('#fieldsModal').hidden=true; render(); if(openId) renderPanel(); }
+function renderFields(){
+  const box=$('#fdefs');
+  const typeName={select:'Single select',multiselect:'Multi select',checkbox:'Checkbox',text:'Text',number:'Number',date:'Date',rating:'Rating 1 to 5'};
+  box.innerHTML=customFields().length?customFields().map(f=>'<div class="fdef" data-id="'+f.id+'"><input data-name value="'+esc(f.name)+'" aria-label="Field name"><span class="type">'+typeName[f.type]+'</span><button class="btn sm danger" data-del>Delete</button>'+
+    ((f.type==='select'||f.type==='multiselect')?'<textarea data-opts placeholder="One option per line">'+esc(f.options.map(o=>o.name).join('\n'))+'</textarea>':'')+'</div>').join('')
+    :'<div class="small muted">No custom fields yet.</div>';
+  box.querySelectorAll('.fdef').forEach(el=>{
+    const f=customFields().find(x=>x.id===el.dataset.id);
+    el.querySelector('[data-name]').addEventListener('change',e=>{ const n=e.target.value.trim(); if(n){ f.name=n; persist(); } else e.target.value=f.name; });
+    const ta=el.querySelector('[data-opts]');
+    if(ta) ta.addEventListener('change',()=>{ const names=[...new Set(ta.value.split('\n').map(s=>s.trim()).filter(Boolean))]; f.options=names.map((n,k)=>f.options.find(o=>o.name===n)||{id:uid(),name:n,color:OPTION_COLORS[(f.options.length+k)%OPTION_COLORS.length]}); persist(); });
+    el.querySelector('[data-del]').onclick=()=>{ if(!confirm('Delete field "'+f.name+'" and its values on every idea?')) return; data.fields=data.fields.filter(x=>x.id!==f.id); data.ideas.forEach(i=>{ if(i.custom) delete i.custom[f.id]; }); if(groupBy.list===f.id) groupBy.list=''; if(groupBy.timeline===f.id) groupBy.timeline=''; if(boardBy===f.id) boardBy='status'; persist(); renderFields(); };
+  });
 }
 
 /* ---------- theme ---------- */
@@ -839,6 +1017,10 @@ function init(){
   $('#fOwner').addEventListener('change',e=>{ filters.owner=e.target.value; render(); });
   $('#btnClear').onclick=()=>{ filters={q:'',statuses:new Set(),bucket:'',label:'',owner:''}; $('#search').value=''; render(); };
   $('#btnNew').onclick=showNew; $('#newCancel').onclick=hideNew;
+  $('#groupBy').addEventListener('change',e=>{ groupBy[view]=e.target.value; localStorage.setItem('discovery-desk:group:'+view,groupBy[view]); render(); });
+  $('#boardBy').addEventListener('change',e=>{ boardBy=e.target.value; localStorage.setItem('discovery-desk:boardby',boardBy); render(); });
+  $('#btnFields').onclick=openFields; $('#fieldsClose').onclick=closeFields;
+  $('#addField').addEventListener('submit',e=>{ e.preventDefault(); const fd=new FormData(e.target); const name=fd.get('name').trim(); if(!name) return; const type=fd.get('type'); data.fields.push({id:uid(),name,type,options:[]}); e.target.reset(); persist(); renderFields(); const ta=$('#fdefs .fdef:last-child [data-opts]'); if(ta) ta.focus(); });
   $('#newCreate').onclick=()=>{ const t=$('#newTitle').value.trim(); if(!t) return; hideNew(); createIdea(t); };
   $('#newTitle').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#newCreate').click(); });
   $('#pClose').onclick=closePanel; $('#scrim').onclick=closePanel;
@@ -851,7 +1033,7 @@ function init(){
   if(!hasFS){ $('#btnOpen').disabled=true; $('#btnSaveAs').disabled=true; $('#fsNote').textContent = window.self!==window.top ? 'File access is unavailable inside an embedded preview. Open index.html directly in Chrome or Edge to sync a project file.' : 'This browser cannot write files directly. Use Export and Import, or open in Chrome or Edge to sync a project file.'; }
   document.addEventListener('keydown',e=>{
     const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-    if(e.key==='Escape'){ if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
+    if(e.key==='Escape'){ if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
     if(typing) return;
     if(e.key==='n'||e.key==='N'){ e.preventDefault(); showNew(); }
     if(e.key==='/'){ e.preventDefault(); $('#search').focus(); }

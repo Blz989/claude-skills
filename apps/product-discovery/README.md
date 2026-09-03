@@ -22,7 +22,19 @@ The first launch loads a sample project so the views have something to show. Del
 | Timeline | Dated roadmap. Each idea with a start and target date is a bar across months and quarters. Drag a bar to move it, drag an edge to change one date. Months or Quarters scale, today marker, and an Unscheduled list with a one-click Schedule button |
 | Buckets | Now / Next / Later / Unplaced columns for coarse planning. Drag to move |
 
-Every idea has a detail panel with description, owner, labels, delivery ticket reference, start and target dates, insights (text, source link, weight 1 to 3), comments, and a change history.
+Every idea has a detail panel with description, owner, labels, delivery ticket reference, start and target dates, your custom fields, insights (text, source link, weight 1 to 3), comments, and a change history.
+
+## Custom fields and grouping
+
+Click **Manage fields** in the rail to add fields the way you would in Jira Product Discovery. Types: single select, multi select, checkbox, text, number, date, and rating 1 to 5. Options for selects are one per line. Renaming a field or editing its options keeps existing values; deleting a field removes its values from every idea.
+
+Custom fields appear as editable columns in the Ideas table and as inputs in the idea panel. Search matches their values.
+
+**Group by** in the toolbar works on the Ideas table and the Timeline, and it lists every field, built in or custom: Status, Bucket, Owner, Labels, Impact, Effort, dates, plus anything you added such as Domain or Committed. Group headers show a count and total score and click to collapse. A multi-select puts an idea under every option it carries. Dates group by month.
+
+The **Board** has a "Columns" selector that switches its columns to any single select or checkbox field, so you can drag ideas between Domains or between Committed yes and no just as you drag them between statuses.
+
+Grouping and column choices are remembered per view.
 
 **Score** is RICE style: `reach × impact × (confidence ÷ 100) ÷ effort`. Impact and effort are 1 to 5, confidence is a percentage, reach is any number you choose (people, transactions, hours).
 
@@ -39,7 +51,7 @@ Filters and search apply to every view. Search covers titles, descriptions, labe
 
 ## Data file
 
-Plain JSON, one object with `name`, `seq`, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. Dates are `start` and `end` as `YYYY-MM-DD` strings; leave them empty for unscheduled ideas. You can edit the file by hand or feed it to another tool. Statuses and buckets are fixed lists in the app: `parked`, `discovery`, `prioritized`, `delivery`, `shipped`, `wontdo` and `now`, `next`, `later`, `none`.
+Plain JSON, one object with `name`, `seq`, a `fields` array of custom field definitions, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. Dates are `start` and `end` as `YYYY-MM-DD` strings; leave them empty for unscheduled ideas. Custom values live under `custom` keyed by field id. You can edit the file by hand or feed it to another tool. Statuses and buckets are fixed lists in the app: `parked`, `discovery`, `prioritized`, `delivery`, `shipped`, `wontdo` and `now`, `next`, `later`, `none`.
 
 ## Theme
 
@@ -47,4 +59,4 @@ Auto, Light, and Dark toggle in the rail. Auto follows the operating system.
 
 ## Not included
 
-Multi-user editing, Jira Software integration, and custom field definitions. The delivery ticket field is free text so you can paste a key or a link.
+Multi-user editing and Jira Software integration. The delivery ticket field is free text so you can paste a key or a link.
