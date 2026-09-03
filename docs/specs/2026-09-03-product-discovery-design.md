@@ -12,7 +12,7 @@ Replace a paid Jira Product Discovery seat for a single user with a tool that co
 - **Single user, file-based.** One `.json` project file synced through Box or Drive. No backend, no accounts.
 - **One HTML file.** No build toolchain, no dependencies beyond Google Fonts, which fall back to system fonts when offline.
 - **Standalone.** Delivery work is a free-text reference on the idea, not a live Jira link.
-- **Features in scope.** Ideas table with custom fields and a computed score, board by status, impact-vs-effort matrix, Now / Next / Later roadmap, insights and comments per idea, filters and search, Auto / Light / Dark theme.
+- **Features in scope.** Ideas table with custom fields and a computed score, board by status, impact-vs-effort matrix, dated timeline roadmap plus Now / Next / Later buckets, insights and comments per idea, filters and search, Auto / Light / Dark theme.
 
 ## Approaches considered
 
@@ -24,9 +24,10 @@ Replace a paid Jira Product Discovery seat for a single user with a tool that co
 
 Everything lives in one file with four layers:
 
-- **Data model.** `{version, name, seq, ideas[]}`. Each idea: `id, key, title, description, status, impact 1-5, effort 1-5, confidence 0-100, reach, labels[], owner, delivery, bucket, insights[], comments[], history[], created, updated`. Statuses and buckets are fixed lists.
+- **Data model.** `{version, name, seq, ideas[]}`. Each idea: `id, key, title, description, status, impact 1-5, effort 1-5, confidence 0-100, reach, labels[], owner, delivery, bucket, start, end, insights[], comments[], history[], created, updated`. `start` and `end` are `YYYY-MM-DD` strings and may be empty. Statuses and buckets are fixed lists.
 - **Persistence.** Every change writes to `localStorage` immediately. When a file handle is connected, a debounced write goes to the file 700 ms later. The handle is stored in IndexedDB so the file reconnects after reload; the browser may require one click to re-grant permission. Export and import cover browsers without file access.
-- **Views.** `render()` applies filters and sort, then dispatches to list, board, matrix, or roadmap renderers. Board and roadmap share one column renderer with HTML5 drag and drop.
+- **Views.** `render()` applies filters and sort, then dispatches to list, board, matrix, timeline, or bucket renderers. Board and buckets share one column renderer with HTML5 drag and drop.
+- **Timeline.** Scheduled ideas render as absolutely positioned bars on a day-scaled track (4 px per day at month scale, 1.6 px at quarter scale). The visible range runs from one month before the earliest start or today to eight months after today or two months after the latest target. Pointer events move a bar or resize either edge; the change commits as a history entry on release. A click without movement opens the idea.
 - **Detail panel.** Slide-over editor for a single idea. Field changes append a history entry describing old and new values.
 
 Score is `reach × impact × (confidence ÷ 100) ÷ effort`, rounded to one decimal.

@@ -1,6 +1,6 @@
 # Discovery Desk
 
-A single-file, no-server replacement for Jira Product Discovery. Open `index.html` in a browser and you have an ideas backlog with scoring, a status board, an impact-vs-effort matrix, a Now / Next / Later roadmap, and insights attached to each idea.
+A single-file, no-server replacement for Jira Product Discovery. Open `index.html` in a browser and you have an ideas backlog with scoring, a status board, an impact-vs-effort matrix, a dated timeline roadmap, and insights attached to each idea.
 
 ## Run it
 
@@ -19,9 +19,10 @@ The first launch loads a sample project so the views have something to show. Del
 | Ideas | Sortable table with inline editing of status, impact, effort, confidence, reach, and roadmap bucket |
 | Board | Kanban by status. Drag cards between columns |
 | Matrix | Impact vs effort scatter. Dot size is reach, color is status. Quadrant counts and top five by score |
-| Roadmap | Now / Next / Later / Unplaced columns. Drag to move |
+| Timeline | Dated roadmap. Each idea with a start and target date is a bar across months and quarters. Drag a bar to move it, drag an edge to change one date. Months or Quarters scale, today marker, and an Unscheduled list with a one-click Schedule button |
+| Buckets | Now / Next / Later / Unplaced columns for coarse planning. Drag to move |
 
-Every idea has a detail panel with description, owner, labels, delivery ticket reference, insights (text, source link, weight 1 to 3), comments, and a change history.
+Every idea has a detail panel with description, owner, labels, delivery ticket reference, start and target dates, insights (text, source link, weight 1 to 3), comments, and a change history.
 
 **Score** is RICE style: `reach × impact × (confidence ÷ 100) ÷ effort`. Impact and effort are 1 to 5, confidence is a percentage, reach is any number you choose (people, transactions, hours).
 
@@ -38,7 +39,7 @@ Filters and search apply to every view. Search covers titles, descriptions, labe
 
 ## Data file
 
-Plain JSON, one object with `name`, `seq`, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. You can edit the file by hand or feed it to another tool. Statuses and buckets are fixed lists in the app: `parked`, `discovery`, `prioritized`, `delivery`, `shipped`, `wontdo` and `now`, `next`, `later`, `none`.
+Plain JSON, one object with `name`, `seq`, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. Dates are `start` and `end` as `YYYY-MM-DD` strings; leave them empty for unscheduled ideas. You can edit the file by hand or feed it to another tool. Statuses and buckets are fixed lists in the app: `parked`, `discovery`, `prioritized`, `delivery`, `shipped`, `wontdo` and `now`, `next`, `later`, `none`.
 
 ## Theme
 

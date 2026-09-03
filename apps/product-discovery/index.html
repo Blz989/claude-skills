@@ -171,6 +171,34 @@ tfoot td{color:var(--ink-3);font-size:12px;background:var(--surface-2)}
 .legend .row{display:flex;justify-content:space-between;gap:8px;font-size:13px}
 .legend .row .num{color:var(--ink-2)}
 
+/* ---------- timeline ---------- */
+.tl{display:flex;flex-direction:column;gap:14px}
+.tl-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tl-scroll{overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);max-height:calc(100vh - 210px);position:relative}
+.tl-grid{position:relative;width:max-content;min-width:100%}
+.tl-head{display:flex;position:sticky;top:0;z-index:3}
+.tl-row{display:flex}
+.tl-side{width:270px;flex:none;position:sticky;left:0;z-index:2;background:var(--surface);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 10px;height:44px;display:flex;flex-direction:column;justify-content:center;gap:1px;cursor:pointer}
+.tl-side .t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-side .d{font-size:11px;color:var(--ink-3);font-family:var(--mono)}
+.tl-head .tl-side{background:var(--surface-2);z-index:4;justify-content:flex-end;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600;cursor:default}
+.tl-track{position:relative;flex:none;height:44px;border-bottom:1px solid var(--line)}
+.tl-head .tl-track{background:var(--surface-2)}
+.tl-q,.tl-m{position:absolute;top:0;height:22px;line-height:22px;font-size:11px;padding-left:6px;border-left:1px solid var(--line);white-space:nowrap;overflow:hidden;color:var(--ink-3);box-sizing:border-box}
+.tl-q{font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.tl-m{top:22px}
+.tl-line{position:absolute;top:0;bottom:0;border-left:1px solid var(--line)}
+.tl-today{position:absolute;top:0;bottom:0;border-left:2px solid var(--crit);z-index:1;pointer-events:none}
+.tl-today-lbl{position:absolute;top:24px;font-size:10px;font-weight:600;color:var(--crit);letter-spacing:.06em;text-transform:uppercase;padding-left:4px;border-left:2px solid var(--crit);height:20px;line-height:20px;z-index:1}
+.tl-bar{position:absolute;top:9px;height:26px;border-radius:5px;color:var(--surface);font-size:12px;font-weight:600;line-height:26px;padding:0 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:grab;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,.2);touch-action:none;box-sizing:border-box}
+.tl-bar i{position:absolute;top:0;bottom:0;width:9px;cursor:ew-resize}
+.tl-bar i.hl{left:0} .tl-bar i.hr{right:0}
+.tl-bar:hover{filter:brightness(1.08)}
+.tl-bar.dragging{opacity:.8;cursor:grabbing}
+.tl-unsched{display:flex;flex-direction:column;gap:6px}
+.tl-unsched .u{display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.tl-unsched .u .t{flex:1;font-weight:500;cursor:pointer}
+
 /* ---------- detail panel ---------- */
 .panel{position:fixed;top:0;right:0;height:100vh;width:min(560px,100vw);background:var(--surface);border-left:1px solid var(--line);box-shadow:var(--shadow);transform:translateX(100%);transition:transform .2s ease;display:flex;flex-direction:column;z-index:20}
 .panel.open{transform:none}
@@ -236,7 +264,8 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
         <button data-view="list"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4h12M2 8h12M2 12h12"/></svg>Ideas<span class="count" data-count="list"></span></button>
         <button data-view="board"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="3.5" height="12" rx="1"/><rect x="6.25" y="2" width="3.5" height="8" rx="1"/><rect x="10.5" y="2" width="3.5" height="10" rx="1"/></svg>Board</button>
         <button data-view="matrix"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 2v12h12"/><circle cx="6" cy="6" r="1.5"/><circle cx="10" cy="9" r="1.5"/><circle cx="12" cy="4" r="1.5"/></svg>Matrix</button>
-        <button data-view="roadmap"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4h6M2 8h9M2 12h12"/></svg>Roadmap</button>
+        <button data-view="timeline"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4h6M5 8h9M3 12h7"/></svg>Timeline</button>
+        <button data-view="roadmap"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="12" height="4" rx="1"/><rect x="2" y="10" width="12" height="4" rx="1"/></svg>Buckets</button>
       </nav>
     </div>
 
@@ -351,6 +380,11 @@ const uid = () => Math.random().toString(36).slice(2,10);
 const now = () => new Date().toISOString();
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const statusOf = id => STATUSES.find(s=>s.id===id) || STATUSES[0];
+const parseD = s => { if(!s) return null; const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+const isoD = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+const dayDiff = (a,b) => Math.round((b-a)/86400000);
+const fmtD = s => s ? parseD(s).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
 const fmtDate = iso => iso ? new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}) : '';
 const fmtTs = iso => iso ? new Date(iso).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '';
 
@@ -364,29 +398,30 @@ function insightWeight(i){ return (i.insights||[]).reduce((a,x)=>a+(Number(x.wei
 
 /* ---------- sample data (marked as examples on first launch) ---------- */
 function sampleData(){
+  const t0=new Date(); t0.setHours(0,0,0,0); const rel=n=>isoD(addDays(t0,n));
   const mk = (title, o) => Object.assign({
     id:uid(), title, description:'', status:'discovery', impact:3, effort:3, confidence:60, reach:100,
-    labels:[], owner:'', delivery:'', bucket:'none', insights:[], comments:[], history:[], created:now(), updated:now()
+    labels:[], owner:'', delivery:'', bucket:'none', start:'', end:'', insights:[], comments:[], history:[], created:now(), updated:now()
   }, o);
   const ideas = [
-    mk('Automate month-end accrual journal uploads', {status:'prioritized', impact:5, effort:3, confidence:80, reach:40, labels:['close','automation'], owner:'Brandon', bucket:'now',
+    mk('Automate month-end accrual journal uploads', {status:'prioritized', impact:5, effort:3, confidence:80, reach:40, labels:['close','automation'], owner:'Brandon', bucket:'now', start:rel(-10), end:rel(35),
       description:'Accountants build accrual journals in Excel and upload them by hand. Generate the journal from the accrual register and post it through the ERP API.',
       insights:[{id:uid(),text:'Close lead: "Uploads take me about three hours on day 2 and I re-key at least one every month."',url:'',weight:3,created:now()},{id:uid(),text:'12 of 40 accrual journals last quarter were re-posted after a formatting error.',url:'',weight:2,created:now()}]}),
-    mk('Self-service GL account mapping for new cost centers', {status:'discovery', impact:4, effort:2, confidence:70, reach:25, labels:['master-data'], owner:'Priya', bucket:'next',
+    mk('Self-service GL account mapping for new cost centers', {status:'discovery', impact:4, effort:2, confidence:70, reach:25, labels:['master-data'], owner:'Priya', bucket:'next', start:rel(30), end:rel(75),
       description:'FP&A waits on Finance Tech to add mappings. A guarded form with validation would remove the queue.',
       insights:[{id:uid(),text:'Mapping requests average 4 business days turnaround in the ticket queue.',url:'',weight:2,created:now()}]}),
-    mk('Intercompany reconciliation dashboard', {status:'discovery', impact:4, effort:4, confidence:50, reach:15, labels:['reporting','intercompany'], owner:'', bucket:'later',
+    mk('Intercompany reconciliation dashboard', {status:'discovery', impact:4, effort:4, confidence:50, reach:15, labels:['reporting','intercompany'], owner:'', bucket:'later', start:rel(120), end:rel(200),
       description:'Show unmatched intercompany balances by entity pair before close starts.'}),
     mk('Vendor master duplicate detection', {status:'parked', impact:3, effort:3, confidence:40, reach:30, labels:['master-data','AP'], owner:'Marcus'}),
-    mk('Replace SFTP bank statement pull with API feed', {status:'delivery', impact:4, effort:4, confidence:90, reach:10, labels:['treasury','integration'], owner:'Brandon', bucket:'now', delivery:'FT-412',
+    mk('Replace SFTP bank statement pull with API feed', {status:'delivery', impact:4, effort:4, confidence:90, reach:10, labels:['treasury','integration'], owner:'Brandon', bucket:'now', delivery:'FT-412', start:rel(-45), end:rel(20),
       insights:[{id:uid(),text:'SFTP job failed 6 times in Q2, each needing a manual rerun by treasury.',url:'',weight:3,created:now()}]}),
-    mk('Fixed asset sub-ledger tie-out report', {status:'shipped', impact:3, effort:2, confidence:100, reach:8, labels:['reporting'], owner:'Priya', bucket:'now', delivery:'FT-388'}),
+    mk('Fixed asset sub-ledger tie-out report', {status:'shipped', impact:3, effort:2, confidence:100, reach:8, labels:['reporting'], owner:'Priya', bucket:'now', delivery:'FT-388', start:rel(-90), end:rel(-30)}),
     mk('Chatbot for expense policy questions', {status:'wontdo', impact:2, effort:4, confidence:30, reach:500, labels:['T&E'], owner:'',
       comments:[{id:uid(),text:'Parked. Policy doc rewrite solves most of the questions.',created:now()}]}),
-    mk('Allocation engine rule editor', {status:'discovery', impact:5, effort:5, confidence:40, reach:12, labels:['allocations'], owner:'Marcus', bucket:'later',
+    mk('Allocation engine rule editor', {status:'discovery', impact:5, effort:5, confidence:40, reach:12, labels:['allocations'], owner:'Marcus', bucket:'later', start:rel(150), end:rel(260),
       description:'Rules live in a stored procedure only one person can read. Move them to a table-driven editor.'}),
-    mk('Auto-flag journals over approval threshold', {status:'prioritized', impact:3, effort:1, confidence:85, reach:60, labels:['controls','automation'], owner:'Brandon', bucket:'next'}),
-    mk('Close checklist with owner sign-off', {status:'discovery', impact:4, effort:2, confidence:75, reach:45, labels:['close'], owner:'Priya', bucket:'next',
+    mk('Auto-flag journals over approval threshold', {status:'prioritized', impact:3, effort:1, confidence:85, reach:60, labels:['controls','automation'], owner:'Brandon', bucket:'next', start:rel(14), end:rel(40)}),
+    mk('Close checklist with owner sign-off', {status:'discovery', impact:4, effort:2, confidence:75, reach:45, labels:['close'], owner:'Priya', bucket:'next', start:rel(45), end:rel(90),
       insights:[{id:uid(),text:'Controller asked for a single view of what is still open on day 4.',url:'',weight:2,created:now()}]}),
   ];
   ideas.forEach((i,n)=>{ i.key='IDEA-'+(n+1); i.history=[{ts:i.created,text:'Created'}]; });
@@ -479,7 +514,7 @@ async function tryRestoreHandle(){
 function normalize(d){
   d.version = d.version||1;
   d.name = d.name||'Untitled project';
-  d.ideas = (d.ideas||[]).map(i=>Object.assign({description:'',status:'discovery',impact:3,effort:3,confidence:50,reach:0,labels:[],owner:'',delivery:'',bucket:'none',insights:[],comments:[],history:[],created:now(),updated:now()}, i));
+  d.ideas = (d.ideas||[]).map(i=>Object.assign({description:'',status:'discovery',impact:3,effort:3,confidence:50,reach:0,labels:[],owner:'',delivery:'',bucket:'none',start:'',end:'',insights:[],comments:[],history:[],created:now(),updated:now()}, i));
   d.seq = Math.max(d.seq||0, ...d.ideas.map(i=>Number((i.key||'').split('-')[1])||0));
   return d;
 }
@@ -503,13 +538,13 @@ function setField(i, field, value, label){
   const same = Array.isArray(value) ? JSON.stringify(old)===JSON.stringify(value) : old===value;
   if(same) return false;
   i[field]=value;
-  const show = v => Array.isArray(v) ? (v.join(', ')||'none') : field==='status' ? statusOf(v).name : field==='bucket' ? (BUCKETS.find(b=>b.id===v)||{}).name : (v===''||v==null?'empty':String(v).length>40?String(v).slice(0,40)+'…':v);
+  const show = v => Array.isArray(v) ? (v.join(', ')||'none') : (field==='start'||field==='end') ? (v?fmtD(v):'none') : field==='status' ? statusOf(v).name : field==='bucket' ? (BUCKETS.find(b=>b.id===v)||{}).name : (v===''||v==null?'empty':String(v).length>40?String(v).slice(0,40)+'…':v);
   addHistory(i, (label||field)+': '+show(old)+' → '+show(value));
   return true;
 }
 function createIdea(title){
   data.seq=(data.seq||0)+1;
-  const i={id:uid(), key:'IDEA-'+data.seq, title, description:'', status:'discovery', impact:3, effort:3, confidence:50, reach:0, labels:[], owner:'', delivery:'', bucket:'none', insights:[], comments:[], history:[{ts:now(),text:'Created'}], created:now(), updated:now()};
+  const i={id:uid(), key:'IDEA-'+data.seq, title, description:'', status:'discovery', impact:3, effort:3, confidence:50, reach:0, labels:[], owner:'', delivery:'', bucket:'none', start:'', end:'', insights:[], comments:[], history:[{ts:now(),text:'Created'}], created:now(), updated:now()};
   data.ideas.unshift(i);
   commit();
   openPanel(i.id);
@@ -538,7 +573,7 @@ function visibleIdeas(){
 }
 function sorted(list){
   const k=sort.key, d=sort.dir;
-  const val = i => k==='score'?score(i):k==='insights'?insightWeight(i):k==='status'?STATUSES.findIndex(s=>s.id===i.status):k==='bucket'?BUCKETS.findIndex(b=>b.id===(i.bucket||'none')):k==='key'?Number(i.key.split('-')[1]):k==='labels'?i.labels.join(','):i[k];
+  const val = i => k==='score'?score(i):k==='insights'?insightWeight(i):k==='status'?STATUSES.findIndex(s=>s.id===i.status):k==='bucket'?BUCKETS.findIndex(b=>b.id===(i.bucket||'none')):k==='key'?Number(i.key.split('-')[1]):k==='labels'?i.labels.join(','):(k==='start'||k==='end')?(i[k]||'\uffff'):i[k];
   return [...list].sort((a,b)=>{ const x=val(a), y=val(b); if(x==null&&y==null) return 0; if(typeof x==='number'&&typeof y==='number') return (x-y)*d; return String(x??'').localeCompare(String(y??''),undefined,{numeric:true,sensitivity:'base'})*d; });
 }
 function allLabels(){ return [...new Set(data.ideas.flatMap(i=>i.labels))].sort(); }
@@ -547,7 +582,7 @@ function allOwners(){ return [...new Set(data.ideas.map(i=>i.owner).filter(Boole
 /* ---------- render: chrome ---------- */
 function renderNavCounts(){ $('[data-count="list"]').textContent=data.ideas.length; }
 function renderToolbar(){
-  $('#viewTitle').textContent={list:'Ideas',board:'Board',matrix:'Impact vs effort',roadmap:'Roadmap'}[view];
+  $('#viewTitle').textContent={list:'Ideas',board:'Board',matrix:'Impact vs effort',timeline:'Timeline',roadmap:'Buckets'}[view];
   $$('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
   const chips=$('#statusChips'); chips.innerHTML='';
   STATUSES.forEach(s=>{ const b=document.createElement('button'); b.className='chip'+(filters.statuses.has(s.id)?' on':''); b.textContent=s.name; b.onclick=()=>{ filters.statuses.has(s.id)?filters.statuses.delete(s.id):filters.statuses.add(s.id); render(); }; chips.appendChild(b); });
@@ -563,7 +598,7 @@ function render(){
   const list=visibleIdeas();
   if(!data.ideas.length){ c.innerHTML='<div class="empty"><b>No ideas yet</b>Press <kbd>N</kbd> or click New idea to add the first one.</div>'; return; }
   if(!list.length){ c.innerHTML='<div class="empty"><b>Nothing matches these filters</b>Clear the search or status chips to see all '+data.ideas.length+' ideas.</div>'; return; }
-  ({list:renderList,board:renderBoard,matrix:renderMatrix,roadmap:renderRoadmap})[view](c,list);
+  ({list:renderList,board:renderBoard,matrix:renderMatrix,timeline:renderTimeline,roadmap:renderRoadmap})[view](c,list);
 }
 
 /* ---------- helpers for cells ---------- */
@@ -576,7 +611,7 @@ const nums = [1,2,3,4,5].map(n=>({id:String(n),name:String(n)}));
 
 /* ---------- list view ---------- */
 function renderList(c, list){
-  const cols=[['key','Key'],['title','Idea'],['status','Status'],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket','Bucket'],['owner','Owner'],['labels','Labels'],['delivery','Delivery'],['updated','Updated']];
+  const cols=[['key','Key'],['title','Idea'],['status','Status'],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket','Bucket'],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],['delivery','Delivery'],['updated','Updated']];
   const rows=sorted(list);
   const wrap=document.createElement('div'); wrap.className='table-wrap';
   wrap.innerHTML='<table><thead><tr>'+cols.map(([k,n,al])=>'<th data-sort="'+k+'" class="'+(al||'')+(sort.key===k?' sorted':'')+'">'+n+(sort.key===k?'<span class="arrow">'+(sort.dir>0?'▲':'▼')+'</span>':'')+'</th>').join('')+'</tr></thead><tbody>'+
@@ -591,12 +626,14 @@ function renderList(c, list){
       '<td class="right score">'+score(i)+'</td>'+
       '<td class="right num">'+insightWeight(i)+'</td>'+
       '<td>'+selectHtml(BUCKETS,i.bucket||'none','data-f="bucket"')+'</td>'+
+      '<td class="small">'+(fmtD(i.start)||'<span class="muted">—</span>')+'</td>'+
+      '<td class="small">'+(fmtD(i.end)||'<span class="muted">—</span>')+'</td>'+
       '<td>'+esc(i.owner||'')+'</td>'+
       '<td>'+labelsHtml(i.labels)+'</td>'+
       '<td class="key">'+esc(i.delivery||'')+'</td>'+
       '<td class="small muted">'+fmtDate(i.updated)+'</td>'+
     '</tr>').join('')+
-    '</tbody><tfoot><tr><td colspan="14">'+rows.length+' of '+data.ideas.length+' ideas · score = reach × impact × confidence ÷ effort</td></tr></tfoot></table>';
+    '</tbody><tfoot><tr><td colspan="16">'+rows.length+' of '+data.ideas.length+' ideas · score = reach × impact × confidence ÷ effort</td></tr></tfoot></table>';
   c.appendChild(wrap);
   wrap.querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.sort; if(sort.key===k) sort.dir*=-1; else sort={key:k,dir:k==='score'||k==='insights'||k==='updated'?-1:1}; render(); });
   wrap.querySelectorAll('tbody tr').forEach(tr=>{
@@ -627,6 +664,65 @@ function renderColumns(c, list, groups, field){
 }
 function renderBoard(c,list){ renderColumns(c,list,STATUSES,'status'); }
 function renderRoadmap(c,list){ renderColumns(c,list,BUCKETS,'bucket'); }
+
+/* ---------- timeline view ---------- */
+let tlScale = localStorage.getItem('discovery-desk:tlscale')||'month';
+function renderTimeline(c, list){
+  const PX = tlScale==='month' ? 4 : 1.6;           // pixels per day
+  const today=new Date(); today.setHours(0,0,0,0);
+  const sched=list.filter(i=>i.start&&i.end).sort((a,b)=>a.start.localeCompare(b.start)||score(b)-score(a));
+  const unsched=list.filter(i=>!(i.start&&i.end)).sort((a,b)=>score(b)-score(a));
+  let min=new Date(today.getFullYear(),today.getMonth()-1,1);
+  let max=new Date(today.getFullYear(),today.getMonth()+8,0);
+  sched.forEach(i=>{ const s=parseD(i.start), e=parseD(i.end); if(s<min) min=new Date(s.getFullYear(),s.getMonth()-1,1); if(e>max) max=new Date(e.getFullYear(),e.getMonth()+2,0); });
+  const W=(dayDiff(min,max)+1)*PX;
+  const x=d=>dayDiff(min,d)*PX;
+  const months=[]; for(let d=new Date(min); d<=max; d=new Date(d.getFullYear(),d.getMonth()+1,1)){ const end=new Date(d.getFullYear(),d.getMonth()+1,0); months.push({d,left:x(d),width:(dayDiff(d,end)+1)*PX}); }
+  const quarters={}; months.forEach(m=>{ const q=m.d.getFullYear()+' Q'+(Math.floor(m.d.getMonth()/3)+1); if(!quarters[q]) quarters[q]={left:m.left,width:0}; quarters[q].width+=m.width; });
+  const lines=months.map(m=>'<i class="tl-line" style="left:'+m.left+'px"></i>').join('');
+  const wrap=document.createElement('div'); wrap.className='tl';
+  wrap.innerHTML=
+    '<div class="tl-top"><div class="seg" id="tlScale"><button data-s="month" class="'+(tlScale==='month'?'on':'')+'">Months</button><button data-s="quarter" class="'+(tlScale==='quarter'?'on':'')+'">Quarters</button></div>'+
+      '<span class="small muted">'+sched.length+' scheduled · '+unsched.length+' unscheduled · drag a bar to move it, drag an edge to change a date</span><span class="spacer"></span><button class="btn sm" id="tlToday">Jump to today</button></div>'+
+    '<div class="tl-scroll"><div class="tl-grid">'+
+      '<div class="tl-head"><div class="tl-side">Idea</div><div class="tl-track" style="width:'+W+'px">'+
+        Object.entries(quarters).map(([q,v])=>'<div class="tl-q" style="left:'+v.left+'px;width:'+v.width+'px">'+q+'</div>').join('')+
+        months.map(m=>'<div class="tl-m" style="left:'+m.left+'px;width:'+m.width+'px">'+m.d.toLocaleDateString(undefined,{month:'short'})+(tlScale==='month'?' '+String(m.d.getFullYear()).slice(2):'')+'</div>').join('')+
+        '<div class="tl-today-lbl" style="left:'+x(today)+'px">Today</div>'+
+      '</div></div>'+
+      sched.map(i=>{ const s=parseD(i.start), e=parseD(i.end); const left=x(s), width=Math.max(PX*3,(dayDiff(s,e)+1)*PX);
+        return '<div class="tl-row"><div class="tl-side" data-open="'+i.id+'"><div class="t"><span class="key">'+esc(i.key)+'</span> '+esc(i.title)+'</div><div class="d">'+fmtD(i.start)+' → '+fmtD(i.end)+' · '+statusOf(i.status).name+'</div></div>'+
+          '<div class="tl-track" style="width:'+W+'px">'+lines+'<div class="tl-bar" data-id="'+i.id+'" style="left:'+left+'px;width:'+width+'px;background:'+statusOf(i.status).color+'" title="'+esc(i.title)+'"><i class="hl"></i>'+esc(i.title)+'<i class="hr"></i></div></div></div>'; }).join('')+
+      (sched.length?'':'<div class="tl-row"><div class="tl-side muted">No scheduled ideas</div><div class="tl-track" style="width:'+W+'px">'+lines+'</div></div>')+
+      '<div class="tl-today" style="left:'+(270+x(today))+'px"></div>'+
+    '</div></div>'+
+    (unsched.length?'<div><div class="section-h"><h3>Unscheduled</h3><span class="count">'+unsched.length+'</span></div><div class="tl-unsched" style="margin-top:8px">'+
+      unsched.map(i=>'<div class="u"><span class="key">'+esc(i.key)+'</span><span class="t" data-open="'+i.id+'">'+esc(i.title)+'</span>'+statusBadge(i.status)+'<span class="score">'+score(i)+'</span><button class="btn sm" data-sched="'+i.id+'">Schedule</button></div>').join('')+'</div></div>':'');
+  c.appendChild(wrap);
+
+  wrap.querySelectorAll('#tlScale button').forEach(b=>b.onclick=()=>{ tlScale=b.dataset.s; localStorage.setItem('discovery-desk:tlscale',tlScale); render(); });
+  const scroller=wrap.querySelector('.tl-scroll');
+  const jump=()=>{ scroller.scrollLeft=Math.max(0,x(today)-scroller.clientWidth/3+270); };
+  wrap.querySelector('#tlToday').onclick=jump;
+  requestAnimationFrame(jump);
+  wrap.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>openPanel(el.dataset.open)));
+  wrap.querySelectorAll('[data-sched]').forEach(b=>b.onclick=()=>{ const i=ideaById(b.dataset.sched); setField(i,'start',isoD(today),'Start'); setField(i,'end',isoD(addDays(today,30)),'Target'); commit(); });
+
+  wrap.querySelectorAll('.tl-bar').forEach(bar=>{
+    bar.addEventListener('pointerdown',e=>{
+      if(e.button!==0) return;
+      const mode=e.target.classList.contains('hl')?'start':e.target.classList.contains('hr')?'end':'move';
+      const i=ideaById(bar.dataset.id); const s0=parseD(i.start), e0=parseD(i.end); const x0=e.clientX; let moved=false, s=s0, en=e0;
+      bar.setPointerCapture(e.pointerId); bar.classList.add('dragging');
+      const onMove=ev=>{ const dd=Math.round((ev.clientX-x0)/PX); if(dd) moved=true; s=s0; en=e0; if(mode!=='end') s=addDays(s0,dd); if(mode!=='start') en=addDays(e0,dd); if(en<s){ if(mode==='start') s=en; else en=s; } bar.style.left=x(s)+'px'; bar.style.width=Math.max(PX*3,(dayDiff(s,en)+1)*PX)+'px'; };
+      const onUp=()=>{ bar.removeEventListener('pointermove',onMove); bar.removeEventListener('pointerup',onUp); bar.removeEventListener('pointercancel',onUp); bar.classList.remove('dragging');
+        if(!moved){ openPanel(i.id); return; }
+        let ch=false; if(setField(i,'start',isoD(s),'Start')) ch=true; if(setField(i,'end',isoD(en),'Target')) ch=true; if(ch) commit(); else render(); };
+      bar.addEventListener('pointermove',onMove); bar.addEventListener('pointerup',onUp); bar.addEventListener('pointercancel',onUp);
+      e.preventDefault();
+    });
+  });
+}
 
 /* ---------- matrix view ---------- */
 function renderMatrix(c,list){
@@ -681,6 +777,8 @@ function renderPanel(){
       '<div class="field"><label>Effort</label>'+rating('effort','effort')+'</div>'+
       '<div class="field"><label>Confidence %</label><input class="num" data-f="confidence" type="number" min="0" max="100" step="5" value="'+i.confidence+'"></div>'+
       '<div class="field"><label>Reach</label><input class="num" data-f="reach" type="number" min="0" value="'+i.reach+'"><span class="help">People or transactions affected per period</span></div>'+
+      '<div class="field"><label>Start date</label><input data-f="start" type="date" value="'+esc(i.start)+'"></div>'+
+      '<div class="field"><label>Target date</label><input data-f="end" type="date" value="'+esc(i.end)+'"></div>'+
       '<div class="field"><label>Owner</label><input data-f="owner" value="'+esc(i.owner)+'" list="ownerList"><datalist id="ownerList">'+allOwners().map(o=>'<option value="'+esc(o)+'">').join('')+'</datalist></div>'+
       '<div class="field"><label>Delivery ticket</label><input data-f="delivery" value="'+esc(i.delivery)+'" placeholder="FT-123 or a URL"></div>'+
       '<div class="field wide"><label>Labels</label><input data-f="labels" value="'+esc(i.labels.join(', '))+'" placeholder="comma, separated" list="labelList"><datalist id="labelList">'+allLabels().map(o=>'<option value="'+esc(o)+'">').join('')+'</datalist></div>'+
