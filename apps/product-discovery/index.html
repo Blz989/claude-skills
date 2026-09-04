@@ -207,6 +207,12 @@ tr.grp .count,tr.grp .sum{font-family:var(--mono);font-weight:400;color:var(--in
 .fdef .type{font-size:12px;color:var(--ink-3);padding-top:8px}
 .modal .box.wide{width:min(680px,94vw);max-height:90vh;overflow:auto}
 .fdefs{display:flex;flex-direction:column;gap:8px}
+.lane{margin-bottom:14px}
+.lane-h{display:flex;align-items:center;gap:8px;padding:4px 2px 8px;border-bottom:1px solid var(--line);margin-bottom:8px;cursor:pointer}
+.lane-h b{font-size:13px}
+.lane-h .count{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.card .cf{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-3)}
+.card .cf b{color:var(--ink-2);font-weight:500}
 .linkrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
 .linkrow .lt{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);min-width:88px}
 .linkrow .lk{flex:1;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -445,6 +451,9 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
       <button class="btn sm" id="btnColumns" hidden>Columns</button>
       <select id="groupBy" aria-label="Group by" hidden></select>
       <select id="boardBy" aria-label="Board columns" hidden></select>
+      <select id="swimBy" aria-label="Swimlanes" hidden></select>
+      <button class="btn sm" id="btnCards" hidden>Cards</button>
+      <button class="btn sm" id="btnAxes" hidden>Axes</button>
       <div class="spacer"></div>
       <button class="btn sm" id="btnExportView">Export</button>
       <button class="btn sm" id="btnSaveView">Save as view</button>
@@ -488,6 +497,28 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
       <button class="btn sm primary">Add field</button>
     </form>
     <div class="btn-row" style="justify-content:flex-end"><button class="btn" id="fieldsClose">Done</button></div>
+  </div>
+</div>
+
+<div class="modal" id="cardsModal" hidden>
+  <div class="box">
+    <h2>Fields on cards</h2>
+    <div class="small muted">Key, title, score, impact and effort always show. Pick anything else to add.</div>
+    <div class="checks" id="cardpick"></div>
+    <div class="btn-row" style="justify-content:flex-end"><button class="btn sm ghost" id="cardsNone">Clear</button><button class="btn primary" id="cardsClose">Done</button></div>
+  </div>
+</div>
+
+<div class="modal" id="axesModal" hidden>
+  <div class="box">
+    <h2>Matrix axes</h2>
+    <div class="fields">
+      <div class="field"><label>Horizontal</label><select id="axX"></select></div>
+      <div class="field"><label>Vertical</label><select id="axY"></select></div>
+      <div class="field"><label>Dot size</label><select id="axSize"></select></div>
+      <div class="field"><label>Colour by</label><select id="axColor"></select></div>
+    </div>
+    <div class="btn-row" style="justify-content:flex-end"><button class="btn sm ghost" id="axReset">Reset</button><button class="btn primary" id="axesClose">Done</button></div>
   </div>
 </div>
 
@@ -583,7 +614,7 @@ const LS_VIEW = 'discovery-desk:view';
 let data = null;
 /* Everything a saved view captures lives in `ui`. */
 const LS_UI='discovery-desk:ui';
-function defaultUi(){ return {view:'list',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['rank'],tlScale:'month',showArchived:false}; }
+function defaultUi(){ return {view:'list',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['rank'],tlScale:'month',showArchived:false,swimlane:'',cardFields:[],matrix:{x:'effort',y:'impact',size:'reach',color:'status'}}; }
 function loadUi(){ try{ const u=JSON.parse(localStorage.getItem(LS_UI)); if(u&&u.view) return Object.assign(defaultUi(),u); }catch(e){} return defaultUi(); }
 let ui = loadUi();
 let activeViewId = localStorage.getItem('discovery-desk:activeView') || null;
@@ -1045,9 +1076,9 @@ function allOwners(){ return [...new Set(data.ideas.map(i=>i.owner).filter(Boole
 function renderNavCounts(){ $('[data-count="list"]').textContent=data.ideas.length; }
 /* ---------- saved views ---------- */
 const VIEW_NAMES={list:'Ideas',board:'Board',matrix:'Impact vs effort',timeline:'Timeline',roadmap:'Buckets'};
-function normSnap(o){ return {type:o.type||o.view||'list',q:o.q||'',rules:o.rules||[],sort:o.sort||{key:'score',dir:-1},groupBy:o.groupBy||'',boardBy:o.boardBy||'status',hidden:[...(o.hidden||[])].sort(),tlScale:o.tlScale||'month',showArchived:!!o.showArchived}; }
+function normSnap(o){ return {type:o.type||o.view||'list',q:o.q||'',rules:o.rules||[],sort:o.sort||{key:'score',dir:-1},groupBy:o.groupBy||'',boardBy:o.boardBy||'status',hidden:[...(o.hidden||[])].sort(),tlScale:o.tlScale||'month',showArchived:!!o.showArchived,swimlane:o.swimlane||'',cardFields:[...(o.cardFields||[])],matrix:Object.assign({x:'effort',y:'impact',size:'reach',color:'status'},o.matrix||{})}; }
 function viewSnapshot(){ return JSON.parse(JSON.stringify(normSnap(ui))); }
-function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlScale:sn.tlScale,showArchived:sn.showArchived}); $('#search').value=ui.q; }
+function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlScale:sn.tlScale,showArchived:sn.showArchived,swimlane:sn.swimlane,cardFields:[...sn.cardFields],matrix:{...sn.matrix}}); $('#search').value=ui.q; }
 function activeView(){ return (data.views||[]).find(v=>v.id===activeViewId)||null; }
 function viewDirty(){ const v=activeView(); return !!v && JSON.stringify(normSnap(v))!==JSON.stringify(normSnap(ui)); }
 function selectView(id){ const v=data.views.find(x=>x.id===id); if(!v) return; activeViewId=id; applyView(v); afterRailPick(); render(); }
@@ -1114,7 +1145,7 @@ function renderColumnPicker(){
 
 function renderToolbar(){
   const v=activeView(), dirty=viewDirty();
-  $('#viewTitle').textContent=v?v.name:VIEW_NAMES[ui.view];
+  $('#viewTitle').textContent=v?v.name:(ui.view==='matrix'?matrixTitle():VIEW_NAMES[ui.view]);
   $('#viewDesc').hidden=!(v&&v.description); $('#viewDesc').textContent=v?(v.description||''):'';
   $$('#nav button').forEach(b=>b.classList.toggle('active',!v&&b.dataset.view===ui.view));
   $('#btnSaveView').textContent=v?'Save changes':'Save as view'; $('#btnSaveView').hidden=!!v&&!dirty;
@@ -1128,6 +1159,11 @@ function renderToolbar(){
   $('#btnColumns').hidden=ui.view!=='list'; $('#btnColumns').textContent=ui.hidden.length?'Columns ('+ui.hidden.length+' hidden)':'Columns';
   const gsel=$('#groupBy'); gsel.hidden=!(ui.view==='list'||ui.view==='timeline');
   if(!gsel.hidden){ gsel.innerHTML='<option value="">No grouping</option>'+fieldDefs().filter(f=>!f.computed).map(f=>'<option value="'+esc(f.id)+'"'+(f.id===ui.groupBy?' selected':'')+'>Group: '+esc(f.name)+'</option>').join(''); }
+  const swim=$('#swimBy'); swim.hidden=!(ui.view==='board'||ui.view==='roadmap');
+  if(!swim.hidden) swim.innerHTML='<option value="">No swimlanes</option>'+fieldDefs().filter(f=>!f.computed&&f.type!=='text'&&f.type!=='formula').map(f=>'<option value="'+esc(f.id)+'"'+(f.id===ui.swimlane?' selected':'')+'>Lanes: '+esc(f.name)+'</option>').join('');
+  $('#btnCards').hidden=!(ui.view==='board'||ui.view==='roadmap');
+  $('#btnCards').textContent=ui.cardFields.length?'Cards ('+ui.cardFields.length+')':'Cards';
+  $('#btnAxes').hidden=ui.view!=='matrix';
   const bsel=$('#boardBy'); bsel.hidden=ui.view!=='board';
   if(!bsel.hidden){ bsel.innerHTML=fieldDefs().filter(f=>(f.type==='select'&&f.id!=='bucket')||f.type==='checkbox').map(f=>'<option value="'+esc(f.id)+'"'+(f.id===ui.boardBy?' selected':'')+'>Columns: '+esc(f.name)+'</option>').join(''); }
   $('#fieldsCount').textContent=customFields().length?'('+customFields().length+')':'';
@@ -1223,16 +1259,48 @@ function customInputValue(f,el){
   if(f.type==='number'||f.type==='rating') return el.value===''?'':Number(el.value);
   return el.value;
 }
-function renderColumns(c, list, f){
-  const groups = f.type==='checkbox' ? [{id:'yes',name:f.name+': yes'},{id:'no',name:f.name+': no'}]
+/* Extra field chips on a card, chosen per view. */
+function cardExtras(i){
+  return ui.cardFields.map(id=>{ const f=fieldById(id); if(!f) return '';
+    const v=getVal(i,f); if(isEmpty(v)) return '';
+    let txt;
+    if(f.type==='checkbox') txt=f.name;
+    else if(hasOpts(f)) txt=(Array.isArray(v)?v:[v]).map(o=>optName(f,o)).join(', ');
+    else if(f.type==='date') txt=fmtD(v);
+    else if(f.type==='formula'||f.type==='number') txt=fmtNum(v);
+    else txt=String(v);
+    return '<span class="cf"><b>'+esc(f.name)+'</b> '+esc(txt)+'</span>'; }).join('');
+}
+function columnGroupsFor(f){
+  return f.type==='checkbox' ? [{id:'yes',name:f.name+': yes'},{id:'no',name:f.name+': no'}]
     : [...(f.options||[]).map(o=>({id:o.id,name:o.name,color:o.color})), ...(f.custom?[{id:'',name:'No '+f.name.toLowerCase()}]:[])];
+}
+function renderColumns(c, list, f){
+  const lane=ui.swimlane?fieldById(ui.swimlane):null;
+  if(lane){
+    groupList(list,lane).forEach(g=>{
+      const box=document.createElement('div'); box.className='lane';
+      const key='lane:'+g.id, open=!collapsed.has(key);
+      const h=document.createElement('div'); h.className='lane-h';
+      h.innerHTML='<span class="tri">'+(open?'▾':'▸')+'</span>'+(g.color?'<span class="status" style="--sc:'+g.color+'">'+esc(g.name)+'</span>':'<b>'+esc(g.name)+'</b>')+'<span class="count">'+g.items.length+'</span>';
+      h.onclick=()=>{ collapsed.has(key)?collapsed.delete(key):collapsed.add(key); render(); };
+      box.appendChild(h);
+      if(open) renderColumnGrid(box,g.items,f);
+      c.appendChild(box);
+    });
+    return;
+  }
+  renderColumnGrid(c,list,f);
+}
+function renderColumnGrid(c, list, f){
+  const groups = columnGroupsFor(f);
   const keyOf=i=>{ const v=getVal(i,f); return f.type==='checkbox'?(v?'yes':'no'):(v||(f.id==='bucket'?'none':'')); };
   const wrap=document.createElement('div'); wrap.className='columns';
   groups.forEach(g=>{
     const items=sorted(list.filter(i=>keyOf(i)===g.id)).sort((a,b)=>score(b)-score(a));
     const col=document.createElement('div'); col.className='col'; col.dataset.group=g.id;
     col.innerHTML='<div class="col-h">'+(g.color?'<span class="status" style="--sc:'+g.color+'">'+esc(g.name)+'</span>':'<b>'+esc(g.name)+'</b>')+'<span class="count">'+items.length+'</span><span class="sum" title="Total score">Σ '+Math.round(items.reduce((a,i)=>a+score(i),0))+'</span></div>'+
-      items.map(i=>'<div class="card" draggable="true" data-id="'+i.id+'"><div class="meta"><span class="key">'+esc(i.key)+'</span>'+(f.id==='status'?bucketBadge(i.bucket):statusBadge(i.status))+'</div><div class="t">'+esc(i.title)+'</div><div class="meta"><span class="score" title="Score">'+score(i)+'</span>'+pips(i.impact)+pips(i.effort,'effort')+(i.insights.length?'<span title="Insights">◆ '+i.insights.length+'</span>':'')+(i.owner?'<span>'+esc(i.owner)+'</span>':'')+'</div>'+(i.labels.length?'<div>'+labelsHtml(i.labels)+'</div>':'')+'</div>').join('');
+      items.map(i=>'<div class="card" draggable="true" data-id="'+i.id+'"><div class="meta"><span class="key">'+esc(i.key)+'</span>'+(f.id==='status'?bucketBadge(i.bucket):statusBadge(i.status))+'</div><div class="t">'+esc(i.title)+'</div><div class="meta"><span class="score" title="Score">'+score(i)+'</span>'+pips(i.impact)+pips(i.effort,'effort')+(i.insights.length?'<span title="Insights">◆ '+i.insights.length+'</span>':'')+(i.owner?'<span>'+esc(i.owner)+'</span>':'')+'</div>'+(i.labels.length?'<div>'+labelsHtml(i.labels)+'</div>':'')+(cardExtras(i)?'<div class="meta">'+cardExtras(i)+'</div>':'')+'</div>').join('');
     wrap.appendChild(col);
     col.addEventListener('dragover',e=>{ e.preventDefault(); col.classList.add('over'); });
     col.addEventListener('dragleave',()=>col.classList.remove('over'));
@@ -1315,32 +1383,62 @@ function renderTimeline(c, list){
 }
 
 /* ---------- matrix view ---------- */
+const AXIS_FIELDS=()=>fieldDefs().filter(f=>['number','rating','formula'].includes(f.type));
+const COLOR_FIELDS=()=>fieldDefs().filter(f=>f.type==='select'||f.type==='checkbox');
+const numOf=(i,f)=>{ if(!f) return 0; const v=getVal(i,f); const n=Number(v); return isFinite(n)?n:0; };
+/* Colour a dot by any select or checkbox field, falling back to the accent. */
+function dotColor(i,f){
+  if(!f) return 'var(--accent)';
+  const v=getVal(i,f);
+  if(f.type==='checkbox') return v?'#3f9d6d':'#7d8798';
+  const o=(f.options||[]).find(o=>o.id===(v||(f.id==='bucket'?'none':'')));
+  return (o&&o.color)||'#7d8798';
+}
+const matrixTitle=()=>{ const fx=fieldById(ui.matrix.x)||fieldById('effort'), fy=fieldById(ui.matrix.y)||fieldById('impact'); return fy.name+' vs '+fx.name.toLowerCase(); };
+function quadrantNames(fx,fy){
+  if(fx.id==='effort'&&fy.id==='impact') return ['Quick wins','Big bets','Fill-ins','Money pits'];
+  const cut=t=>t.length>26?t.slice(0,25)+'…':t;
+  const X=fx.name.toLowerCase(), Y=fy.name.toLowerCase();
+  return [cut('High '+Y+', low '+X),cut('High '+Y+', high '+X),cut('Low '+Y+', low '+X),cut('Low '+Y+', high '+X)];
+}
 function renderMatrix(c,list){
+  const fx=fieldById(ui.matrix.x)||fieldById('effort'), fy=fieldById(ui.matrix.y)||fieldById('impact');
+  const fsize=ui.matrix.size?fieldById(ui.matrix.size):null, fcolor=ui.matrix.color?fieldById(ui.matrix.color):null;
   const W=760,H=560,P={l:56,r:24,t:28,b:48};
-  const x=v=>P.l+((v-0.5)/5)*(W-P.l-P.r);      // effort 1..5 left→right
-  const y=v=>H-P.b-((v-0.5)/5)*(H-P.t-P.b);    // impact 1..5 bottom→top
-  const maxReach=Math.max(1,...list.map(i=>Number(i.reach)||0));
-  const r=i=>6+Math.sqrt((Number(i.reach)||0)/maxReach)*16;
+  /* Axes span each field's own range, so a formula or a 0-100 field plots as well as a 1-5 rating. */
+  const range=f=>{ const vals=list.map(i=>numOf(i,f)); let lo=Math.min(...vals,f.type==='rating'?1:0), hi=Math.max(...vals,f.type==='rating'?5:1); if(hi===lo) hi=lo+1; return {lo,hi}; };
+  const rx=range(fx), ry=range(fy);
+  const x=v=>P.l+((v-rx.lo)/(rx.hi-rx.lo))*(W-P.l-P.r);
+  const y=v=>H-P.b-((v-ry.lo)/(ry.hi-ry.lo))*(H-P.t-P.b);
+  const sizes=list.map(i=>numOf(i,fsize)); const maxSize=Math.max(1,...sizes);
+  const r=i=>fsize?6+Math.sqrt(Math.max(0,numOf(i,fsize))/maxSize)*16:9;
+  const ticks=f=>{ const {lo,hi}=range(f); const n=4; return Array.from({length:n+1},(_,k)=>lo+(hi-lo)*k/n); };
+  const fmtTick=v=>Math.abs(v)>=100?String(Math.round(v)):(Math.round(v*10)/10).toString();
   // jitter overlapping points deterministically
   const seen={};
-  const pts=list.map(i=>{ const k=i.impact+':'+i.effort; const n=(seen[k]=(seen[k]||0)+1); const ang=n*2.4, rad=n>1?10+n*3:0; return {i, cx:x(i.effort)+Math.cos(ang)*rad, cy:y(i.impact)+Math.sin(ang)*rad}; });
-  const midx=x(3), midy=y(3);
+  const pts=list.map(i=>{ const vx=numOf(i,fx), vy=numOf(i,fy); const k=vx+':'+vy; const n=(seen[k]=(seen[k]||0)+1); const ang=n*2.4, rad=n>1?10+n*3:0; return {i, cx:x(vx)+Math.cos(ang)*rad, cy:y(vy)+Math.sin(ang)*rad}; });
+  const midx=x((rx.lo+rx.hi)/2), midy=y((ry.lo+ry.hi)/2);
   let svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Impact versus effort matrix">';
   svg+='<rect x="'+P.l+'" y="'+P.t+'" width="'+(W-P.l-P.r)+'" height="'+(H-P.t-P.b)+'" fill="var(--bg)"/>';
-  for(let v=1;v<=5;v++){ svg+='<line class="grid" x1="'+x(v)+'" x2="'+x(v)+'" y1="'+P.t+'" y2="'+(H-P.b)+'"/><line class="grid" y1="'+y(v)+'" y2="'+y(v)+'" x1="'+P.l+'" x2="'+(W-P.r)+'"/>'; svg+='<text x="'+x(v)+'" y="'+(H-P.b+18)+'" text-anchor="middle">'+v+'</text><text x="'+(P.l-10)+'" y="'+(y(v)+4)+'" text-anchor="end">'+v+'</text>'; }
+  ticks(fx).forEach(v=>{ svg+='<line class="grid" x1="'+x(v)+'" x2="'+x(v)+'" y1="'+P.t+'" y2="'+(H-P.b)+'"/><text x="'+x(v)+'" y="'+(H-P.b+18)+'" text-anchor="middle">'+fmtTick(v)+'</text>'; });
+  ticks(fy).forEach(v=>{ svg+='<line class="grid" y1="'+y(v)+'" y2="'+y(v)+'" x1="'+P.l+'" x2="'+(W-P.r)+'"/><text x="'+(P.l-10)+'" y="'+(y(v)+4)+'" text-anchor="end">'+fmtTick(v)+'</text>'; });
   svg+='<line class="axis" x1="'+midx+'" x2="'+midx+'" y1="'+P.t+'" y2="'+(H-P.b)+'" stroke-dasharray="4 4"/><line class="axis" y1="'+midy+'" y2="'+midy+'" x1="'+P.l+'" x2="'+(W-P.r)+'" stroke-dasharray="4 4"/>';
-  svg+='<text class="q" x="'+(P.l+10)+'" y="'+(P.t+18)+'">Quick wins</text><text class="q" x="'+(W-P.r-10)+'" y="'+(P.t+18)+'" text-anchor="end">Big bets</text><text class="q" x="'+(P.l+10)+'" y="'+(H-P.b-10)+'">Fill-ins</text><text class="q" x="'+(W-P.r-10)+'" y="'+(H-P.b-10)+'" text-anchor="end">Money pits</text>';
-  svg+='<text x="'+((P.l+W-P.r)/2)+'" y="'+(H-8)+'" text-anchor="middle">Effort →</text><text transform="translate(16 '+((P.t+H-P.b)/2)+') rotate(-90)" text-anchor="middle">Impact →</text>';
-  pts.forEach(p=>{ svg+='<circle class="pt" data-id="'+p.i.id+'" cx="'+p.cx.toFixed(1)+'" cy="'+p.cy.toFixed(1)+'" r="'+r(p.i).toFixed(1)+'" fill="'+statusOf(p.i.status).color+'" fill-opacity=".85"><title>'+esc(p.i.key+' '+p.i.title+' · score '+score(p.i))+'</title></circle>'; });
+  const qn=quadrantNames(fx,fy);
+  svg+='<text class="q" x="'+(P.l+10)+'" y="'+(P.t+18)+'">'+esc(qn[0])+'</text><text class="q" x="'+(W-P.r-10)+'" y="'+(P.t+18)+'" text-anchor="end">'+esc(qn[1])+'</text><text class="q" x="'+(P.l+10)+'" y="'+(H-P.b-10)+'">'+esc(qn[2])+'</text><text class="q" x="'+(W-P.r-10)+'" y="'+(H-P.b-10)+'" text-anchor="end">'+esc(qn[3])+'</text>';
+  svg+='<text x="'+((P.l+W-P.r)/2)+'" y="'+(H-8)+'" text-anchor="middle">'+esc(fx.name)+' →</text><text transform="translate(16 '+((P.t+H-P.b)/2)+') rotate(-90)" text-anchor="middle">'+esc(fy.name)+' →</text>';
+  pts.forEach(p=>{ svg+='<circle class="pt" data-id="'+p.i.id+'" cx="'+p.cx.toFixed(1)+'" cy="'+p.cy.toFixed(1)+'" r="'+r(p.i).toFixed(1)+'" fill="'+dotColor(p.i,fcolor)+'" fill-opacity=".85"><title>'+esc(p.i.key+' '+p.i.title+' · score '+score(p.i))+'</title></circle>'; });
   pts.forEach(p=>{ svg+='<text class="pt-label" x="'+(p.cx+r(p.i)+4).toFixed(1)+'" y="'+(p.cy+4).toFixed(1)+'">'+esc(p.i.key)+'</text>'; });
   svg+='</svg>';
   const wrap=document.createElement('div'); wrap.className='matrix-wrap';
-  const quick=list.filter(i=>i.impact>=3&&i.effort<=2), bets=list.filter(i=>i.impact>=3&&i.effort>=3), fill=list.filter(i=>i.impact<=2&&i.effort<=2), pit=list.filter(i=>i.impact<=2&&i.effort>=3);
+  const mx=(rx.lo+rx.hi)/2, my=(ry.lo+ry.hi)/2;
+  const q=(hiY,hiX)=>list.filter(i=>(numOf(i,fy)>=my)===hiY&&(numOf(i,fx)>=mx)===hiX);
+  const quick=q(true,false), bets=q(true,true), fill=q(false,false), pit=q(false,true);
   const top=[...list].sort((a,b)=>score(b)-score(a)).slice(0,5);
   wrap.innerHTML='<div class="matrix">'+svg+'</div><div class="legend">'+
-    '<div class="box"><div class="eyebrow">Quadrants</div><div class="row"><span>Quick wins</span><span class="num">'+quick.length+'</span></div><div class="row"><span>Big bets</span><span class="num">'+bets.length+'</span></div><div class="row"><span>Fill-ins</span><span class="num">'+fill.length+'</span></div><div class="row"><span>Money pits</span><span class="num">'+pit.length+'</span></div><div class="small muted">Dot size scales with reach. Color is status.</div></div>'+
+    '<div class="box"><div class="eyebrow">Quadrants</div>'+[[qn[0],quick],[qn[1],bets],[qn[2],fill],[qn[3],pit]].map(([n,arr])=>'<div class="row"><span>'+esc(n)+'</span><span class="num">'+arr.length+'</span></div>').join('')+'<div class="small muted">'+(fsize?'Dot size is '+esc(fsize.name).toLowerCase()+'. ':'')+(fcolor?'Colour is '+esc(fcolor.name).toLowerCase()+'.':'')+'</div></div>'+
     '<div class="box"><div class="eyebrow">Top by score</div>'+top.map(i=>'<div class="row"><a href="#" data-id="'+i.id+'" style="text-decoration:none;color:var(--ink)">'+esc(i.title)+'</a><span class="num score">'+score(i)+'</span></div>').join('')+'</div>'+
-    '<div class="box"><div class="eyebrow">'+esc(fieldName('status'))+'</div>'+statuses().map(s=>'<div class="row">'+statusBadge(s.id)+'<span class="num">'+list.filter(i=>i.status===s.id).length+'</span></div>').join('')+'</div>'+
+    (fcolor?'<div class="box"><div class="eyebrow">'+esc(fcolor.name)+'</div>'+columnGroupsFor(fcolor).map(g=>{ const n=list.filter(i=>{ const v=getVal(i,fcolor); return fcolor.type==='checkbox'?((v?'yes':'no')===g.id):((v||(fcolor.id==='bucket'?'none':''))===g.id); }).length;
+      return '<div class="row"><span class="status" style="--sc:'+(g.color||'#7d8798')+'">'+esc(g.name)+'</span><span class="num">'+n+'</span></div>'; }).join('')+'</div>':'')+
   '</div>';
   c.appendChild(wrap);
   wrap.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',e=>{ e.preventDefault(); openPanel(el.dataset.id); }));
@@ -1529,6 +1627,20 @@ function renderFields(){
   });
 }
 
+function renderCardPick(){
+  const box=$('#cardpick');
+  const skip=['rank','key','title','score','impact','effort'];
+  box.innerHTML=fieldDefs().filter(f=>!skip.includes(f.id)).map(f=>'<label><input type="checkbox" value="'+esc(f.id)+'"'+(ui.cardFields.includes(f.id)?' checked':'')+'>'+esc(f.name)+'</label>').join('');
+  box.querySelectorAll('input').forEach(cb=>cb.addEventListener('change',()=>{ ui.cardFields=ui.cardFields.filter(id=>id!==cb.value); if(cb.checked) ui.cardFields.push(cb.value); render(); }));
+}
+function renderAxes(){
+  const opt=(list,cur,none)=>(none?'<option value="">'+none+'</option>':'')+list.map(f=>'<option value="'+esc(f.id)+'"'+(f.id===cur?' selected':'')+'>'+esc(f.name)+'</option>').join('');
+  $('#axX').innerHTML=opt(AXIS_FIELDS(),ui.matrix.x);
+  $('#axY').innerHTML=opt(AXIS_FIELDS(),ui.matrix.y);
+  $('#axSize').innerHTML=opt(AXIS_FIELDS(),ui.matrix.size,'Uniform');
+  $('#axColor').innerHTML=opt(COLOR_FIELDS(),ui.matrix.color,'Accent only');
+}
+
 /* ---------- export: CSV and print/PDF ---------- */
 let expCols='visible';
 function exportRows(){ return sorted(visibleIdeas()); }
@@ -1674,6 +1786,14 @@ function init(){
   $('#mergeCancel').onclick=()=>{ $('#mergeModal').hidden=true; };
   $('#mergeGo').onclick=()=>{ const t=$('#mergeTarget').value; if(!t) return; const src=openId; mergeInto(src,t); $('#mergeModal').hidden=true; openPanel(t); commit(); toast('Merged'); };
   $('#fArchived').addEventListener('change',e=>{ ui.showArchived=e.target.checked; render(); });
+  $('#swimBy').addEventListener('change',e=>{ ui.swimlane=e.target.value; render(); });
+  $('#btnCards').onclick=()=>{ renderCardPick(); $('#cardsModal').hidden=false; };
+  $('#cardsClose').onclick=()=>{ $('#cardsModal').hidden=true; };
+  $('#cardsNone').onclick=()=>{ ui.cardFields=[]; renderCardPick(); render(); };
+  $('#btnAxes').onclick=()=>{ renderAxes(); $('#axesModal').hidden=false; };
+  $('#axesClose').onclick=()=>{ $('#axesModal').hidden=true; };
+  $('#axReset').onclick=()=>{ ui.matrix={x:'effort',y:'impact',size:'reach',color:'status'}; renderAxes(); render(); };
+  ['x','y','size','color'].forEach(k=>$('#ax'+k.charAt(0).toUpperCase()+k.slice(1)).addEventListener('change',e=>{ ui.matrix[k]=e.target.value; render(); }));
   $('#btnExport').onclick=exportJSON;
   $('#btnImport').onclick=()=>$('#importInput').click();
   $('#importInput').addEventListener('change',e=>{ if(e.target.files[0]) importJSON(e.target.files[0]); e.target.value=''; });
@@ -1681,7 +1801,7 @@ function init(){
   if(!hasFS){ $('#btnOpen').disabled=true; $('#btnSaveAs').disabled=true; $('#fsNote').textContent = window.self!==window.top ? 'File access is unavailable inside an embedded preview. Open index.html directly in Chrome or Edge to sync a project file.' : 'This browser cannot write files directly. Use Export and Import, or open in Chrome or Edge to sync a project file.'; }
   document.addEventListener('keydown',e=>{
     const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-    if(e.key==='Escape'){ const open=['#mergeModal','#exportModal','#filtersModal','#columnsModal','#viewModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(railOpen()) closeRail(); else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
+    if(e.key==='Escape'){ const open=['#mergeModal','#exportModal','#filtersModal','#columnsModal','#viewModal','#cardsModal','#axesModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(railOpen()) closeRail(); else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
     if(typing) return;
     if(e.key==='n'||e.key==='N'){ e.preventDefault(); showNew(); }
     if(e.key==='/'){ e.preventDefault(); $('#search').focus(); }
