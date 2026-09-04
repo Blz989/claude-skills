@@ -73,6 +73,12 @@ Search applies on top of filters in every view and covers titles, descriptions, 
 
 Plain JSON, one object with `name`, `seq`, a `fields` array of custom field definitions, a `views` array of saved views, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. Dates are `start` and `end` as `YYYY-MM-DD` strings; leave them empty for unscheduled ideas. Custom values live under `custom` keyed by field id. You can edit the file by hand or feed it to another tool. Statuses and buckets are fixed lists in the app: `parked`, `discovery`, `prioritized`, `delivery`, `shipped`, `wontdo` and `now`, `next`, `later`, `none`.
 
+## Phones and tablets
+
+Below 900px the left rail becomes a drawer. Tap the menu button at the top left to reach the view switcher, saved views, fiscal year settings, field manager, project file controls, and the theme toggle. Picking a view closes the drawer. The toolbar reflows so the view name gets its own row, and the Ideas table, board, and timeline scroll sideways within their own containers.
+
+One thing does not work by touch: dragging cards between board columns, and dragging bars on the timeline, both rely on a mouse. On a phone, tap a card or a row to open the idea and change its status, bucket, or dates there instead.
+
 ## Theme
 
 Auto, Light, and Dark toggle in the rail. Auto follows the operating system.

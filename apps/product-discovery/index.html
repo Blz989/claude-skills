@@ -16,6 +16,7 @@
   --good-soft:#e2f3e8; --warn-soft:#fbf0d9; --crit-soft:#f9e1e1;
   --shadow:0 8px 30px rgba(27,33,48,.12);
   --radius:8px;
+  --tl-side:270px;
   --font:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   --st-parked:#8a93a6; --st-discovery:#2d5fa6; --st-prioritized:#7b4fbf; --st-delivery:#c98a1b; --st-shipped:#2e8b57; --st-wontdo:#c43d3d;
@@ -216,9 +217,9 @@ tr.grp .count,tr.grp .sum{font-family:var(--mono);font-weight:400;color:var(--in
 .tl-grid{position:relative;width:max-content;min-width:100%}
 .tl-head{display:flex;position:sticky;top:0;z-index:3}
 .tl-row{display:flex}
-.tl-side{width:270px;flex:none;position:sticky;left:0;z-index:2;background:var(--surface);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 10px;height:44px;display:flex;flex-direction:column;justify-content:center;gap:1px;cursor:pointer}
+.tl-side{width:var(--tl-side);flex:none;overflow:hidden;position:sticky;left:0;z-index:2;background:var(--surface);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 10px;height:44px;display:flex;flex-direction:column;justify-content:center;gap:1px;cursor:pointer}
 .tl-side .t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tl-side .d{font-size:11px;color:var(--ink-3);font-family:var(--mono)}
+.tl-side .d{font-size:11px;color:var(--ink-3);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tl-head .tl-side{background:var(--surface-2);z-index:4;justify-content:flex-end;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600;cursor:default}
 .tl-track{position:relative;flex:none;height:44px;border-bottom:1px solid var(--line)}
 .tl-head .tl-track{background:var(--surface-2)}
@@ -284,11 +285,38 @@ tr.grp .count,tr.grp .sum{font-family:var(--mono);font-weight:400;color:var(--in
 .modal input{border:1px solid var(--line-strong);background:var(--bg);border-radius:6px;padding:8px 10px;width:100%}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:13px;z-index:40;box-shadow:var(--shadow)}
 kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:4px;padding:0 5px;color:var(--ink-2)}
+#btnMenu{display:none}
+.rail-scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:24}
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
-  .rail{display:none}
   .matrix-wrap{grid-template-columns:1fr}
+  /* The rail carries the view switcher, saved views, fields and theme, so on a
+     phone it becomes a drawer instead of disappearing. */
+  .rail{position:fixed;top:0;left:0;bottom:0;width:min(290px,86vw);z-index:25;transform:translateX(-100%);transition:transform .2s ease;box-shadow:var(--shadow);padding-bottom:28px}
+  .rail.open{transform:none}
+  #btnMenu{display:inline-flex}
+  .toolbar{padding:10px 12px;gap:6px}
+  .toolbar h1{font-size:16px;margin-right:0}
+  #btnMenu{order:-2}
+  .vt{order:-1;flex:0 0 calc(100% - 50px);max-width:none}
+  .vt .desc{max-width:none}
+  .search{order:5;flex-basis:100%}
+  .search input{width:100%}
+  #groupBy,#boardBy{max-width:46vw}
+  .btn,.toolbar select{padding:7px 10px}
+  .content{padding:12px}
+  .chips{gap:5px}
+  .rule{grid-template-columns:1fr 1fr;gap:6px}
+  .rule [data-vals],.rule [data-val]{grid-column:1/-1}
+  .rule [data-rm]{grid-column:2;justify-self:end}
+  .add-row{grid-template-columns:1fr!important}
+  .fdef{grid-template-columns:1fr auto auto}
+  .fields{grid-template-columns:1fr}
+  .modal .box{padding:14px;max-height:88vh;overflow:auto}
+  :root{--tl-side:190px}
+  .panel{width:100vw}
 }
+@media (prefers-reduced-motion:reduce){.rail{transition:none}}
 </style>
 </head>
 <body>
@@ -354,6 +382,7 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
 
   <main class="main">
     <div class="toolbar">
+      <button class="btn sm" id="btnMenu" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 4h12M2 8h12M2 12h12"/></svg></button>
       <div class="vt"><h1 id="viewTitle">Ideas</h1><div class="desc" id="viewDesc" hidden></div></div>
       <div class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg><input id="search" placeholder="Search ideas, labels, insights" aria-label="Search"></div>
       <button class="btn sm" id="btnFilters">Filter</button>
@@ -370,6 +399,7 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
   </main>
 </div>
 
+<div class="rail-scrim" id="railScrim" hidden></div>
 <div class="scrim" id="scrim" hidden></div>
 <aside class="panel" id="panel" aria-label="Idea detail">
   <div class="panel-h">
@@ -860,7 +890,7 @@ function viewSnapshot(){ return JSON.parse(JSON.stringify(normSnap(ui))); }
 function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlScale:sn.tlScale}); $('#search').value=ui.q; }
 function activeView(){ return (data.views||[]).find(v=>v.id===activeViewId)||null; }
 function viewDirty(){ const v=activeView(); return !!v && JSON.stringify(normSnap(v))!==JSON.stringify(normSnap(ui)); }
-function selectView(id){ const v=data.views.find(x=>x.id===id); if(!v) return; activeViewId=id; applyView(v); render(); }
+function selectView(id){ const v=data.views.find(x=>x.id===id); if(!v) return; activeViewId=id; applyView(v); afterRailPick(); render(); }
 function renderViewsNav(){
   const box=$('#viewsNav');
   if(!(data.views||[]).length){ box.innerHTML='<div class="small muted" style="padding:2px 10px">None yet. Set up filters and click Save as view.</div>'; return; }
@@ -1058,6 +1088,7 @@ function renderTimeline(c, list){
   const months=[]; for(let d=new Date(min); d<=max; d=new Date(d.getFullYear(),d.getMonth()+1,1)){ const end=new Date(d.getFullYear(),d.getMonth()+1,0); months.push({d,left:x(d),width:(dayDiff(d,end)+1)*PX}); }
   const quarters={}; months.forEach(m=>{ const q=quarterLabel(m.d); if(!quarters[q]) quarters[q]={left:m.left,width:0}; quarters[q].width+=m.width; });
   const lines=months.map(m=>'<i class="tl-line" style="left:'+m.left+'px"></i>').join('');
+  const sideW=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--tl-side'))||270;
   const gf=ui.groupBy?fieldById(ui.groupBy):null;
   const tlRows=(items,rowHtml)=> gf
     ? groupList(items,gf).map(g=>{ const key='tl:'+g.id, open=!collapsed.has(key); return '<div class="tl-row tl-grp" data-g="'+esc(key)+'"><div class="tl-side"><span class="tri">'+(open?'▾':'▸')+'</span>'+groupHeaderLabel(g)+'<span class="count">'+g.items.length+'</span></div><div class="tl-track" style="width:'+W+'px">'+lines+'</div></div>'+(open?g.items.map(rowHtml).join(''):''); }).join('')
@@ -1076,7 +1107,7 @@ function renderTimeline(c, list){
         return '<div class="tl-row"><div class="tl-side" data-open="'+i.id+'"><div class="t"><span class="key">'+esc(i.key)+'</span> '+esc(i.title)+'</div><div class="d">'+fmtD(i.start)+' → '+fmtD(i.end)+' · '+statusOf(i.status).name+'</div></div>'+
           '<div class="tl-track" style="width:'+W+'px">'+lines+'<div class="tl-bar" data-id="'+i.id+'" style="left:'+left+'px;width:'+width+'px;background:'+statusOf(i.status).color+'" title="'+esc(i.title)+'"><i class="hl"></i>'+esc(i.title)+'<i class="hr"></i></div></div></div>'; })+
       (sched.length?'':'<div class="tl-row"><div class="tl-side muted">No scheduled ideas</div><div class="tl-track" style="width:'+W+'px">'+lines+'</div></div>')+
-      '<div class="tl-today" style="left:'+(270+x(today))+'px"></div>'+
+      '<div class="tl-today" style="left:'+(sideW+x(today))+'px"></div>'+
     '</div></div>'+
     (unsched.length?'<div><div class="section-h"><h3>Unscheduled</h3><span class="count">'+unsched.length+'</span></div><div class="tl-unsched" style="margin-top:8px">'+
       unsched.map(i=>'<div class="u"><span class="key">'+esc(i.key)+'</span><span class="t" data-open="'+i.id+'">'+esc(i.title)+'</span>'+statusBadge(i.status)+'<span class="score">'+score(i)+'</span><button class="btn sm" data-sched="'+i.id+'">Schedule</button></div>').join('')+'</div></div>':'');
@@ -1084,7 +1115,8 @@ function renderTimeline(c, list){
 
   wrap.querySelectorAll('#tlScale button').forEach(b=>b.onclick=()=>{ ui.tlScale=b.dataset.s; render(); });
   const scroller=wrap.querySelector('.tl-scroll');
-  const jump=()=>{ scroller.scrollLeft=Math.max(0,x(today)-scroller.clientWidth/3+270); };
+  /* Put today about a third into the track, measuring from the track's own left edge. */
+  const jump=()=>{ scroller.scrollLeft=Math.max(0,x(today)-(scroller.clientWidth-sideW)/3); };
   wrap.querySelector('#tlToday').onclick=jump;
   requestAnimationFrame(jump);
   wrap.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>openPanel(el.dataset.open)));
@@ -1236,6 +1268,14 @@ function renderFields(){
   });
 }
 
+/* ---------- mobile drawer ---------- */
+const isNarrow=()=>window.matchMedia('(max-width:900px)').matches;
+function openRail(){ $('.rail').classList.add('open'); $('#railScrim').hidden=false; $('#btnMenu').setAttribute('aria-expanded','true'); }
+function closeRail(){ $('.rail').classList.remove('open'); $('#railScrim').hidden=true; $('#btnMenu').setAttribute('aria-expanded','false'); }
+const railOpen=()=>$('.rail').classList.contains('open');
+/* Picking a view on a phone should get out of the way. */
+function afterRailPick(){ if(isNarrow()) closeRail(); }
+
 /* ---------- theme ---------- */
 function applyTheme(t){
   if(t==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',t);
@@ -1253,7 +1293,10 @@ function init(){
   $('#projectName').value=data.name;
   applyTheme(localStorage.getItem(LS_THEME)||'auto');
   $$('#themeSeg button').forEach(b=>b.onclick=()=>applyTheme(b.dataset.theme));
-  $$('#nav button').forEach(b=>b.onclick=()=>{ activeViewId=null; ui.view=b.dataset.view; render(); });
+  $$('#nav button').forEach(b=>b.onclick=()=>{ activeViewId=null; ui.view=b.dataset.view; afterRailPick(); render(); });
+  $('#btnMenu').onclick=()=>railOpen()?closeRail():openRail();
+  $('#railScrim').onclick=closeRail;
+  window.addEventListener('resize',()=>{ if(!isNarrow()) closeRail(); });
   $('#search').value=ui.q;
   if(activeViewId&&!activeView()) activeViewId=null;
   const fySel=$('#fyStart'); fySel.innerHTML=[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>'<option value="'+m+'">'+new Date(2000,m-1,1).toLocaleDateString(undefined,{month:'long'})+'</option>').join('');
@@ -1288,7 +1331,7 @@ function init(){
   if(!hasFS){ $('#btnOpen').disabled=true; $('#btnSaveAs').disabled=true; $('#fsNote').textContent = window.self!==window.top ? 'File access is unavailable inside an embedded preview. Open index.html directly in Chrome or Edge to sync a project file.' : 'This browser cannot write files directly. Use Export and Import, or open in Chrome or Edge to sync a project file.'; }
   document.addEventListener('keydown',e=>{
     const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-    if(e.key==='Escape'){ const open=['#filtersModal','#columnsModal','#viewModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
+    if(e.key==='Escape'){ const open=['#filtersModal','#columnsModal','#viewModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(railOpen()) closeRail(); else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
     if(typing) return;
     if(e.key==='n'||e.key==='N'){ e.preventDefault(); showNew(); }
     if(e.key==='/'){ e.preventDefault(); $('#search').focus(); }
