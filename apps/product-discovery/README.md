@@ -73,6 +73,16 @@ Search applies on top of filters in every view and covers titles, descriptions, 
 
 Plain JSON, one object with `name`, `seq`, a `fields` array of custom field definitions, a `views` array of saved views, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. Dates are `start` and `end` as `YYYY-MM-DD` strings; leave them empty for unscheduled ideas. Custom values live under `custom` keyed by field id. You can edit the file by hand or feed it to another tool. Statuses and buckets are fixed lists in the app: `parked`, `discovery`, `prioritized`, `delivery`, `shipped`, `wontdo` and `now`, `next`, `later`, `none`.
 
+## Export
+
+**Export** in the toolbar covers the view you are looking at, with the filters and sort you have applied.
+
+- **CSV** downloads the filtered, sorted ideas. Choose **Visible** to match the columns you have showing, or **All fields** to include everything including custom and formula fields. Two checkboxes add the full description text and the insight text. Multi-value cells (labels, multi selects) join with a semicolon, dates are `YYYY-MM-DD`, and the file carries a byte order mark so Excel opens it as UTF-8.
+- **PDF** opens your browser's print dialog. Pick **Save as PDF** as the destination and keep Landscape. Any view prints, including the timeline, board, and matrix. The page gets a header with the view name, description, filter summary, idea count, and date, then the rail, toolbar, and editing controls drop away and wide content is scaled to fit the page. Printing is always on a light background even if you use dark mode.
+- **Project JSON** is the same full backup as Export JSON in the rail.
+
+The filename is built from the project, the view, and today's date.
+
 ## Phones and tablets
 
 Below 900px the left rail becomes a drawer. Tap the menu button at the top left to reach the view switcher, saved views, fiscal year settings, field manager, project file controls, and the theme toggle. Picking a view closes the drawer. The toolbar reflows so the view name gets its own row, and the Ideas table, board, and timeline scroll sideways within their own containers.

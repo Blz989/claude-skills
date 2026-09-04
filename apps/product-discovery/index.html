@@ -285,6 +285,8 @@ tr.grp .count,tr.grp .sum{font-family:var(--mono);font-weight:400;color:var(--in
 .modal input{border:1px solid var(--line-strong);background:var(--bg);border-radius:6px;padding:8px 10px;width:100%}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;font-size:13px;z-index:40;box-shadow:var(--shadow)}
 kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:4px;padding:0 5px;color:var(--ink-2)}
+#printHeader{display:none}
+.exp-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 #btnMenu{display:none}
 .rail-scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:24}
 @media (max-width:900px){
@@ -317,6 +319,39 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
   .panel{width:100vw}
 }
 @media (prefers-reduced-motion:reduce){.rail{transition:none}}
+
+/* ---------- print / save as PDF ---------- */
+@media print{
+  /* Print on a light ground whatever the screen theme is. */
+  :root,:root[data-theme="dark"],:root[data-theme="light"]{
+    --bg:#fff; --surface:#fff; --surface-2:#f2f4f7; --line:#ccd2dc; --line-strong:#aab3c1;
+    --ink:#12161d; --ink-2:#3d4757; --ink-3:#616c7e; --accent:#1f4e8c; --accent-soft:#e7eef8;
+    --shadow:none;
+  }
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{size:landscape;margin:12mm}
+  html,body{height:auto;overflow:visible;background:#fff}
+  .rail,.rail-scrim,.toolbar,.panel,.scrim,.modal,.toast,.tl-top{display:none!important}
+  /* Editable cells are controls on screen and plain values on paper. */
+  .content select,.content input[type=number],.content input[type=text],.content input[type=date]{-webkit-appearance:none;appearance:none;border:0!important;background:transparent!important;padding:0!important;color:var(--ink)}
+  .app{display:block;height:auto;overflow:visible}
+  .main{display:block;overflow:visible}
+  .content{overflow:visible;padding:0}
+  #printHeader{display:block;margin:0 0 12px}
+  #printHeader .ph-title{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  #printHeader .ph-sub{font-size:12px;color:var(--ink-2);margin-top:2px}
+  #printHeader .ph-meta{font-size:11px;color:var(--ink-3);margin-top:4px}
+  #printHeader hr{border:0;border-top:1px solid var(--line);margin:8px 0 0}
+  /* Wide content is zoomed to the printable width, measured before the dialog opens. */
+  .tl-grid,.table-wrap table,.columns{zoom:var(--print-zoom,1)}
+  .table-wrap,.tl-scroll{overflow:visible!important;max-height:none!important;border:0}
+  .tl-side,thead th{position:static!important}
+  thead{display:table-header-group}
+  tr,.tl-row,.card,.col{break-inside:avoid}
+  .tl-bar{box-shadow:none}
+  .matrix{border-color:var(--line)}
+  .empty{padding:20px 0}
+}
 </style>
 </head>
 <body>
@@ -390,11 +425,13 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
       <select id="groupBy" aria-label="Group by" hidden></select>
       <select id="boardBy" aria-label="Board columns" hidden></select>
       <div class="spacer"></div>
+      <button class="btn sm" id="btnExportView">Export</button>
       <button class="btn sm" id="btnSaveView">Save as view</button>
       <button class="btn sm ghost" id="btnViewMenu" hidden title="Rename, describe, or delete this view">Edit view</button>
       <button class="btn primary" id="btnNew">+ New idea</button>
       <div class="chips" id="statusChips" style="flex-basis:100%"></div>
     </div>
+    <div id="printHeader"></div>
     <div class="content" id="content"></div>
   </main>
 </div>
@@ -428,6 +465,17 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
       <button class="btn sm primary">Add field</button>
     </form>
     <div class="btn-row" style="justify-content:flex-end"><button class="btn" id="fieldsClose">Done</button></div>
+  </div>
+</div>
+
+<div class="modal" id="exportModal" hidden>
+  <div class="box">
+    <h2>Export</h2>
+    <div class="small muted" id="expCount"></div>
+    <div class="exp-row"><span class="eyebrow">Columns</span><div class="seg" id="expCols"><button data-c="visible" class="on">Visible</button><button data-c="all">All fields</button></div></div>
+    <div class="checks"><label><input type="checkbox" id="expDesc">Include description</label><label><input type="checkbox" id="expIns">Include insight text</label></div>
+    <div class="small muted">PDF uses your browser's print dialog. Choose "Save as PDF" as the destination, and keep Landscape for the timeline.</div>
+    <div class="btn-row"><button class="btn sm ghost" id="expJson">Project JSON</button><span class="spacer"></span><button class="btn" id="expCancel">Cancel</button><button class="btn" id="expPdf">PDF</button><button class="btn primary" id="expCsv">CSV</button></div>
   </div>
 </div>
 
@@ -1268,6 +1316,79 @@ function renderFields(){
   });
 }
 
+/* ---------- export: CSV and print/PDF ---------- */
+let expCols='visible';
+function exportRows(){ return sorted(visibleIdeas()); }
+function exportColumns(){
+  const cols=listColumns();
+  return expCols==='all'?cols:cols.filter(c=>!ui.hidden.includes(c[0]));
+}
+/* One cell as plain text, using display names rather than internal ids. */
+function cellText(i,key){
+  if(key.startsWith('c:')){
+    const f=fieldById(key.slice(2)); if(!f) return '';
+    const v=getVal(i,f);
+    if(f.type==='formula') return isEmpty(v)?'':String(v);
+    if(f.type==='checkbox') return v?'Yes':'No';
+    if(hasOpts(f)) return (Array.isArray(v)?v:(isEmpty(v)?[]:[v])).map(o=>optName(f,o)).join('; ');
+    return isEmpty(v)?'':String(v);
+  }
+  switch(key){
+    case 'key': return i.key;
+    case 'title': return i.title;
+    case 'status': return statusOf(i.status).name;
+    case 'bucket': return (BUCKETS.find(b=>b.id===(i.bucket||'none'))||{}).name;
+    case 'score': return String(score(i));
+    case 'insights': return String(insightWeight(i));
+    case 'labels': return i.labels.join('; ');
+    case 'updated': return (i.updated||'').slice(0,10);
+    case 'start': case 'end': return i[key]||'';
+    default: return i[key]==null?'':String(i[key]);
+  }
+}
+const csvCell=v=>/[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;
+function buildCsv(){
+  const cols=exportColumns();
+  const head=cols.map(c=>c[1]);
+  if($('#expDesc').checked) head.push('Description');
+  if($('#expIns').checked) head.push('Insights');
+  const lines=[head.map(csvCell).join(',')];
+  exportRows().forEach(i=>{
+    const row=cols.map(c=>cellText(i,c[0]));
+    if($('#expDesc').checked) row.push(i.description||'');
+    if($('#expIns').checked) row.push((i.insights||[]).map(x=>'('+(x.weight||1)+') '+x.text+(x.url?' '+x.url:'')).join(' | '));
+    lines.push(row.map(csvCell).join(','));
+  });
+  return '\ufeff'+lines.join('\r\n');
+}
+function exportName(ext){
+  const v=activeView();
+  const parts=[data.name||'discovery', v?v.name:VIEW_NAMES[ui.view], isoD(new Date())];
+  return parts.join('-').replace(/[^\w.-]+/g,'-').replace(/-+/g,'-').toLowerCase()+'.'+ext;
+}
+function downloadCsv(){
+  const blob=new Blob([buildCsv()],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=exportName('csv'); a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  $('#exportModal').hidden=true; toast('CSV exported');
+}
+/* Fill the print-only header and shrink wide content to the printable width. */
+function preparePrint(){
+  const v=activeView(), rows=visibleIdeas();
+  const bits=[];
+  if(ui.q) bits.push('search "'+ui.q+'"');
+  const strip=document.createElement('div');
+  ui.rules.forEach(r=>{ strip.innerHTML=ruleLabel(r); const t=strip.textContent.trim(); if(t) bits.push(t); });
+  $('#printHeader').innerHTML='<div class="ph-title">'+esc(v?v.name:VIEW_NAMES[ui.view])+'</div>'+
+    '<div class="ph-sub">'+esc(data.name||'')+(v&&v.description?' · '+esc(v.description):'')+'</div>'+
+    '<div class="ph-meta">'+rows.length+' of '+data.ideas.length+' ideas'+(bits.length?' · '+esc(bits.join(' · ')):'')+' · '+new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'})+'</div><hr>';
+  const wide=$('.tl-grid')||$('.table-wrap table')||$('.columns');
+  let z=1;
+  if(wide){ const w=wide.scrollWidth||wide.getBoundingClientRect().width; if(w>1040) z=Math.max(.35,Math.round(1040/w*100)/100); }
+  document.documentElement.style.setProperty('--print-zoom',z);
+}
+function printView(){ $('#exportModal').hidden=true; preparePrint(); setTimeout(()=>window.print(),60); }
+
 /* ---------- mobile drawer ---------- */
 const isNarrow=()=>window.matchMedia('(max-width:900px)').matches;
 function openRail(){ $('.rail').classList.add('open'); $('#railScrim').hidden=false; $('#btnMenu').setAttribute('aria-expanded','true'); }
@@ -1308,6 +1429,12 @@ function init(){
   $('#btnNew').onclick=showNew; $('#newCancel').onclick=hideNew;
   $('#groupBy').addEventListener('change',e=>{ ui.groupBy=e.target.value; render(); });
   $('#boardBy').addEventListener('change',e=>{ ui.boardBy=e.target.value; render(); });
+  $('#btnExportView').onclick=()=>{ const n=visibleIdeas().length; $('#expCount').textContent=n+' idea'+(n===1?'':'s')+' in "'+(activeView()?activeView().name:VIEW_NAMES[ui.view])+'" will be exported, with the filters and sort you have now.'; $('#exportModal').hidden=false; };
+  $$('#expCols button').forEach(b=>b.onclick=()=>{ expCols=b.dataset.c; $$('#expCols button').forEach(x=>x.classList.toggle('on',x===b)); });
+  $('#expCancel').onclick=()=>{ $('#exportModal').hidden=true; };
+  $('#expCsv').onclick=downloadCsv; $('#expPdf').onclick=printView;
+  $('#expJson').onclick=()=>{ $('#exportModal').hidden=true; exportJSON(); };
+  window.addEventListener('beforeprint',preparePrint);
   $('#btnFilters').onclick=openFilters; $('#filtersClose').onclick=()=>{ $('#filtersModal').hidden=true; };
   $('#addRule').onclick=()=>{ ui.rules.push({field:'status',op:'in',value:[]}); renderRules(); render(); };
   $('#clearRules').onclick=()=>{ ui.rules=[]; renderRules(); render(); };
@@ -1331,7 +1458,7 @@ function init(){
   if(!hasFS){ $('#btnOpen').disabled=true; $('#btnSaveAs').disabled=true; $('#fsNote').textContent = window.self!==window.top ? 'File access is unavailable inside an embedded preview. Open index.html directly in Chrome or Edge to sync a project file.' : 'This browser cannot write files directly. Use Export and Import, or open in Chrome or Edge to sync a project file.'; }
   document.addEventListener('keydown',e=>{
     const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-    if(e.key==='Escape'){ const open=['#filtersModal','#columnsModal','#viewModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(railOpen()) closeRail(); else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
+    if(e.key==='Escape'){ const open=['#exportModal','#filtersModal','#columnsModal','#viewModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(railOpen()) closeRail(); else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
     if(typing) return;
     if(e.key==='n'||e.key==='N'){ e.preventDefault(); showNew(); }
     if(e.key==='/'){ e.preventDefault(); $('#search').focus(); }
