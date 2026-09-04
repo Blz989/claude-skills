@@ -278,6 +278,11 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
 
     <div class="rail-section">
       <input id="projectName" class="project-name" aria-label="Project name" value="Untitled project">
+      <div class="btn-row" style="align-items:center;gap:6px;padding:0 6px">
+        <span class="small muted">FY starts</span>
+        <select id="fyStart" class="small" aria-label="Fiscal year start month" style="border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:3px 4px"></select>
+        <select id="fyName" class="small" aria-label="Fiscal year naming" style="border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:3px 4px"><option value="end">FY = end year</option><option value="start">FY = start year</option></select>
+      </div>
       <nav class="nav" id="nav">
         <button data-view="list"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4h12M2 8h12M2 12h12"/></svg>Ideas<span class="count" data-count="list"></span></button>
         <button data-view="board"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="3.5" height="12" rx="1"/><rect x="6.25" y="2" width="3.5" height="8" rx="1"/><rect x="10.5" y="2" width="3.5" height="10" rx="1"/></svg>Board</button>
@@ -424,6 +429,17 @@ const isoD = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'
 const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
 const dayDiff = (a,b) => Math.round((b-a)/86400000);
 const fmtD = s => s ? parseD(s).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '';
+/* Fiscal calendar. fiscalStart is the 1-based month the fiscal year begins (7 = July). */
+function fiscalOf(d){
+  const start=Number(data.fiscalStart)||1, m=d.getMonth()+1, y=d.getFullYear();
+  const offset=(m-start+12)%12, q=Math.floor(offset/3)+1;
+  const startYear = m>=start ? y : y-1;
+  const endYear = start===1 ? y : startYear+1;
+  const fy = data.fiscalName==='start' ? startYear : endYear;
+  return {q, fy, startYear, endYear};
+}
+function syncFy(){ const sel=$('#fyStart'); if(!sel.options.length) return; sel.value=String(data.fiscalStart); $('#fyName').value=data.fiscalName; $('#fyName').hidden=data.fiscalStart===1; }
+function quarterLabel(d){ const f=fiscalOf(d); const start=Number(data.fiscalStart)||1; return (start===1 ? String(f.fy) : 'FY'+String(f.fy).slice(2))+' Q'+f.q; }
 const fmtDate = iso => iso ? new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}) : '';
 const fmtTs = iso => iso ? new Date(iso).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '';
 
@@ -470,7 +486,7 @@ function sampleData(){
     {id:'domain',name:'Domain',type:'select',options:[{id:'r2r',name:'Record to Report',color:OPTION_COLORS[0]},{id:'p2p',name:'Procure to Pay',color:OPTION_COLORS[1]},{id:'o2c',name:'Order to Cash',color:OPTION_COLORS[2]},{id:'trs',name:'Treasury',color:OPTION_COLORS[3]}]},
     {id:'committed',name:'Committed',type:'checkbox'}
   ];
-  return {version:1, name:'Finance Tech discovery (sample)', seq:ideas.length, ideas, fields};
+  return {version:1, name:'Finance Tech discovery (sample)', seq:ideas.length, ideas, fields, fiscalStart:7, fiscalName:'end'};
 }
 
 /* ---------- persistence ---------- */
@@ -525,7 +541,7 @@ async function adoptHandle(h, {read}){
     else { await writeFile(); }
   } else { await writeFile(); }
   setFileState('ok');
-  $('#projectName').value = data.name;
+  $('#projectName').value = data.name; syncFy();
   render(); renderNavCounts();
   toast('Connected to '+h.name);
 }
@@ -561,6 +577,8 @@ function normalize(d){
   d.name = d.name||'Untitled project';
   d.ideas = (d.ideas||[]).map(i=>Object.assign({description:'',status:'discovery',impact:3,effort:3,confidence:50,reach:0,labels:[],owner:'',delivery:'',bucket:'none',start:'',end:'',insights:[],comments:[],history:[],created:now(),updated:now()}, i));
   d.fields = (d.fields||[]).map(f=>Object.assign({options:[]},f));
+  d.fiscalStart = Math.min(12,Math.max(1,Number(d.fiscalStart)||1));
+  d.fiscalName = d.fiscalName==='start' ? 'start' : 'end';
   d.ideas.forEach(i=>{ i.custom=i.custom||{}; });
   d.seq = Math.max(d.seq||0, ...d.ideas.map(i=>Number((i.key||'').split('-')[1])||0));
   return d;
@@ -573,7 +591,7 @@ function exportJSON(){
 }
 function importJSON(file){
   const r=new FileReader();
-  r.onload=()=>{ try{ const p=JSON.parse(r.result); if(!Array.isArray(p.ideas)) throw new Error('No ideas array'); data=normalize(p); $('#projectName').value=data.name; commit(); toast('Imported '+data.ideas.length+' ideas'); }catch(e){ toast('Import failed: '+e.message); } };
+  r.onload=()=>{ try{ const p=JSON.parse(r.result); if(!Array.isArray(p.ideas)) throw new Error('No ideas array'); data=normalize(p); $('#projectName').value=data.name; syncFy(); commit(); toast('Imported '+data.ideas.length+' ideas'); }catch(e){ toast('Import failed: '+e.message); } };
   r.readAsText(file);
 }
 
@@ -817,7 +835,7 @@ function renderTimeline(c, list){
   const W=(dayDiff(min,max)+1)*PX;
   const x=d=>dayDiff(min,d)*PX;
   const months=[]; for(let d=new Date(min); d<=max; d=new Date(d.getFullYear(),d.getMonth()+1,1)){ const end=new Date(d.getFullYear(),d.getMonth()+1,0); months.push({d,left:x(d),width:(dayDiff(d,end)+1)*PX}); }
-  const quarters={}; months.forEach(m=>{ const q=m.d.getFullYear()+' Q'+(Math.floor(m.d.getMonth()/3)+1); if(!quarters[q]) quarters[q]={left:m.left,width:0}; quarters[q].width+=m.width; });
+  const quarters={}; months.forEach(m=>{ const q=quarterLabel(m.d); if(!quarters[q]) quarters[q]={left:m.left,width:0}; quarters[q].width+=m.width; });
   const lines=months.map(m=>'<i class="tl-line" style="left:'+m.left+'px"></i>').join('');
   const gf=groupBy.timeline?fieldById(groupBy.timeline):null;
   const tlRows=(items,rowHtml)=> gf
@@ -1010,6 +1028,10 @@ function init(){
   applyTheme(localStorage.getItem(LS_THEME)||'auto');
   $$('#themeSeg button').forEach(b=>b.onclick=()=>applyTheme(b.dataset.theme));
   $$('#nav button').forEach(b=>b.onclick=()=>{ view=b.dataset.view; localStorage.setItem(LS_VIEW,view); render(); });
+  const fySel=$('#fyStart'); fySel.innerHTML=[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>'<option value="'+m+'">'+new Date(2000,m-1,1).toLocaleDateString(undefined,{month:'long'})+'</option>').join('');
+  syncFy();
+  fySel.addEventListener('change',e=>{ data.fiscalStart=Number(e.target.value); syncFy(); persist(); render(); });
+  $('#fyName').addEventListener('change',e=>{ data.fiscalName=e.target.value; persist(); render(); });
   $('#projectName').addEventListener('change',e=>{ data.name=e.target.value.trim()||'Untitled project'; e.target.value=data.name; persist(); });
   $('#search').addEventListener('input',e=>{ filters.q=e.target.value; render(); });
   $('#fBucket').addEventListener('change',e=>{ filters.bucket=e.target.value; render(); });

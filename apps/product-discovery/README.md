@@ -36,6 +36,10 @@ The **Board** has a "Columns" selector that switches its columns to any single s
 
 Grouping and column choices are remembered per view.
 
+## Fiscal year
+
+Under the project name in the rail, set the month your fiscal year starts. The Timeline's quarter headers follow it, so a July start shows FY27 Q1 for July to September 2026. A second control picks whether the fiscal year is named by its ending calendar year (FY27 for July 2026 to June 2027, the default) or its starting year. Both settings are saved in the project file. Leave the start at January for plain calendar quarters.
+
 **Score** is RICE style: `reach × impact × (confidence ÷ 100) ÷ effort`. Impact and effort are 1 to 5, confidence is a percentage, reach is any number you choose (people, transactions, hours).
 
 Filters and search apply to every view. Search covers titles, descriptions, labels, owners, insight text, and comments.
