@@ -248,7 +248,7 @@ tr.drop-target td{box-shadow:inset 0 2px 0 var(--accent)}
 .tl-side .t{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tl-side .d{font-size:11px;color:var(--ink-3);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tl-head .tl-side{background:var(--surface-2);z-index:4;justify-content:flex-end;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600;cursor:default}
-.tl-track{position:relative;flex:none;height:44px;border-bottom:1px solid var(--line)}
+.tl-track{position:relative;flex:none;height:44px;border-bottom:1px solid var(--line);overflow:hidden}
 .tl-head .tl-track{background:var(--surface-2)}
 .tl-q,.tl-m{position:absolute;top:0;height:22px;line-height:22px;font-size:11px;padding-left:6px;border-left:1px solid var(--line);white-space:nowrap;overflow:hidden;color:var(--ink-3);box-sizing:border-box}
 .tl-q{font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
@@ -261,6 +261,9 @@ tr.drop-target td{box-shadow:inset 0 2px 0 var(--accent)}
 .tl-bar i.hl{left:0} .tl-bar i.hr{right:0}
 .tl-bar:hover{filter:brightness(1.08)}
 .tl-bar.dragging{opacity:.8;cursor:grabbing}
+/* A bar that runs past the window edge squares off there rather than pretending to end. */
+.tl-bar.cl{border-top-left-radius:0;border-bottom-left-radius:0;padding-left:8px}
+.tl-bar.cr{border-top-right-radius:0;border-bottom-right-radius:0;padding-right:8px}
 .tl-unsched{display:flex;flex-direction:column;gap:6px}
 .tl-unsched .u{display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
 .tl-unsched .u .t{flex:1;font-weight:500;cursor:pointer}
@@ -626,7 +629,7 @@ const LS_VIEW = 'discovery-desk:view';
 let data = null;
 /* Everything a saved view captures lives in `ui`. */
 const LS_UI='discovery-desk:ui';
-function defaultUi(){ return {view:'list',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['rank'],tlScale:'month',showArchived:false,swimlane:'',cardFields:[],matrix:{x:'effort',y:'impact',size:'reach',color:'status'}}; }
+function defaultUi(){ return {view:'list',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['rank'],tlScale:'quarter',tlFy:'',showArchived:false,swimlane:'',cardFields:[],matrix:{x:'effort',y:'impact',size:'reach',color:'status'}}; }
 function loadUi(){ try{ const u=JSON.parse(localStorage.getItem(LS_UI)); if(u&&u.view) return Object.assign(defaultUi(),u); }catch(e){} return defaultUi(); }
 let ui = loadUi();
 let activeViewId = localStorage.getItem('discovery-desk:activeView') || null;
@@ -657,6 +660,20 @@ function fiscalOf(d){
   return {q, fy, startYear, endYear};
 }
 function syncFy(){ const sel=$('#fyStart'); if(!sel.options.length) return; sel.value=String(data.fiscalStart); $('#fyName').value=data.fiscalName; $('#fyName').hidden=data.fiscalStart===1; }
+/* First and last day of a fiscal year, by the same convention fiscalOf uses. */
+function fyRange(fy){
+  const M=Number(data.fiscalStart)||1;
+  const startYear=(M===1)?fy:(data.fiscalName==='start'?fy:fy-1);
+  return {from:new Date(startYear,M-1,1), to:new Date(startYear+1,M-1,0)};
+}
+const fyLabel = fy => ((Number(data.fiscalStart)||1)===1 ? String(fy) : 'FY'+String(fy).slice(2));
+const currentFy = () => fiscalOf(new Date()).fy;
+const activeFy = () => ui.tlFy==='all' ? null : (ui.tlFy ? Number(ui.tlFy) : currentFy());
+function fyChoices(list){
+  const set=new Set([currentFy()]);
+  list.forEach(i=>{ if(i.start) set.add(fiscalOf(parseD(i.start)).fy); if(i.end) set.add(fiscalOf(parseD(i.end)).fy); });
+  return [...set].sort((a,b)=>a-b);
+}
 function quarterLabel(d){ const f=fiscalOf(d); const start=Number(data.fiscalStart)||1; return (start===1 ? String(f.fy) : 'FY'+String(f.fy).slice(2))+' Q'+f.q; }
 const fmtDate = iso => iso ? new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}) : '';
 const fmtTs = iso => iso ? new Date(iso).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '';
@@ -1098,9 +1115,9 @@ function allOwners(){ return [...new Set(data.ideas.map(i=>i.owner).filter(Boole
 function renderNavCounts(){ $('[data-count="list"]').textContent=data.ideas.length; }
 /* ---------- saved views ---------- */
 const VIEW_NAMES={list:'Ideas',board:'Board',matrix:'Impact vs effort',timeline:'Timeline',roadmap:'Buckets'};
-function normSnap(o){ return {type:o.type||o.view||'list',q:o.q||'',rules:o.rules||[],sort:o.sort||{key:'score',dir:-1},groupBy:o.groupBy||'',boardBy:o.boardBy||'status',hidden:[...(o.hidden||[])].sort(),tlScale:o.tlScale||'month',showArchived:!!o.showArchived,swimlane:o.swimlane||'',cardFields:[...(o.cardFields||[])],matrix:Object.assign({x:'effort',y:'impact',size:'reach',color:'status'},o.matrix||{})}; }
+function normSnap(o){ return {type:o.type||o.view||'list',q:o.q||'',rules:o.rules||[],sort:o.sort||{key:'score',dir:-1},groupBy:o.groupBy||'',boardBy:o.boardBy||'status',hidden:[...(o.hidden||[])].sort(),tlScale:o.tlScale||'quarter',tlFy:o.tlFy||'',showArchived:!!o.showArchived,swimlane:o.swimlane||'',cardFields:[...(o.cardFields||[])],matrix:Object.assign({x:'effort',y:'impact',size:'reach',color:'status'},o.matrix||{})}; }
 function viewSnapshot(){ return JSON.parse(JSON.stringify(normSnap(ui))); }
-function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlScale:sn.tlScale,showArchived:sn.showArchived,swimlane:sn.swimlane,cardFields:[...sn.cardFields],matrix:{...sn.matrix}}); $('#search').value=ui.q; }
+function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlScale:sn.tlScale,tlFy:sn.tlFy,showArchived:sn.showArchived,swimlane:sn.swimlane,cardFields:[...sn.cardFields],matrix:{...sn.matrix}}); $('#search').value=ui.q; }
 function activeView(){ return (data.views||[]).find(v=>v.id===activeViewId)||null; }
 function viewDirty(){ const v=activeView(); return !!v && JSON.stringify(normSnap(v))!==JSON.stringify(normSnap(ui)); }
 function selectView(id){ const v=data.views.find(x=>x.id===id); if(!v) return; activeViewId=id; applyView(v); afterRailPick(); render(); }
@@ -1342,52 +1359,91 @@ function renderRoadmap(c,list){ renderColumns(c,list,fieldById('bucket')); }
 /* ---------- timeline view ---------- */
 function renderTimeline(c, list){
   const tlScale=ui.tlScale;
-  const PX = tlScale==='month' ? 4 : 1.6;           // pixels per day
   const today=new Date(); today.setHours(0,0,0,0);
   const sched=list.filter(i=>i.start&&i.end).sort((a,b)=>a.start.localeCompare(b.start)||score(b)-score(a));
   const unsched=list.filter(i=>!(i.start&&i.end)).sort((a,b)=>score(b)-score(a));
-  let min=new Date(today.getFullYear(),today.getMonth()-1,1);
-  let max=new Date(today.getFullYear(),today.getMonth()+8,0);
-  sched.forEach(i=>{ const s=parseD(i.start), e=parseD(i.end); if(s<min) min=new Date(s.getFullYear(),s.getMonth()-1,1); if(e>max) max=new Date(e.getFullYear(),e.getMonth()+2,0); });
-  const W=(dayDiff(min,max)+1)*PX;
+  const fy=activeFy();
+
+  /* The window is one fiscal year unless "All dates" is chosen. */
+  let min,max;
+  if(fy!==null){ const r=fyRange(fy); min=r.from; max=r.to; }
+  else {
+    min=new Date(today.getFullYear(),today.getMonth()-1,1);
+    max=new Date(today.getFullYear(),today.getMonth()+8,0);
+    sched.forEach(i=>{ const s=parseD(i.start), e=parseD(i.end); if(s<min) min=new Date(s.getFullYear(),s.getMonth()-1,1); if(e>max) max=new Date(e.getFullYear(),e.getMonth()+2,0); });
+  }
+  const overlaps=i=>parseD(i.end)>=min&&parseD(i.start)<=max;
+  const inRange=sched.filter(overlaps), outside=sched.filter(i=>!overlaps(i));
+
+  const sideW=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--tl-side'))||270;
+  const days=dayDiff(min,max)+1;
+  /* Measure the real scroll pane before choosing a scale, so "fit" actually fits.
+     An empty .tl-scroll is inserted first: its clientWidth already accounts for the
+     content padding and its own borders. */
+  const wrap=document.createElement('div'); wrap.className='tl';
+  wrap.innerHTML='<div class="tl-scroll"></div>';
+  c.appendChild(wrap);
+  const rowsEst=inRange.length+(ui.groupBy?4:0)+2;
+  const vScrollbar=(rowsEst*44>window.innerHeight-210)?16:0;
+  const avail=Math.max(320,wrap.querySelector('.tl-scroll').clientWidth-sideW-vScrollbar);
+  /* Quarters fits the whole window to the pane; months keeps a readable density and scrolls. */
+  const PX = tlScale==='quarter' ? Math.max(0.8, avail/days) : 4;
+  const W=days*PX;
   const x=d=>dayDiff(min,d)*PX;
-  const months=[]; for(let d=new Date(min); d<=max; d=new Date(d.getFullYear(),d.getMonth()+1,1)){ const end=new Date(d.getFullYear(),d.getMonth()+1,0); months.push({d,left:x(d),width:(dayDiff(d,end)+1)*PX}); }
+  const clampX=d=>Math.max(0,Math.min(W,x(d)));
+
+  const months=[]; for(let d=new Date(min); d<=max; d=new Date(d.getFullYear(),d.getMonth()+1,1)){ const end=new Date(d.getFullYear(),d.getMonth()+1,0); const to=end>max?max:end; months.push({d,left:x(d),width:(dayDiff(d,to)+1)*PX}); }
   const quarters={}; months.forEach(m=>{ const q=quarterLabel(m.d); if(!quarters[q]) quarters[q]={left:m.left,width:0}; quarters[q].width+=m.width; });
   const lines=months.map(m=>'<i class="tl-line" style="left:'+m.left+'px"></i>').join('');
-  const sideW=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--tl-side'))||270;
+  const showToday=today>=min&&today<=max;
+  const windowLabel=fy!==null?fyLabel(fy):'all dates';
+
   const gf=ui.groupBy?fieldById(ui.groupBy):null;
   const tlRows=(items,rowHtml)=> gf
     ? groupList(items,gf).map(g=>{ const key='tl:'+g.id, open=!collapsed.has(key); return '<div class="tl-row tl-grp" data-g="'+esc(key)+'"><div class="tl-side"><span class="tri">'+(open?'▾':'▸')+'</span>'+groupHeaderLabel(g)+'<span class="count">'+g.items.length+'</span></div><div class="tl-track" style="width:'+W+'px">'+lines+'</div></div>'+(open?g.items.map(rowHtml).join(''):''); }).join('')
     : items.map(rowHtml).join('');
-  const wrap=document.createElement('div'); wrap.className='tl';
+
+  const fySel='<select id="tlFy" aria-label="Fiscal year"><option value=""'+(ui.tlFy===''?' selected':'')+'>Current fiscal year</option>'+
+    fyChoices(sched).map(f=>'<option value="'+f+'"'+(String(f)===String(ui.tlFy)?' selected':'')+'>'+esc(fyLabel(f))+'</option>').join('')+
+    '<option value="all"'+(ui.tlFy==='all'?' selected':'')+'>All dates</option></select>';
+
   wrap.innerHTML=
-    '<div class="tl-top"><div class="seg" id="tlScale"><button data-s="month" class="'+(tlScale==='month'?'on':'')+'">Months</button><button data-s="quarter" class="'+(tlScale==='quarter'?'on':'')+'">Quarters</button></div>'+
-      '<span class="small muted">'+sched.length+' scheduled · '+unsched.length+' unscheduled · drag a bar to move it, drag an edge to change a date</span><span class="spacer"></span><button class="btn sm" id="tlToday">Jump to today</button></div>'+
+    '<div class="tl-top">'+fySel+'<div class="seg" id="tlScale"><button data-s="month" class="'+(tlScale==='month'?'on':'')+'">Months</button><button data-s="quarter" class="'+(tlScale==='quarter'?'on':'')+'">Quarters</button></div>'+
+      '<span class="small muted">'+inRange.length+' in '+esc(windowLabel)+(outside.length?' · '+outside.length+' outside':'')+(unsched.length?' · '+unsched.length+' unscheduled':'')+' · drag a bar to move it, drag an edge to change a date</span>'+
+      '<span class="spacer"></span>'+(W>avail?'<button class="btn sm" id="tlToday">Jump to today</button>':'')+'</div>'+
     '<div class="tl-scroll"><div class="tl-grid">'+
       '<div class="tl-head"><div class="tl-side">Idea</div><div class="tl-track" style="width:'+W+'px">'+
-        Object.entries(quarters).map(([q,v])=>'<div class="tl-q" style="left:'+v.left+'px;width:'+v.width+'px">'+q+'</div>').join('')+
+        Object.entries(quarters).map(([q,v])=>'<div class="tl-q" style="left:'+v.left+'px;width:'+v.width+'px">'+esc(q)+'</div>').join('')+
         months.map(m=>'<div class="tl-m" style="left:'+m.left+'px;width:'+m.width+'px">'+m.d.toLocaleDateString(undefined,{month:'short'})+(tlScale==='month'?' '+String(m.d.getFullYear()).slice(2):'')+'</div>').join('')+
-        '<div class="tl-today-lbl" style="left:'+x(today)+'px">Today</div>'+
+        (showToday?'<div class="tl-today-lbl" style="left:'+x(today)+'px">Today</div>':'')+
       '</div></div>'+
-      tlRows(sched, i=>{ const s=parseD(i.start), e=parseD(i.end); const left=x(s), width=Math.max(PX*3,(dayDiff(s,e)+1)*PX);
+      tlRows(inRange, i=>{ const s=parseD(i.start), e=parseD(i.end);
+        const cs=s<min?min:s, ce=e>max?max:e;
+        const left=clampX(cs), width=Math.max(PX*3,Math.min(W-left,(dayDiff(cs,ce)+1)*PX));
+        const cls='tl-bar'+(s<min?' cl':'')+(e>max?' cr':'');
         return '<div class="tl-row"><div class="tl-side" data-open="'+i.id+'"><div class="t"><span class="key">'+esc(i.key)+'</span> '+esc(i.title)+'</div><div class="d">'+fmtD(i.start)+' → '+fmtD(i.end)+' · '+statusOf(i.status).name+'</div></div>'+
-          '<div class="tl-track" style="width:'+W+'px">'+lines+'<div class="tl-bar" data-id="'+i.id+'" style="left:'+left+'px;width:'+width+'px;background:'+statusOf(i.status).color+'" title="'+esc(i.title)+'"><i class="hl"></i>'+esc(i.title)+'<i class="hr"></i></div></div></div>'; })+
-      (sched.length?'':'<div class="tl-row"><div class="tl-side muted">No scheduled ideas</div><div class="tl-track" style="width:'+W+'px">'+lines+'</div></div>')+
-      '<div class="tl-today" style="left:'+(sideW+x(today))+'px"></div>'+
+          '<div class="tl-track" style="width:'+W+'px">'+lines+'<div class="'+cls+'" data-id="'+i.id+'" style="left:'+left+'px;width:'+width+'px;background:'+statusOf(i.status).color+'" title="'+esc(i.title+' · '+fmtD(i.start)+' → '+fmtD(i.end))+'"><i class="hl"></i>'+esc(i.title)+'<i class="hr"></i></div></div></div>'; })+
+      (inRange.length?'':'<div class="tl-row"><div class="tl-side muted">Nothing scheduled in '+esc(windowLabel)+'</div><div class="tl-track" style="width:'+W+'px">'+lines+'</div></div>')+
+      (showToday?'<div class="tl-today" style="left:'+(sideW+x(today))+'px"></div>':'')+
     '</div></div>'+
+    (outside.length?'<div><div class="section-h"><h3>Outside '+esc(windowLabel)+'</h3><span class="count">'+outside.length+'</span></div><div class="tl-unsched" style="margin-top:8px">'+
+      outside.map(i=>'<div class="u"><span class="key">'+esc(i.key)+'</span><span class="t" data-open="'+i.id+'">'+esc(i.title)+'</span><span class="small muted">'+fmtD(i.start)+' → '+fmtD(i.end)+'</span>'+statusBadge(i.status)+'</div>').join('')+'</div></div>':'')+
     (unsched.length?'<div><div class="section-h"><h3>Unscheduled</h3><span class="count">'+unsched.length+'</span></div><div class="tl-unsched" style="margin-top:8px">'+
       unsched.map(i=>'<div class="u"><span class="key">'+esc(i.key)+'</span><span class="t" data-open="'+i.id+'">'+esc(i.title)+'</span>'+statusBadge(i.status)+'<span class="score">'+score(i)+'</span><button class="btn sm" data-sched="'+i.id+'">Schedule</button></div>').join('')+'</div></div>':'');
-  c.appendChild(wrap);
 
+  wrap.querySelector('#tlFy').addEventListener('change',e=>{ ui.tlFy=e.target.value; render(); });
   wrap.querySelectorAll('#tlScale button').forEach(b=>b.onclick=()=>{ ui.tlScale=b.dataset.s; render(); });
   const scroller=wrap.querySelector('.tl-scroll');
-  /* Put today about a third into the track, measuring from the track's own left edge. */
-  const jump=()=>{ scroller.scrollLeft=Math.max(0,x(today)-(scroller.clientWidth-sideW)/3); };
-  wrap.querySelector('#tlToday').onclick=jump;
-  requestAnimationFrame(jump);
+  const jumpBtn=wrap.querySelector('#tlToday');
+  if(jumpBtn){
+    /* Put today about a third into the track, measuring from the track's own left edge. */
+    const jump=()=>{ scroller.scrollLeft=Math.max(0,x(today)-(scroller.clientWidth-sideW)/3); };
+    jumpBtn.onclick=jump;
+    if(showToday) requestAnimationFrame(jump);
+  }
   wrap.querySelectorAll('[data-open]').forEach(el=>el.addEventListener('click',()=>openPanel(el.dataset.open)));
   wrap.querySelectorAll('.tl-grp').forEach(el=>el.onclick=()=>{ const k=el.dataset.g; collapsed.has(k)?collapsed.delete(k):collapsed.add(k); render(); });
-  wrap.querySelectorAll('[data-sched]').forEach(b=>b.onclick=()=>{ const i=ideaById(b.dataset.sched); setField(i,'start',isoD(today),'Start'); setField(i,'end',isoD(addDays(today,30)),'Target'); commit(); });
+  wrap.querySelectorAll('[data-sched]').forEach(b=>b.onclick=()=>{ const i=ideaById(b.dataset.sched); const from=showToday?today:min; setField(i,'start',isoD(from),'Start'); setField(i,'end',isoD(addDays(from,30)),'Target'); commit(); });
 
   wrap.querySelectorAll('.tl-bar').forEach(bar=>{
     bar.addEventListener('pointerdown',e=>{
@@ -1395,6 +1451,7 @@ function renderTimeline(c, list){
       const mode=e.target.classList.contains('hl')?'start':e.target.classList.contains('hr')?'end':'move';
       const i=ideaById(bar.dataset.id); const s0=parseD(i.start), e0=parseD(i.end); const x0=e.clientX; let moved=false, s=s0, en=e0;
       bar.setPointerCapture(e.pointerId); bar.classList.add('dragging');
+      /* Drag against the true dates, not the clipped ones, so a bar running past the window edge still moves correctly. */
       const onMove=ev=>{ const dd=Math.round((ev.clientX-x0)/PX); if(dd) moved=true; s=s0; en=e0; if(mode!=='end') s=addDays(s0,dd); if(mode!=='start') en=addDays(e0,dd); if(en<s){ if(mode==='start') s=en; else en=s; } bar.style.left=x(s)+'px'; bar.style.width=Math.max(PX*3,(dayDiff(s,en)+1)*PX)+'px'; };
       const onUp=()=>{ bar.removeEventListener('pointermove',onMove); bar.removeEventListener('pointerup',onUp); bar.removeEventListener('pointercancel',onUp); bar.classList.remove('dragging');
         if(!moved){ openPanel(i.id); return; }
@@ -1775,7 +1832,11 @@ function init(){
   $$('#nav button').forEach(b=>b.onclick=()=>{ activeViewId=null; ui.view=b.dataset.view; afterRailPick(); render(); });
   $('#btnMenu').onclick=()=>railOpen()?closeRail():openRail();
   $('#railScrim').onclick=closeRail;
-  window.addEventListener('resize',()=>{ if(!isNarrow()) closeRail(); });
+  let rzTimer;
+  window.addEventListener('resize',()=>{
+    if(!isNarrow()) closeRail();
+    clearTimeout(rzTimer); rzTimer=setTimeout(()=>{ if(ui.view==='timeline') render(); },200);
+  });
   $('#search').value=ui.q;
   if(activeViewId&&!activeView()) activeViewId=null;
   const fySel=$('#fyStart'); fySel.innerHTML=[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>'<option value="'+m+'">'+new Date(2000,m-1,1).toLocaleDateString(undefined,{month:'long'})+'</option>').join('');
