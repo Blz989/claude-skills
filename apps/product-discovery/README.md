@@ -115,6 +115,17 @@ Plain JSON, one object with `name`, `seq`, `statuses` and `buckets` (the editabl
 
 The filename is built from the project, the view, and today's date.
 
+## Embedding it in a page
+
+The app runs inside an iframe, for example a SharePoint **Embed** web part pointed at wherever you host `index.html`. Two things change when it is embedded, both of which it now detects and tells you about in the rail:
+
+- **Sandboxed iframes block storage.** Reading `localStorage` throws outright, not just returns nothing, so every access is guarded and the app runs from memory instead of failing to start. The rail shows **Not saved** and Export and Import are disabled, because a sandbox blocks downloads too. Edits last until the tab closes.
+- **File sync is unavailable in any iframe.** Browsers do not allow the File System Access API cross-origin, so Open file and Save as are disabled. In an iframe that is not sandboxed, the app falls back to browser storage scoped to the embedding page.
+
+For real use, open `index.html` directly so the project file syncs. Embed it when you want a read-mostly roadmap on a page.
+
+Two SharePoint specifics worth knowing before you try: a `.html` file in a document library downloads rather than renders unless a tenant admin enables custom script, so the page needs hosting somewhere that serves HTML; and the host domain has to be added under **HTML Field Security** for the Embed web part to accept it. If you want several people editing the same data rather than each seeing their own copy, the app needs a shared backend, which is a different build.
+
 ## Phones and tablets
 
 Below 900px the left rail becomes a drawer. Tap the menu button at the top left to reach the view switcher, saved views, fiscal year settings, field manager, project file controls, and the theme toggle. Picking a view closes the drawer. The toolbar reflows so the view name gets its own row, and the Ideas table, board, and timeline scroll sideways within their own containers.
