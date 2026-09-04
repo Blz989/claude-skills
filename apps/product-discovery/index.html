@@ -207,6 +207,17 @@ tr.grp .count,tr.grp .sum{font-family:var(--mono);font-weight:400;color:var(--in
 .fdef .type{font-size:12px;color:var(--ink-3);padding-top:8px}
 .modal .box.wide{width:min(680px,94vw);max-height:90vh;overflow:auto}
 .fdefs{display:flex;flex-direction:column;gap:8px}
+.linkrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.linkrow .lt{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);min-width:88px}
+.linkrow .lk{flex:1;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.linkrow .lk:hover{color:var(--accent)}
+.arch-banner{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;background:var(--warn-soft);color:var(--warn);font-size:13px;font-weight:500}
+.arch-pill{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);border:1px solid var(--warn);border-radius:3px;padding:0 4px;margin-left:6px}
+tr.arch td:not(.key){opacity:.6}
+td.rank{color:var(--ink-3);font-family:var(--mono);font-size:12px}
+tr.drag-row{cursor:grab}
+tr.drag-row.dragging{opacity:.4}
+tr.drop-target td{box-shadow:inset 0 2px 0 var(--accent)}
 .fsec{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-top:4px}
 .opts{grid-column:1/-1;display:flex;flex-direction:column;gap:4px}
 .opt{display:grid;grid-template-columns:26px 1fr auto auto auto;gap:4px;align-items:center}
@@ -460,6 +471,8 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
   <div class="panel-f">
     <span class="small muted" id="pMeta"></span>
     <span class="spacer"></span>
+    <button class="btn sm" id="pMerge">Merge into…</button>
+    <button class="btn sm" id="pArchive">Archive</button>
     <button class="btn sm danger" id="pDelete">Delete idea</button>
   </div>
 </aside>
@@ -478,6 +491,16 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
   </div>
 </div>
 
+<div class="modal" id="mergeModal" hidden>
+  <div class="box">
+    <h2>Merge idea</h2>
+    <div class="small muted" id="mergeFrom"></div>
+    <select id="mergeTarget"></select>
+    <div class="small muted">Insights, comments, labels, links and any empty fields move to the idea you choose. The description is appended. This idea is archived and linked as a duplicate. Nothing is deleted.</div>
+    <div class="btn-row" style="justify-content:flex-end"><button class="btn" id="mergeCancel">Cancel</button><button class="btn primary" id="mergeGo">Merge</button></div>
+  </div>
+</div>
+
 <div class="modal" id="exportModal" hidden>
   <div class="box">
     <h2>Export</h2>
@@ -493,6 +516,7 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
   <div class="box wide">
     <h2>Filters</h2>
     <p class="small muted" style="margin:0">Every rule must match. Any field, built in or custom, including formulas.</p>
+    <div class="checks"><label><input type="checkbox" id="fArchived">Show archived ideas</label></div>
     <div class="rules" id="rules"></div>
     <div class="btn-row"><button class="btn sm" id="addRule">+ Add filter</button><span class="spacer"></span><button class="btn sm ghost" id="clearRules">Clear all</button><button class="btn primary" id="filtersClose">Done</button></div>
   </div>
@@ -559,7 +583,7 @@ const LS_VIEW = 'discovery-desk:view';
 let data = null;
 /* Everything a saved view captures lives in `ui`. */
 const LS_UI='discovery-desk:ui';
-function defaultUi(){ return {view:'list',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:[],tlScale:'month'}; }
+function defaultUi(){ return {view:'list',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['rank'],tlScale:'month',showArchived:false}; }
 function loadUi(){ try{ const u=JSON.parse(localStorage.getItem(LS_UI)); if(u&&u.view) return Object.assign(defaultUi(),u); }catch(e){} return defaultUi(); }
 let ui = loadUi();
 let activeViewId = localStorage.getItem('discovery-desk:activeView') || null;
@@ -740,6 +764,7 @@ function normalize(d){
   d.fields = (d.fields||[]).map(f=>Object.assign({options:[],expr:''},f));
   d.fields.forEach(f=>{ if(hasOpts(f)) f.options=f.options.map((o,k)=>Object.assign({},o,{color:(typeof o.color==='string'&&/^#/.test(o.color))?o.color:OPTION_COLORS[k%OPTION_COLORS.length]})); });
   d.views = (d.views||[]).filter(v=>v&&v.id&&v.name);
+  d.ideas.forEach((i,k)=>{ i.links=Array.isArray(i.links)?i.links:[]; i.archived=!!i.archived; if(typeof i.rank!=='number') i.rank=k; });
   d.fiscalStart = Math.min(12,Math.max(1,Number(d.fiscalStart)||1));
   d.fiscalName = d.fiscalName==='start' ? 'start' : 'end';
   d.ideas.forEach(i=>{ i.custom=i.custom||{}; });
@@ -885,7 +910,8 @@ function setField(i, field, value, label){
 function createIdea(title){
   data.seq=(data.seq||0)+1;
   const i={id:uid(), key:'IDEA-'+data.seq, title, description:'', status:'discovery', impact:3, effort:3, confidence:50, reach:0, labels:[], owner:'', delivery:'', bucket:'none', start:'', end:'', insights:[], comments:[], history:[{ts:now(),text:'Created'}], created:now(), updated:now()};
-  i.custom={};
+  i.custom={}; i.links=[]; i.archived=false;
+  i.rank=Math.min(0,...data.ideas.map(x=>x.rank))-1;
   data.ideas.unshift(i);
   commit();
   openPanel(i.id);
@@ -895,6 +921,64 @@ function deleteIdea(id){
   if(!confirm('Delete '+i.key+' "'+i.title+'"? This cannot be undone.')) return;
   data.ideas=data.ideas.filter(x=>x.id!==id);
   closePanel(); commit(); toast('Deleted '+i.key);
+}
+
+/* ---------- links, archive, merge, manual rank ---------- */
+const LINK_TYPES=[
+  {id:'relates',   name:'Relates to',  inverse:'relates'},
+  {id:'duplicates',name:'Duplicates',  inverse:'duplicatedby'},
+  {id:'duplicatedby',name:'Duplicated by',inverse:'duplicates'},
+  {id:'blocks',    name:'Blocks',      inverse:'blockedby'},
+  {id:'blockedby', name:'Blocked by',  inverse:'blocks'},
+  {id:'parent',    name:'Parent of',   inverse:'child'},
+  {id:'child',     name:'Child of',    inverse:'parent'},
+];
+const linkTypeName = t => (LINK_TYPES.find(x=>x.id===t)||{name:t}).name;
+function addLink(a,bId,type){
+  const b=ideaById(bId); if(!b||a.id===b.id) return false;
+  const inv=(LINK_TYPES.find(x=>x.id===type)||{}).inverse||'relates';
+  if(a.links.some(l=>l.id===b.id&&l.type===type)) return false;
+  a.links.push({id:b.id,type}); addHistory(a,'Linked '+linkTypeName(type).toLowerCase()+' '+b.key);
+  if(!b.links.some(l=>l.id===a.id&&l.type===inv)){ b.links.push({id:a.id,type:inv}); addHistory(b,'Linked '+linkTypeName(inv).toLowerCase()+' '+a.key); }
+  return true;
+}
+function removeLink(a,bId,type){
+  a.links=a.links.filter(l=>!(l.id===bId&&l.type===type));
+  const b=ideaById(bId), inv=(LINK_TYPES.find(x=>x.id===type)||{}).inverse;
+  if(b) b.links=b.links.filter(l=>!(l.id===a.id&&l.type===inv));
+  addHistory(a,'Removed link to '+(b?b.key:'a deleted idea'));
+}
+function setArchived(i,on){
+  if(i.archived===on) return;
+  i.archived=on; addHistory(i,on?'Archived':'Restored from archive');
+}
+/* Move everything worth keeping onto the target, then archive the source. */
+function mergeInto(srcId,dstId){
+  const a=ideaById(srcId), b=ideaById(dstId);
+  if(!a||!b||a.id===b.id) return;
+  if(a.description) b.description=(b.description?b.description+'\n\n':'')+'From '+a.key+' '+a.title+':\n'+a.description;
+  a.insights.forEach(x=>b.insights.push(x));
+  a.comments.forEach(x=>b.comments.push(x));
+  a.labels.forEach(l=>{ if(!b.labels.includes(l)) b.labels.push(l); });
+  Object.entries(a.custom||{}).forEach(([k,v])=>{ if(isEmpty((b.custom||{})[k])){ b.custom=b.custom||{}; b.custom[k]=v; } });
+  a.links.slice().forEach(l=>{ removeLink(a,l.id,l.type); if(l.id!==b.id) addLink(b,l.id,l.type); });
+  a.insights=[]; a.comments=[];
+  addLink(b,a.id,'duplicatedby');
+  a.mergedInto=b.id;
+  addHistory(a,'Merged into '+b.key);
+  addHistory(b,'Absorbed '+a.key+' '+a.title);
+  setArchived(a,true);
+  b.updated=now();
+}
+/* Manual order: renumber every idea by rank, move one, renumber again. */
+function moveRank(dragId,targetId,before){
+  const all=[...data.ideas].sort((x,y)=>x.rank-y.rank);
+  const from=all.findIndex(i=>i.id===dragId); if(from<0) return;
+  const moved=all.splice(from,1)[0];
+  let at=all.findIndex(i=>i.id===targetId); if(at<0) at=all.length; else if(!before) at+=1;
+  all.splice(at,0,moved);
+  all.forEach((i,k)=>{ i.rank=k; });
+  moved.updated=now();
 }
 
 /* ---------- filtering + sorting ---------- */
@@ -939,6 +1023,7 @@ function visibleIdeas(){
   const q=ui.q.trim().toLowerCase();
   const cdefs=customFields().map(f=>Object.assign({},f,{custom:true}));
   return data.ideas.filter(i=>{
+    if(i.archived && !ui.showArchived) return false;
     for(const r of ui.rules){ if(!matchRule(i,r)) return false; }
     if(q){
       const hay=[i.key,i.title,i.description,i.owner,i.delivery,...i.labels,...i.insights.map(x=>x.text),...i.comments.map(c=>c.text),...cdefs.flatMap(f=>isEmpty(getVal(i,f))?[]:[showVal(f,getVal(i,f))])].join(' ').toLowerCase();
@@ -950,7 +1035,7 @@ function visibleIdeas(){
 function customSortVal(i,id){ const f=fieldById(id); if(!f) return ''; const v=getVal(i,f); const numeric=['number','rating','formula'].includes(f.type); if(isEmpty(v)) return numeric?-Infinity:'\uffff'; if(f.type==='checkbox') return v?1:0; if(hasOpts(f)){ const first=Array.isArray(v)?v[0]:v; return f.options.findIndex(o=>o.id===first); } return numeric?Number(v):v; }
 function sorted(list){
   const k=ui.sort.key, d=ui.sort.dir;
-  const val = i => k==='score'?score(i):k==='insights'?insightWeight(i):k==='status'?statuses().findIndex(s=>s.id===i.status):k==='bucket'?buckets().findIndex(b=>b.id===(i.bucket||'none')):k==='key'?Number(i.key.split('-')[1]):k==='labels'?i.labels.join(','):(k==='start'||k==='end')?(i[k]||'\uffff'):k.startsWith('c:')?customSortVal(i,k.slice(2)):i[k];
+  const val = i => k==='score'?score(i):k==='insights'?insightWeight(i):k==='status'?statuses().findIndex(s=>s.id===i.status):k==='bucket'?buckets().findIndex(b=>b.id===(i.bucket||'none')):k==='rank'?i.rank:k==='key'?Number(i.key.split('-')[1]):k==='labels'?i.labels.join(','):(k==='start'||k==='end')?(i[k]||'\uffff'):k.startsWith('c:')?customSortVal(i,k.slice(2)):i[k];
   return [...list].sort((a,b)=>{ const x=val(a), y=val(b); if(x==null&&y==null) return 0; if(typeof x==='number'&&typeof y==='number') return (x-y)*d; return String(x??'').localeCompare(String(y??''),undefined,{numeric:true,sensitivity:'base'})*d; });
 }
 function allLabels(){ return [...new Set(data.ideas.flatMap(i=>i.labels))].sort(); }
@@ -960,9 +1045,9 @@ function allOwners(){ return [...new Set(data.ideas.map(i=>i.owner).filter(Boole
 function renderNavCounts(){ $('[data-count="list"]').textContent=data.ideas.length; }
 /* ---------- saved views ---------- */
 const VIEW_NAMES={list:'Ideas',board:'Board',matrix:'Impact vs effort',timeline:'Timeline',roadmap:'Buckets'};
-function normSnap(o){ return {type:o.type||o.view||'list',q:o.q||'',rules:o.rules||[],sort:o.sort||{key:'score',dir:-1},groupBy:o.groupBy||'',boardBy:o.boardBy||'status',hidden:[...(o.hidden||[])].sort(),tlScale:o.tlScale||'month'}; }
+function normSnap(o){ return {type:o.type||o.view||'list',q:o.q||'',rules:o.rules||[],sort:o.sort||{key:'score',dir:-1},groupBy:o.groupBy||'',boardBy:o.boardBy||'status',hidden:[...(o.hidden||[])].sort(),tlScale:o.tlScale||'month',showArchived:!!o.showArchived}; }
 function viewSnapshot(){ return JSON.parse(JSON.stringify(normSnap(ui))); }
-function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlScale:sn.tlScale}); $('#search').value=ui.q; }
+function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlScale:sn.tlScale,showArchived:sn.showArchived}); $('#search').value=ui.q; }
 function activeView(){ return (data.views||[]).find(v=>v.id===activeViewId)||null; }
 function viewDirty(){ const v=activeView(); return !!v && JSON.stringify(normSnap(v))!==JSON.stringify(normSnap(ui)); }
 function selectView(id){ const v=data.views.find(x=>x.id===id); if(!v) return; activeViewId=id; applyView(v); afterRailPick(); render(); }
@@ -993,7 +1078,7 @@ function saveViewChanges(){ const v=activeView(); if(!v) return; Object.assign(v
 function deleteActiveView(){ const v=activeView(); if(!v) return; if(!confirm('Delete view "'+v.name+'"?')) return; data.views=data.views.filter(x=>x.id!==v.id); activeViewId=null; $('#viewModal').hidden=true; persist(); render(); }
 
 /* ---------- filters modal ---------- */
-function openFilters(){ renderRules(); $('#filtersModal').hidden=false; }
+function openFilters(){ renderRules(); $('#fArchived').checked=!!ui.showArchived; $('#filtersModal').hidden=false; }
 function renderRules(){
   const box=$('#rules'); const defs=fieldDefs();
   box.innerHTML=ui.rules.length?ui.rules.map((r,idx)=>{ const f=fieldById(r.field)||defs[0]; const ops=opsFor(f); let val='';
@@ -1018,7 +1103,7 @@ function renderRules(){
 /* ---------- columns modal ---------- */
 function listColumns(){
   const cf=customFields().map(f=>Object.assign({},f,{custom:true}));
-  return [['key','Key'],['title','Idea'],['status',fieldName('status')],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket',fieldName('bucket')],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],...cf.map(f=>['c:'+f.id,f.name,['number','rating','formula'].includes(f.type)?'right':'']),['delivery','SN demand'],['updated','Updated']];
+  return [['rank','#','right'],['key','Key'],['title','Idea'],['status',fieldName('status')],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket',fieldName('bucket')],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],...cf.map(f=>['c:'+f.id,f.name,['number','rating','formula'].includes(f.type)?'right':'']),['delivery','SN demand'],['updated','Updated']];
 }
 function openColumns(){ renderColumnPicker(); $('#columnsModal').hidden=false; }
 function renderColumnPicker(){
@@ -1083,9 +1168,11 @@ function renderList(c, list){
     if(f.type==='number') return '<td class="right"><input class="num" type="number" data-c="'+f.id+'" value="'+(isEmpty(v)?'':v)+'" style="width:80px;text-align:right"></td>';
     if(f.type==='date') return '<td><input type="date" data-c="'+f.id+'" value="'+esc(v||'')+'"></td>';
     return '<td><input data-c="'+f.id+'" value="'+esc(v||'')+'" style="width:140px"></td>'; };
-  const rowHtml=i=>'<tr data-id="'+i.id+'">'+
+  const manual=ui.sort.key==='rank'&&!gf;
+  const rowHtml=i=>'<tr data-id="'+i.id+'" class="'+(i.archived?'arch ':'')+(manual?'drag-row':'')+'"'+(manual?' draggable="true"':'')+'>'+
+      (show('rank')?'<td class="rank right">'+(manual?'⠿ ':'')+(i.rank+1)+'</td>':'')+
       '<td class="key">'+esc(i.key)+'</td>'+
-      '<td style="min-width:280px"><div class="title">'+esc(i.title)+'</div></td>'+
+      '<td style="min-width:280px"><div class="title">'+esc(i.title)+(i.archived?'<span class="arch-pill">archived</span>':'')+'</div></td>'+
       (show('status')?'<td>'+selectHtml(statuses(),i.status,'data-f="status"')+'</td>':'')+
       (show('impact')?'<td>'+selectHtml(nums,String(i.impact),'data-f="impact"')+'</td>':'')+
       (show('effort')?'<td>'+selectHtml(nums,String(i.effort),'data-f="effort"')+'</td>':'')+
@@ -1110,6 +1197,18 @@ function renderList(c, list){
     '</tbody><tfoot><tr><td colspan="'+cols.length+'">'+rows.length+' of '+data.ideas.length+' ideas · score = reach × impact × confidence ÷ effort</td></tr></tfoot></table>';
   c.appendChild(wrap);
   wrap.querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.sort; if(ui.sort.key===k) ui.sort.dir*=-1; else ui.sort={key:k,dir:k==='score'||k==='insights'||k==='updated'||k.startsWith('c:')?-1:1}; render(); });
+  if(manual){
+    let dragId=null;
+    wrap.querySelectorAll('tr.drag-row').forEach(tr=>{
+      tr.addEventListener('dragstart',e=>{ dragId=tr.dataset.id; tr.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',dragId); });
+      tr.addEventListener('dragend',()=>{ tr.classList.remove('dragging'); wrap.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target')); });
+      tr.addEventListener('dragover',e=>{ e.preventDefault(); tr.classList.add('drop-target'); });
+      tr.addEventListener('dragleave',()=>tr.classList.remove('drop-target'));
+      tr.addEventListener('drop',e=>{ e.preventDefault(); tr.classList.remove('drop-target');
+        const id=dragId||e.dataTransfer.getData('text/plain');
+        if(id&&id!==tr.dataset.id){ const r=tr.getBoundingClientRect(); moveRank(id,tr.dataset.id,e.clientY<r.top+r.height/2); commit(); } });
+    });
+  }
   wrap.querySelectorAll('tr.grp').forEach(tr=>tr.onclick=()=>{ const k=tr.dataset.g; collapsed.has(k)?collapsed.delete(k):collapsed.add(k); render(); });
   wrap.querySelectorAll('tbody tr[data-id]').forEach(tr=>{
     tr.addEventListener('click',e=>{ if(e.target.closest('select,input')) return; openPanel(tr.dataset.id); });
@@ -1259,6 +1358,7 @@ function renderPanel(){
   const b=$('#panelBody');
   const rating=(f,cls='')=>'<div class="rating '+cls+'" data-rating="'+f+'">'+[1,2,3,4,5].map(n=>'<button class="'+(i[f]===n?'on':'')+'" data-v="'+n+'">'+n+'</button>').join('')+'</div>';
   b.innerHTML=
+    (i.archived?'<div class="arch-banner">This idea is archived'+(i.mergedInto&&ideaById(i.mergedInto)?' — merged into '+esc(ideaById(i.mergedInto).key):'')+'<span class="spacer"></span><button class="btn sm" id="pRestore">Restore</button></div>':'')+
     '<input class="panel-title" id="pTitle" value="'+esc(i.title)+'" aria-label="Idea title">'+
     '<div class="score-tile"><span class="big">'+score(i)+'</span><span class="eyebrow">score</span><span class="formula">'+i.reach+' × '+i.impact+' × '+i.confidence+'% ÷ '+i.effort+'</span></div>'+
     '<div class="fields">'+
@@ -1292,6 +1392,14 @@ function renderPanel(){
         i.insights.map(x=>'<div class="insight"><div class="txt">'+esc(x.text)+'</div><div class="m"><span class="weight">w'+(x.weight||1)+'</span>'+(x.url?'<a href="'+esc(x.url)+'" target="_blank" rel="noopener">'+esc(x.url.replace(/^https?:\/\//,''))+'</a>':'')+'<span>'+fmtDate(x.created)+'</span><button class="btn sm ghost x" data-del-insight="'+x.id+'" title="Remove">✕</button></div></div>').join('')+
         '<form class="add-row" id="insightForm"><input name="text" placeholder="Evidence: a quote, a number, an observation" required><input name="url" placeholder="Source link (optional)"><select name="weight"><option value="1">Weight 1</option><option value="2">Weight 2</option><option value="3">Weight 3</option></select><button class="btn sm">Add</button></form>'+
       '</div></div>'+
+    '<div><div class="section-h"><h3>Linked ideas</h3><span class="count">'+i.links.length+'</span></div>'+
+      '<div style="margin-top:8px">'+
+        i.links.map(l=>{ const o=ideaById(l.id); if(!o) return '';
+          return '<div class="linkrow"><span class="lt">'+esc(linkTypeName(l.type))+'</span><span class="lk" data-goto="'+o.id+'"><span class="key">'+esc(o.key)+'</span> '+esc(o.title)+(o.archived?'<span class="arch-pill">archived</span>':'')+'</span><button class="btn sm ghost" data-unlink="'+o.id+'" data-ltype="'+l.type+'" title="Remove link">✕</button></div>'; }).join('')+
+        '<form class="add-row" id="linkForm" style="grid-template-columns:150px 1fr auto;margin-top:8px"><select name="type">'+LINK_TYPES.map(t=>'<option value="'+t.id+'">'+esc(t.name)+'</option>').join('')+'</select>'+
+        '<select name="target"><option value="">Choose an idea…</option>'+data.ideas.filter(o=>o.id!==i.id).map(o=>'<option value="'+o.id+'">'+esc(o.key+' '+o.title)+'</option>').join('')+'</select>'+
+        '<button class="btn sm">Link</button></form>'+
+      '</div></div>'+
     '<div><div class="section-h"><h3>Comments</h3><span class="count">'+i.comments.length+'</span></div>'+
       i.comments.map(cm=>'<div class="comment"><div>'+esc(cm.text)+'</div><div class="m">'+fmtTs(cm.created)+' <button class="btn sm ghost" data-del-comment="'+cm.id+'">remove</button></div></div>').join('')+
       '<form id="commentForm" style="display:flex;gap:6px;margin-top:8px"><input name="text" placeholder="Add a comment" required style="flex:1;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:6px 8px"><button class="btn sm">Post</button></form></div>'+
@@ -1311,6 +1419,11 @@ function renderPanel(){
   $('#commentForm').addEventListener('submit',e=>{ e.preventDefault(); const t=new FormData(e.target).get('text').trim(); if(!t) return; i.comments.push({id:uid(),text:t,created:now()}); i.updated=now(); commit(); });
   b.querySelectorAll('[data-del-insight]').forEach(el=>el.onclick=()=>{ i.insights=i.insights.filter(x=>x.id!==el.dataset.delInsight); addHistory(i,'Insight removed'); commit(); });
   b.querySelectorAll('[data-del-comment]').forEach(el=>el.onclick=()=>{ i.comments=i.comments.filter(x=>x.id!==el.dataset.delComment); commit(); });
+  b.querySelectorAll('[data-goto]').forEach(el=>el.onclick=()=>openPanel(el.dataset.goto));
+  b.querySelectorAll('[data-unlink]').forEach(el=>el.onclick=()=>{ removeLink(i,el.dataset.unlink,el.dataset.ltype); commit(); });
+  $('#linkForm').addEventListener('submit',e=>{ e.preventDefault(); const fd=new FormData(e.target); const t=fd.get('target'); if(!t) return; if(addLink(i,t,fd.get('type'))) commit(); });
+  const rb=$('#pRestore'); if(rb) rb.onclick=()=>{ setArchived(i,false); commit(); };
+  $('#pArchive').textContent=i.archived?'Restore':'Archive';
 }
 /* Re-render the panel without losing focus in the field being edited: only refresh the score tile, ratings, and history. */
 function refreshPanelLite(i){
@@ -1551,6 +1664,16 @@ function init(){
   $('#pClose').onclick=closePanel; $('#scrim').onclick=closePanel;
   $('#pPrev').onclick=()=>stepPanel(-1); $('#pNext').onclick=()=>stepPanel(1);
   $('#pDelete').onclick=()=>deleteIdea(openId);
+  $('#pArchive').onclick=()=>{ const i=ideaById(openId); if(!i) return; setArchived(i,!i.archived); commit(); };
+  $('#pMerge').onclick=()=>{
+    const i=ideaById(openId); if(!i) return;
+    $('#mergeFrom').textContent='Merging '+i.key+' "'+i.title+'" into:';
+    $('#mergeTarget').innerHTML='<option value="">Choose an idea…</option>'+data.ideas.filter(o=>o.id!==i.id&&!o.archived).map(o=>'<option value="'+o.id+'">'+esc(o.key+' '+o.title)+'</option>').join('');
+    $('#mergeModal').hidden=false;
+  };
+  $('#mergeCancel').onclick=()=>{ $('#mergeModal').hidden=true; };
+  $('#mergeGo').onclick=()=>{ const t=$('#mergeTarget').value; if(!t) return; const src=openId; mergeInto(src,t); $('#mergeModal').hidden=true; openPanel(t); commit(); toast('Merged'); };
+  $('#fArchived').addEventListener('change',e=>{ ui.showArchived=e.target.checked; render(); });
   $('#btnExport').onclick=exportJSON;
   $('#btnImport').onclick=()=>$('#importInput').click();
   $('#importInput').addEventListener('change',e=>{ if(e.target.files[0]) importJSON(e.target.files[0]); e.target.value=''; });
@@ -1558,7 +1681,7 @@ function init(){
   if(!hasFS){ $('#btnOpen').disabled=true; $('#btnSaveAs').disabled=true; $('#fsNote').textContent = window.self!==window.top ? 'File access is unavailable inside an embedded preview. Open index.html directly in Chrome or Edge to sync a project file.' : 'This browser cannot write files directly. Use Export and Import, or open in Chrome or Edge to sync a project file.'; }
   document.addEventListener('keydown',e=>{
     const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-    if(e.key==='Escape'){ const open=['#exportModal','#filtersModal','#columnsModal','#viewModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(railOpen()) closeRail(); else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
+    if(e.key==='Escape'){ const open=['#mergeModal','#exportModal','#filtersModal','#columnsModal','#viewModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(railOpen()) closeRail(); else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
     if(typing) return;
     if(e.key==='n'||e.key==='N'){ e.preventDefault(); showNew(); }
     if(e.key==='/'){ e.preventDefault(); $('#search').focus(); }
