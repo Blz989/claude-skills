@@ -120,9 +120,7 @@ a{color:var(--accent)}
 .pips.effort i.on{background:var(--warn)}
 .score{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
 .bucket{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:4px;border:1px solid var(--line-strong);color:var(--ink-2)}
-.bucket.now{background:var(--good-soft);color:var(--good);border-color:transparent}
-.bucket.next{background:var(--accent-soft);color:var(--accent);border-color:transparent}
-.bucket.later{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.bucket.tint{border-color:transparent;color:var(--sc);background:color-mix(in srgb,var(--sc) 16%,transparent)}
 
 /* ---------- list ---------- */
 .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
@@ -209,6 +207,18 @@ tr.grp .count,tr.grp .sum{font-family:var(--mono);font-weight:400;color:var(--in
 .fdef .type{font-size:12px;color:var(--ink-3);padding-top:8px}
 .modal .box.wide{width:min(680px,94vw);max-height:90vh;overflow:auto}
 .fdefs{display:flex;flex-direction:column;gap:8px}
+.fsec{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-top:4px}
+.opts{grid-column:1/-1;display:flex;flex-direction:column;gap:4px}
+.opt{display:grid;grid-template-columns:26px 1fr auto auto auto;gap:4px;align-items:center}
+.opt input[type=color]{width:26px;height:26px;padding:0;border:1px solid var(--line);border-radius:5px;background:none;cursor:pointer}
+.opt input[type=color]::-webkit-color-swatch-wrapper{padding:2px}
+.opt input[type=color]::-webkit-color-swatch{border:0;border-radius:3px}
+.opt input[type=text]{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:5px 8px;width:100%}
+.opt .mv{border:0;background:none;color:var(--ink-3);padding:2px 5px;font-size:12px;line-height:1}
+.opt .mv:hover{color:var(--ink)}
+.opt .mv[disabled]{opacity:.25;cursor:default}
+.addopt{display:grid;grid-template-columns:1fr auto;gap:4px;margin-top:2px}
+.addopt input{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:5px 8px}
 
 /* ---------- timeline ---------- */
 .tl{display:flex;flex-direction:column;gap:14px}
@@ -523,15 +533,24 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
    Data model, persistence, views, and detail panel all live here.
    ============================================================ */
 
-const STATUSES = [
-  {id:'parked',      name:'Parked',      color:'var(--st-parked)'},
-  {id:'discovery',   name:'Discovery',   color:'var(--st-discovery)'},
-  {id:'prioritized', name:'Prioritized', color:'var(--st-prioritized)'},
-  {id:'delivery',    name:'In delivery', color:'var(--st-delivery)'},
-  {id:'shipped',     name:'Shipped',     color:'var(--st-shipped)'},
-  {id:'wontdo',      name:"Won't do",    color:'var(--st-wontdo)'},
+/* Statuses and buckets are seeds only. The live lists are data.statuses and
+   data.buckets so they can be renamed, recoloured and reordered like any field. */
+const DEFAULT_STATUSES = [
+  {id:'parked',      name:'Parked',      color:'#7d8798'},
+  {id:'discovery',   name:'Discovery',   color:'#4f83cc'},
+  {id:'prioritized', name:'Prioritized', color:'#8b6fd0'},
+  {id:'delivery',    name:'In delivery', color:'#c08a2e'},
+  {id:'shipped',     name:'Shipped',     color:'#3f9d6d'},
+  {id:'wontdo',      name:"Won't do",    color:'#c9524f'},
 ];
-const BUCKETS = [{id:'now',name:'Now'},{id:'next',name:'Next'},{id:'later',name:'Later'},{id:'none',name:'Unplaced'}];
+const DEFAULT_BUCKETS = [
+  {id:'now',   name:'Now',      color:'#3f9d6d'},
+  {id:'next',  name:'Next',     color:'#4f83cc'},
+  {id:'later', name:'Later',    color:'#c08a2e'},
+  {id:'none',  name:'Unplaced', color:''},
+];
+const statuses = () => data.statuses;
+const buckets  = () => data.buckets;
 const LS_KEY = 'discovery-desk:data';
 const LS_THEME = 'discovery-desk:theme';
 const LS_VIEW = 'discovery-desk:view';
@@ -555,7 +574,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const uid = () => Math.random().toString(36).slice(2,10);
 const now = () => new Date().toISOString();
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const statusOf = id => STATUSES.find(s=>s.id===id) || STATUSES[0];
+const statusOf = id => statuses().find(s=>s.id===id) || statuses()[0];
 const parseD = s => { if(!s) return null; const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
 const isoD = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
@@ -714,7 +733,12 @@ function normalize(d){
   d.version = d.version||1;
   d.name = d.name||'Untitled project';
   d.ideas = (d.ideas||[]).map(i=>Object.assign({description:'',status:'discovery',impact:3,effort:3,confidence:50,reach:0,labels:[],owner:'',delivery:'',bucket:'none',start:'',end:'',insights:[],comments:[],history:[],created:now(),updated:now()}, i));
+  const seed=(list,def)=>{ const out=(Array.isArray(list)&&list.length?list:def).map(o=>Object.assign({},o)); out.forEach((o,k)=>{ if(!o.id) o.id=uid(); if(typeof o.color!=='string') o.color=OPTION_COLORS[k%OPTION_COLORS.length]; else if(o.color&&!/^#/.test(o.color)) o.color=OPTION_COLORS[k%OPTION_COLORS.length]; }); return out; };
+  d.statuses = seed(d.statuses, DEFAULT_STATUSES);
+  d.buckets  = seed(d.buckets,  DEFAULT_BUCKETS);
+  d.fieldNames = Object.assign({}, BUILTIN_LABELS, d.fieldNames||{});
   d.fields = (d.fields||[]).map(f=>Object.assign({options:[],expr:''},f));
+  d.fields.forEach(f=>{ if(hasOpts(f)) f.options=f.options.map((o,k)=>Object.assign({},o,{color:(typeof o.color==='string'&&/^#/.test(o.color))?o.color:OPTION_COLORS[k%OPTION_COLORS.length]})); });
   d.views = (d.views||[]).filter(v=>v&&v.id&&v.name);
   d.fiscalStart = Math.min(12,Math.max(1,Number(d.fiscalStart)||1));
   d.fiscalName = d.fiscalName==='start' ? 'start' : 'end';
@@ -738,11 +762,14 @@ function importJSON(file){
 function ideaById(id){ return data.ideas.find(i=>i.id===id); }
 
 /* ---------- field registry: built-in and custom fields behave the same ---------- */
-const OPTION_COLORS=['var(--st-discovery)','var(--st-prioritized)','var(--st-delivery)','var(--st-shipped)','var(--st-wontdo)','var(--st-parked)'];
+/* Mid-tone palette: each of these reads on both the light and the dark ground. */
+const OPTION_COLORS=['#4f83cc','#8b6fd0','#c08a2e','#3f9d6d','#c9524f','#2fa3a3','#c26fa8','#6b8f3a','#a4682e','#7d8798'];
+const BUILTIN_LABELS={status:'Status',bucket:'Bucket'};
+const fieldName = id => (data.fieldNames&&data.fieldNames[id])||BUILTIN_LABELS[id]||id;
 function fieldDefs(){
   return [
-    {id:'status',name:'Status',type:'select',options:STATUSES},
-    {id:'bucket',name:'Bucket',type:'select',options:BUCKETS},
+    {id:'status',name:fieldName('status'),type:'select',options:statuses()},
+    {id:'bucket',name:fieldName('bucket'),type:'select',options:buckets()},
     {id:'owner',name:'Owner',type:'text'},
     {id:'labels',name:'Labels',type:'multiselect',options:allLabels().map(l=>({id:l,name:l}))},
     {id:'impact',name:'Impact',type:'rating'},
@@ -851,7 +878,7 @@ function setField(i, field, value, label){
   const same = Array.isArray(value) ? JSON.stringify(old)===JSON.stringify(value) : old===value;
   if(same) return false;
   i[field]=value;
-  const show = v => Array.isArray(v) ? (v.join(', ')||'none') : (field==='start'||field==='end') ? (v?fmtD(v):'none') : field==='status' ? statusOf(v).name : field==='bucket' ? (BUCKETS.find(b=>b.id===v)||{}).name : (v===''||v==null?'empty':String(v).length>40?String(v).slice(0,40)+'…':v);
+  const show = v => Array.isArray(v) ? (v.join(', ')||'none') : (field==='start'||field==='end') ? (v?fmtD(v):'none') : field==='status' ? statusOf(v).name : field==='bucket' ? (buckets().find(b=>b.id===v)||{}).name : (v===''||v==null?'empty':String(v).length>40?String(v).slice(0,40)+'…':v);
   addHistory(i, (label||field)+': '+show(old)+' → '+show(value));
   return true;
 }
@@ -923,7 +950,7 @@ function visibleIdeas(){
 function customSortVal(i,id){ const f=fieldById(id); if(!f) return ''; const v=getVal(i,f); const numeric=['number','rating','formula'].includes(f.type); if(isEmpty(v)) return numeric?-Infinity:'\uffff'; if(f.type==='checkbox') return v?1:0; if(hasOpts(f)){ const first=Array.isArray(v)?v[0]:v; return f.options.findIndex(o=>o.id===first); } return numeric?Number(v):v; }
 function sorted(list){
   const k=ui.sort.key, d=ui.sort.dir;
-  const val = i => k==='score'?score(i):k==='insights'?insightWeight(i):k==='status'?STATUSES.findIndex(s=>s.id===i.status):k==='bucket'?BUCKETS.findIndex(b=>b.id===(i.bucket||'none')):k==='key'?Number(i.key.split('-')[1]):k==='labels'?i.labels.join(','):(k==='start'||k==='end')?(i[k]||'\uffff'):k.startsWith('c:')?customSortVal(i,k.slice(2)):i[k];
+  const val = i => k==='score'?score(i):k==='insights'?insightWeight(i):k==='status'?statuses().findIndex(s=>s.id===i.status):k==='bucket'?buckets().findIndex(b=>b.id===(i.bucket||'none')):k==='key'?Number(i.key.split('-')[1]):k==='labels'?i.labels.join(','):(k==='start'||k==='end')?(i[k]||'\uffff'):k.startsWith('c:')?customSortVal(i,k.slice(2)):i[k];
   return [...list].sort((a,b)=>{ const x=val(a), y=val(b); if(x==null&&y==null) return 0; if(typeof x==='number'&&typeof y==='number') return (x-y)*d; return String(x??'').localeCompare(String(y??''),undefined,{numeric:true,sensitivity:'base'})*d; });
 }
 function allLabels(){ return [...new Set(data.ideas.flatMap(i=>i.labels))].sort(); }
@@ -991,7 +1018,7 @@ function renderRules(){
 /* ---------- columns modal ---------- */
 function listColumns(){
   const cf=customFields().map(f=>Object.assign({},f,{custom:true}));
-  return [['key','Key'],['title','Idea'],['status','Status'],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket','Bucket'],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],...cf.map(f=>['c:'+f.id,f.name,['number','rating','formula'].includes(f.type)?'right':'']),['delivery','SN demand'],['updated','Updated']];
+  return [['key','Key'],['title','Idea'],['status',fieldName('status')],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket',fieldName('bucket')],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],...cf.map(f=>['c:'+f.id,f.name,['number','rating','formula'].includes(f.type)?'right':'']),['delivery','SN demand'],['updated','Updated']];
 }
 function openColumns(){ renderColumnPicker(); $('#columnsModal').hidden=false; }
 function renderColumnPicker(){
@@ -1009,7 +1036,7 @@ function renderToolbar(){
   $('#btnViewMenu').hidden=!v;
   const chips=$('#statusChips'); chips.innerHTML='';
   const sr=statusRule(); const on=new Set(sr?sr.value:[]);
-  STATUSES.forEach(s=>{ const b=document.createElement('button'); b.className='chip'+(on.has(s.id)?' on':''); b.textContent=s.name; b.onclick=()=>{ let r=statusRule(); if(!r){ r={field:'status',op:'in',value:[]}; ui.rules.unshift(r); } r.value=r.value.includes(s.id)?r.value.filter(x=>x!==s.id):[...r.value,s.id]; if(!r.value.length) ui.rules=ui.rules.filter(x=>x!==r); render(); }; chips.appendChild(b); });
+  statuses().forEach(s=>{ const b=document.createElement('button'); b.className='chip'+(on.has(s.id)?' on':''); b.textContent=s.name; b.onclick=()=>{ let r=statusRule(); if(!r){ r={field:'status',op:'in',value:[]}; ui.rules.unshift(r); } r.value=r.value.includes(s.id)?r.value.filter(x=>x!==s.id):[...r.value,s.id]; if(!r.value.length) ui.rules=ui.rules.filter(x=>x!==r); render(); }; chips.appendChild(b); });
   ui.rules.forEach((r,idx)=>{ if(r===sr) return; const b=document.createElement('span'); b.className='chip rule'; b.innerHTML=ruleLabel(r)+'<span class="x" title="Remove filter">✕</span>'; b.querySelector('.x').onclick=()=>{ ui.rules.splice(idx,1); render(); }; b.onclick=e=>{ if(!e.target.classList.contains('x')) openFilters(); }; chips.appendChild(b); });
   if(ui.rules.length||ui.q){ const c=document.createElement('button'); c.className='btn ghost sm'; c.textContent='Clear'; c.onclick=()=>{ ui.rules=[]; ui.q=''; $('#search').value=''; render(); }; chips.appendChild(c); }
   $('#btnFilters').textContent=ui.rules.length?'Filter ('+ui.rules.length+')':'Filter';
@@ -1034,7 +1061,8 @@ function render(){
 /* ---------- helpers for cells ---------- */
 const pips = (n,cls='') => '<span class="pips '+cls+'" title="'+n+' of 5">'+[1,2,3,4,5].map(k=>'<i class="'+(k<=n?'on':'')+'"></i>').join('')+'</span>';
 const statusBadge = id => { const s=statusOf(id); return '<span class="status" style="--sc:'+s.color+'">'+esc(s.name)+'</span>'; };
-const bucketBadge = b => { b=b||'none'; return b==='none'?'<span class="muted small">—</span>':'<span class="bucket '+b+'">'+esc(BUCKETS.find(x=>x.id===b).name)+'</span>'; };
+const bucketBadge = b => { const o=buckets().find(x=>x.id===(b||'none')); if(!o) return '<span class="muted small">—</span>';
+  return o.color?'<span class="bucket tint" style="--sc:'+o.color+'">'+esc(o.name)+'</span>':'<span class="bucket">'+esc(o.name)+'</span>'; };
 const labelsHtml = ls => ls.map(l=>'<span class="label">'+esc(l)+'</span>').join('');
 const selectHtml = (opts,cur,attrs='') => '<select '+attrs+'>'+opts.map(o=>'<option value="'+esc(o.id)+'"'+(o.id===cur?' selected':'')+'>'+esc(o.name)+'</option>').join('')+'</select>';
 const nums = [1,2,3,4,5].map(n=>({id:String(n),name:String(n)}));
@@ -1058,14 +1086,14 @@ function renderList(c, list){
   const rowHtml=i=>'<tr data-id="'+i.id+'">'+
       '<td class="key">'+esc(i.key)+'</td>'+
       '<td style="min-width:280px"><div class="title">'+esc(i.title)+'</div></td>'+
-      (show('status')?'<td>'+selectHtml(STATUSES,i.status,'data-f="status"')+'</td>':'')+
+      (show('status')?'<td>'+selectHtml(statuses(),i.status,'data-f="status"')+'</td>':'')+
       (show('impact')?'<td>'+selectHtml(nums,String(i.impact),'data-f="impact"')+'</td>':'')+
       (show('effort')?'<td>'+selectHtml(nums,String(i.effort),'data-f="effort"')+'</td>':'')+
       (show('confidence')?'<td class="right"><input class="num" data-f="confidence" type="number" min="0" max="100" step="5" value="'+i.confidence+'" style="width:58px;text-align:right"></td>':'')+
       (show('reach')?'<td class="right"><input class="num" data-f="reach" type="number" min="0" value="'+i.reach+'" style="width:70px;text-align:right"></td>':'')+
       (show('score')?'<td class="right score">'+score(i)+'</td>':'')+
       (show('insights')?'<td class="right num">'+insightWeight(i)+'</td>':'')+
-      (show('bucket')?'<td>'+selectHtml(BUCKETS,i.bucket||'none','data-f="bucket"')+'</td>':'')+
+      (show('bucket')?'<td>'+selectHtml(buckets(),i.bucket||'none','data-f="bucket"')+'</td>':'')+
       (show('start')?'<td class="small">'+(fmtD(i.start)||'<span class="muted">—</span>')+'</td>':'')+
       (show('end')?'<td class="small">'+(fmtD(i.end)||'<span class="muted">—</span>')+'</td>':'')+
       (show('owner')?'<td>'+esc(i.owner||'')+'</td>':'')+
@@ -1213,7 +1241,7 @@ function renderMatrix(c,list){
   wrap.innerHTML='<div class="matrix">'+svg+'</div><div class="legend">'+
     '<div class="box"><div class="eyebrow">Quadrants</div><div class="row"><span>Quick wins</span><span class="num">'+quick.length+'</span></div><div class="row"><span>Big bets</span><span class="num">'+bets.length+'</span></div><div class="row"><span>Fill-ins</span><span class="num">'+fill.length+'</span></div><div class="row"><span>Money pits</span><span class="num">'+pit.length+'</span></div><div class="small muted">Dot size scales with reach. Color is status.</div></div>'+
     '<div class="box"><div class="eyebrow">Top by score</div>'+top.map(i=>'<div class="row"><a href="#" data-id="'+i.id+'" style="text-decoration:none;color:var(--ink)">'+esc(i.title)+'</a><span class="num score">'+score(i)+'</span></div>').join('')+'</div>'+
-    '<div class="box"><div class="eyebrow">Status</div>'+STATUSES.map(s=>'<div class="row">'+statusBadge(s.id)+'<span class="num">'+list.filter(i=>i.status===s.id).length+'</span></div>').join('')+'</div>'+
+    '<div class="box"><div class="eyebrow">'+esc(fieldName('status'))+'</div>'+statuses().map(s=>'<div class="row">'+statusBadge(s.id)+'<span class="num">'+list.filter(i=>i.status===s.id).length+'</span></div>').join('')+'</div>'+
   '</div>';
   c.appendChild(wrap);
   wrap.querySelectorAll('[data-id]').forEach(el=>el.addEventListener('click',e=>{ e.preventDefault(); openPanel(el.dataset.id); }));
@@ -1234,8 +1262,8 @@ function renderPanel(){
     '<input class="panel-title" id="pTitle" value="'+esc(i.title)+'" aria-label="Idea title">'+
     '<div class="score-tile"><span class="big">'+score(i)+'</span><span class="eyebrow">score</span><span class="formula">'+i.reach+' × '+i.impact+' × '+i.confidence+'% ÷ '+i.effort+'</span></div>'+
     '<div class="fields">'+
-      '<div class="field"><label>Status</label>'+selectHtml(STATUSES,i.status,'data-f="status"')+'</div>'+
-      '<div class="field"><label>Roadmap bucket</label>'+selectHtml(BUCKETS,i.bucket||'none','data-f="bucket"')+'</div>'+
+      '<div class="field"><label>'+esc(fieldName('status'))+'</label>'+selectHtml(statuses(),i.status,'data-f="status"')+'</div>'+
+      '<div class="field"><label>'+esc(fieldName('bucket'))+'</label>'+selectHtml(buckets(),i.bucket||'none','data-f="bucket"')+'</div>'+
       '<div class="field"><label>Impact</label>'+rating('impact')+'</div>'+
       '<div class="field"><label>Effort</label>'+rating('effort','effort')+'</div>'+
       '<div class="field"><label>Confidence %</label><input class="num" data-f="confidence" type="number" min="0" max="100" step="5" value="'+i.confidence+'"></div>'+
@@ -1297,22 +1325,94 @@ function refreshPanelLite(i){
 /* ---------- custom field manager ---------- */
 function openFields(){ renderFields(); $('#fieldsModal').hidden=false; }
 function closeFields(){ $('#fieldsModal').hidden=true; render(); if(openId) renderPanel(); }
+function choiceFieldFor(id){
+  if(id==='status') return {id:'status',name:fieldName('status'),type:'select',options:statuses(),builtin:true};
+  if(id==='bucket') return {id:'bucket',name:fieldName('bucket'),type:'select',options:buckets(),builtin:true};
+  return null;
+}
+/* Ideas referencing an option, so deleting one can tell you what it will touch. */
+function optionUsage(f,optId){
+  return data.ideas.filter(i=>{ const v=f.builtin?i[f.id]:(i.custom||{})[f.id];
+    return Array.isArray(v)?v.includes(optId):(v||(f.id==='bucket'?'none':''))===optId; });
+}
+function reassignOption(f,fromId,toId){
+  optionUsage(f,fromId).forEach(i=>{
+    if(f.builtin){ setField(i,f.id,toId,f.name); }
+    else { const v=(i.custom||{})[f.id];
+      if(Array.isArray(v)) setVal(i,Object.assign({},f,{custom:true}),[...new Set(v.map(x=>x===fromId?toId:x))].filter(Boolean));
+      else setVal(i,Object.assign({},f,{custom:true}),toId||''); }
+  });
+}
+function optionsHtml(f){
+  const opts=f.options||[];
+  return '<div class="opts" data-optlist>'+opts.map((o,k)=>'<div class="opt" data-oid="'+esc(o.id)+'">'+
+      '<input type="color" data-ocolor value="'+esc(/^#/.test(o.color||'')?o.color:'#7d8798')+'" aria-label="Colour for '+esc(o.name)+'">'+
+      '<input type="text" data-oname value="'+esc(o.name)+'" aria-label="Option name">'+
+      '<button class="mv" data-oup '+(k===0?'disabled':'')+' title="Move up">▲</button>'+
+      '<button class="mv" data-odown '+(k===opts.length-1?'disabled':'')+' title="Move down">▼</button>'+
+      '<button class="mv" data-odel title="Delete option">✕</button></div>').join('')+
+    '<form class="addopt" data-addopt><input name="name" placeholder="Add an option" autocomplete="off"><button class="btn sm">Add</button></form></div>';
+}
+/* One wiring routine for built-in and custom choice fields alike. */
+function wireOptions(el,f){
+  const list=el.querySelector('[data-optlist]'); if(!list) return;
+  const after=()=>{ persist(); renderFields(); render(); if(openId) renderPanel(); };
+  list.querySelectorAll('.opt').forEach(row=>{
+    const o=f.options.find(x=>x.id===row.dataset.oid); if(!o) return;
+    row.querySelector('[data-ocolor]').addEventListener('change',e=>{ o.color=e.target.value; after(); });
+    row.querySelector('[data-oname]').addEventListener('change',e=>{ const n=e.target.value.trim(); if(n){ o.name=n; after(); } else e.target.value=o.name; });
+    const idx=f.options.indexOf(o);
+    row.querySelector('[data-oup]').onclick=()=>{ if(idx>0){ f.options.splice(idx-1,0,f.options.splice(idx,1)[0]); after(); } };
+    row.querySelector('[data-odown]').onclick=()=>{ if(idx<f.options.length-1){ f.options.splice(idx+1,0,f.options.splice(idx,1)[0]); after(); } };
+    row.querySelector('[data-odel]').onclick=()=>{
+      if(f.options.length<2){ toast('A choice field needs at least one option'); return; }
+      const used=optionUsage(f,o.id);
+      const fallback=f.options.find(x=>x.id!==o.id);
+      const msg='Delete option "'+o.name+'"?'+(used.length?'\n\n'+used.length+' idea'+(used.length===1?'':'s')+' will move to "'+fallback.name+'".':'');
+      if(!confirm(msg)) return;
+      if(used.length) reassignOption(f,o.id,f.builtin?fallback.id:'');
+      /* Splice rather than reassign: for built-in fields f.options IS data.statuses/buckets. */
+      const k=f.options.indexOf(o); if(k>=0) f.options.splice(k,1);
+      ui.rules.forEach(r=>{ if(r.field===f.id&&Array.isArray(r.value)) r.value=r.value.filter(v=>v!==o.id); });
+      after();
+    };
+  });
+  list.querySelector('[data-addopt]').addEventListener('submit',e=>{
+    e.preventDefault();
+    const n=new FormData(e.target).get('name').trim(); if(!n) return;
+    f.options.push({id:uid(),name:n,color:OPTION_COLORS[f.options.length%OPTION_COLORS.length]});
+    e.target.reset(); after();
+  });
+}
 function renderFields(){
   const box=$('#fdefs');
   const typeName={select:'Single select',multiselect:'Multi select',checkbox:'Checkbox',text:'Text',number:'Number',date:'Date',rating:'Rating 1 to 5',formula:'Formula'};
   const refs=fieldDefs().filter(d=>['number','rating','formula','checkbox','select','multiselect'].includes(d.type)).map(d=>'{'+d.name+'}').join(' ');
-  box.innerHTML=customFields().length?customFields().map(f=>{ const err=f.type==='formula'?formulaCheck(f):''; return '<div class="fdef" data-id="'+f.id+'"><input data-name value="'+esc(f.name)+'" aria-label="Field name"><span class="type">'+typeName[f.type]+'</span><button class="btn sm danger" data-del>Delete</button>'+
-    ((f.type==='select'||f.type==='multiselect')?'<textarea data-opts placeholder="One option per line">'+esc(f.options.map(o=>o.name).join('\n'))+'</textarea>':'')+
-    (f.type==='formula'?'<textarea class="expr" data-expr placeholder="{Impact} * {Confidence} / {Effort}">'+esc(f.expr||'')+'</textarea>'+(err?'<div class="ferr">'+esc(err)+'</div>':'')+'<div class="fhelp">Fields: '+esc(refs)+' · Functions: min, max, round, abs, sqrt, if(condition, a, b) · Checkbox is 1 or 0, single select is the option position, multi select is the count.</div>':'')+'</div>'; }).join('')
-    :'<div class="small muted">No custom fields yet.</div>';
+  const builtins=['status','bucket'].map(id=>choiceFieldFor(id));
+  const defHtml=(f,builtin)=>'<div class="fdef" data-id="'+f.id+'"'+(builtin?' data-builtin':'')+'>'+
+    '<input data-name value="'+esc(f.name)+'" aria-label="Field name">'+
+    '<span class="type">'+typeName[f.type]+'</span>'+
+    (builtin?'<span class="type">built in</span>':'<button class="btn sm danger" data-del>Delete</button>')+
+    (hasOpts(f)?optionsHtml(f):'')+
+    (f.type==='formula'?'<textarea class="expr" data-expr placeholder="{Impact} * {Confidence} / {Effort}">'+esc(f.expr||'')+'</textarea>'+(formulaCheck(f)?'<div class="ferr">'+esc(formulaCheck(f))+'</div>':'')+'<div class="fhelp">Fields: '+esc(refs)+' · Functions: min, max, round, abs, sqrt, if(condition, a, b) · Checkbox is 1 or 0, single select is the option position, multi select is the count.</div>':'')+
+  '</div>';
+  box.innerHTML='<div class="fsec">Built-in choice fields</div>'+builtins.map(f=>defHtml(f,true)).join('')+
+    '<div class="fsec">Custom fields</div>'+(customFields().length?customFields().map(f=>defHtml(f,false)).join(''):'<div class="small muted">No custom fields yet.</div>');
   box.querySelectorAll('.fdef').forEach(el=>{
-    const f=customFields().find(x=>x.id===el.dataset.id);
-    el.querySelector('[data-name]').addEventListener('change',e=>{ const n=e.target.value.trim(); if(n){ f.name=n; persist(); } else e.target.value=f.name; });
-    const ta=el.querySelector('[data-opts]');
-    if(ta) ta.addEventListener('change',()=>{ const names=[...new Set(ta.value.split('\n').map(s=>s.trim()).filter(Boolean))]; f.options=names.map((n,k)=>f.options.find(o=>o.name===n)||{id:uid(),name:n,color:OPTION_COLORS[(f.options.length+k)%OPTION_COLORS.length]}); persist(); });
+    const builtin=el.hasAttribute('data-builtin');
+    const f=builtin?choiceFieldFor(el.dataset.id):customFields().find(x=>x.id===el.dataset.id);
+    if(!f) return;
+    el.querySelector('[data-name]').addEventListener('change',e=>{
+      const n=e.target.value.trim();
+      if(!n){ e.target.value=f.name; return; }
+      if(builtin) data.fieldNames[f.id]=n; else f.name=n;
+      persist(); renderFields(); render(); if(openId) renderPanel();
+    });
+    wireOptions(el,f);
     const ex=el.querySelector('[data-expr]');
     if(ex) ex.addEventListener('change',()=>{ f.expr=ex.value.trim(); persist(); renderFields(); });
-    el.querySelector('[data-del]').onclick=()=>{ if(!confirm('Delete field "'+f.name+'" and its values on every idea?')) return; data.fields=data.fields.filter(x=>x.id!==f.id); data.ideas.forEach(i=>{ if(i.custom) delete i.custom[f.id]; }); ui.rules=ui.rules.filter(r=>r.field!==f.id); if(ui.groupBy===f.id) ui.groupBy=''; if(ui.boardBy===f.id) ui.boardBy='status'; ui.hidden=ui.hidden.filter(k=>k!=='c:'+f.id); persist(); renderFields(); };
+    const del=el.querySelector('[data-del]');
+    if(del) del.onclick=()=>{ if(!confirm('Delete field "'+f.name+'" and its values on every idea?')) return; data.fields=data.fields.filter(x=>x.id!==f.id); data.ideas.forEach(i=>{ if(i.custom) delete i.custom[f.id]; }); ui.rules=ui.rules.filter(r=>r.field!==f.id); if(ui.groupBy===f.id) ui.groupBy=''; if(ui.boardBy===f.id) ui.boardBy='status'; ui.hidden=ui.hidden.filter(k=>k!=='c:'+f.id); persist(); renderFields(); render(); };
   });
 }
 
@@ -1337,7 +1437,7 @@ function cellText(i,key){
     case 'key': return i.key;
     case 'title': return i.title;
     case 'status': return statusOf(i.status).name;
-    case 'bucket': return (BUCKETS.find(b=>b.id===(i.bucket||'none'))||{}).name;
+    case 'bucket': return (buckets().find(b=>b.id===(i.bucket||'none'))||{}).name||'';
     case 'score': return String(score(i));
     case 'insights': return String(insightWeight(i));
     case 'labels': return i.labels.join('; ');
