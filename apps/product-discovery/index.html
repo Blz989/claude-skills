@@ -97,7 +97,7 @@ a{color:var(--accent)}
 .toolbar{display:flex;align-items:center;gap:8px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--surface);flex-wrap:wrap}
 .toolbar h1{font-size:17px;margin:0 10px 0 0;letter-spacing:-.01em}
 .search{position:relative}
-.search input{width:260px;padding:6px 10px 6px 30px;border:1px solid var(--line-strong);border-radius:6px;background:var(--bg)}
+.search input{width:210px;padding:6px 10px 6px 30px;border:1px solid var(--line-strong);border-radius:6px;background:var(--bg)}
 .search svg{position:absolute;left:9px;top:8px;width:15px;height:15px;color:var(--ink-3)}
 .toolbar select{padding:6px 8px;border:1px solid var(--line-strong);border-radius:6px;background:var(--bg)}
 .spacer{flex:1}
@@ -171,6 +171,26 @@ tfoot td{color:var(--ink-3);font-size:12px;background:var(--surface-2)}
 .legend .row{display:flex;justify-content:space-between;gap:8px;font-size:13px}
 .legend .row .num{color:var(--ink-2)}
 
+/* ---------- views, filters, columns ---------- */
+.vt{display:flex;flex-direction:column;margin-right:6px;min-width:0;max-width:260px}
+.vt h1{margin:0}
+.vt .desc{font-size:12px;color:var(--ink-3);max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chips .chip.rule{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);border-color:transparent;color:var(--accent);font-weight:500}
+.chips .chip.rule b{font-weight:600}
+.chips .chip.rule .x{cursor:pointer;opacity:.7;font-weight:700}
+.chips .chip.rule .x:hover{opacity:1}
+.rules{display:flex;flex-direction:column;gap:8px}
+.rule{display:grid;grid-template-columns:170px 150px 1fr auto;gap:6px;align-items:start}
+.rule select,.rule input{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:6px 8px;width:100%;min-width:0}
+.rule .checks{padding:4px 8px}
+.modal .box textarea{border:1px solid var(--line-strong);background:var(--bg);border-radius:6px;padding:8px 10px;width:100%;min-height:70px;resize:vertical}
+.nav button.sv{font-weight:500}
+.nav button.sv .dirty{color:var(--warn);font-size:16px;line-height:0;margin-left:auto}
+.fdef textarea.expr{font-family:var(--mono);min-height:44px}
+.fdef .ferr{grid-column:1/-1;font-size:12px;color:var(--crit)}
+.fdef .fhelp{grid-column:1/-1;font-size:11px;color:var(--ink-3)}
+.formula-val{font-family:var(--mono);font-size:15px;padding:6px 0}
+
 /* ---------- grouping + custom fields ---------- */
 tr.grp td{background:var(--surface-2);font-weight:600;cursor:pointer;padding:6px 10px;border-top:1px solid var(--line)}
 tr.grp .tri{display:inline-block;width:14px;color:var(--ink-3);font-size:11px}
@@ -180,7 +200,7 @@ tr.grp .count,tr.grp .sum{font-family:var(--mono);font-weight:400;color:var(--in
 .tl-row.tl-grp .count{font-family:var(--mono);font-weight:400;color:var(--ink-3);font-size:12px}
 .tl-row.tl-grp .tri{color:var(--ink-3);font-size:11px}
 .checks{display:flex;flex-wrap:wrap;gap:4px 12px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
-.checks label{display:inline-flex;align-items:center;gap:5px;font-size:13px}
+.checks label{display:inline-flex;align-items:center;gap:5px;font-size:13px;white-space:nowrap}
 .field .one{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px}
 .fdef{border:1px solid var(--line);border-radius:6px;padding:10px;display:grid;grid-template-columns:1fr 110px auto;gap:8px;align-items:start;background:var(--bg)}
 .fdef input,.fdef textarea{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:6px 8px;width:100%}
@@ -293,6 +313,11 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
     </div>
 
     <div class="rail-section">
+      <div class="eyebrow">Saved views</div>
+      <div class="nav" id="viewsNav"></div>
+    </div>
+
+    <div class="rail-section">
       <div class="eyebrow">Project file</div>
       <div class="file-card">
         <div><span class="dot" id="fileDot"></span><span id="fileState" class="small">Browser storage only</span></div>
@@ -329,19 +354,17 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
 
   <main class="main">
     <div class="toolbar">
-      <h1 id="viewTitle">Ideas</h1>
+      <div class="vt"><h1 id="viewTitle">Ideas</h1><div class="desc" id="viewDesc" hidden></div></div>
       <div class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg><input id="search" placeholder="Search ideas, labels, insights" aria-label="Search"></div>
-      <select id="fBucket" aria-label="Filter by roadmap bucket">
-        <option value="">Any bucket</option><option value="now">Now</option><option value="next">Next</option><option value="later">Later</option><option value="none">Unplaced</option>
-      </select>
-      <select id="fLabel" aria-label="Filter by label"><option value="">Any label</option></select>
-      <select id="fOwner" aria-label="Filter by owner"><option value="">Any owner</option></select>
+      <button class="btn sm" id="btnFilters">Filter</button>
+      <button class="btn sm" id="btnColumns" hidden>Columns</button>
       <select id="groupBy" aria-label="Group by" hidden></select>
       <select id="boardBy" aria-label="Board columns" hidden></select>
-      <div class="chips" id="statusChips"></div>
       <div class="spacer"></div>
-      <button class="btn ghost sm" id="btnClear" hidden>Clear filters</button>
+      <button class="btn sm" id="btnSaveView">Save as view</button>
+      <button class="btn sm ghost" id="btnViewMenu" hidden title="Rename, describe, or delete this view">Edit view</button>
       <button class="btn primary" id="btnNew">+ New idea</button>
+      <div class="chips" id="statusChips" style="flex-basis:100%"></div>
     </div>
     <div class="content" id="content"></div>
   </main>
@@ -371,10 +394,37 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
     <div class="fdefs" id="fdefs"></div>
     <form id="addField" class="add-row" style="grid-template-columns:1fr 170px auto">
       <input name="name" placeholder="New field name, e.g. Domain" required autocomplete="off">
-      <select name="type"><option value="select">Single select</option><option value="multiselect">Multi select</option><option value="checkbox">Checkbox</option><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="rating">Rating 1 to 5</option></select>
+      <select name="type"><option value="select">Single select</option><option value="multiselect">Multi select</option><option value="checkbox">Checkbox</option><option value="text">Text</option><option value="number">Number</option><option value="date">Date</option><option value="rating">Rating 1 to 5</option><option value="formula">Formula</option></select>
       <button class="btn sm primary">Add field</button>
     </form>
     <div class="btn-row" style="justify-content:flex-end"><button class="btn" id="fieldsClose">Done</button></div>
+  </div>
+</div>
+
+<div class="modal" id="filtersModal" hidden>
+  <div class="box wide">
+    <h2>Filters</h2>
+    <p class="small muted" style="margin:0">Every rule must match. Any field, built in or custom, including formulas.</p>
+    <div class="rules" id="rules"></div>
+    <div class="btn-row"><button class="btn sm" id="addRule">+ Add filter</button><span class="spacer"></span><button class="btn sm ghost" id="clearRules">Clear all</button><button class="btn primary" id="filtersClose">Done</button></div>
+  </div>
+</div>
+
+<div class="modal" id="columnsModal" hidden>
+  <div class="box">
+    <h2>Columns</h2>
+    <div class="checks" id="colpick"></div>
+    <div class="btn-row" style="justify-content:flex-end"><button class="btn sm ghost" id="colsAll">Show all</button><button class="btn primary" id="columnsClose">Done</button></div>
+  </div>
+</div>
+
+<div class="modal" id="viewModal" hidden>
+  <div class="box">
+    <h2 id="viewModalTitle">Save view</h2>
+    <input id="vName" placeholder="View name, e.g. FY27 committed roadmap" autocomplete="off">
+    <textarea id="vDesc" placeholder="What this view is for (optional)"></textarea>
+    <div class="small muted" id="vSummary"></div>
+    <div class="btn-row"><button class="btn sm danger" id="vDelete" hidden>Delete view</button><span class="spacer"></span><button class="btn" id="vCancel">Cancel</button><button class="btn primary" id="vSave">Save</button></div>
   </div>
 </div>
 
@@ -410,9 +460,13 @@ const LS_VIEW = 'discovery-desk:view';
 
 /* ---------- state ---------- */
 let data = null;
-let view = localStorage.getItem(LS_VIEW) || 'list';
-let sort = {key:'score', dir:-1};
-let filters = {q:'', statuses:new Set(), bucket:'', label:'', owner:''};
+/* Everything a saved view captures lives in `ui`. */
+const LS_UI='discovery-desk:ui';
+function defaultUi(){ return {view:'list',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:[],tlScale:'month'}; }
+function loadUi(){ try{ const u=JSON.parse(localStorage.getItem(LS_UI)); if(u&&u.view) return Object.assign(defaultUi(),u); }catch(e){} return defaultUi(); }
+let ui = loadUi();
+let activeViewId = localStorage.getItem('discovery-desk:activeView') || null;
+function saveUi(){ try{ localStorage.setItem(LS_UI,JSON.stringify(ui)); localStorage.setItem('discovery-desk:activeView',activeViewId||''); }catch(e){} }
 let openId = null;
 let fileHandle = null;
 let fileState = 'none'; // none | ok | dirty | err | locked
@@ -486,7 +540,13 @@ function sampleData(){
     {id:'domain',name:'Domain',type:'select',options:[{id:'r2r',name:'Record to Report',color:OPTION_COLORS[0]},{id:'p2p',name:'Procure to Pay',color:OPTION_COLORS[1]},{id:'o2c',name:'Order to Cash',color:OPTION_COLORS[2]},{id:'trs',name:'Treasury',color:OPTION_COLORS[3]}]},
     {id:'committed',name:'Committed',type:'checkbox'}
   ];
-  return {version:1, name:'Finance Tech discovery (sample)', seq:ideas.length, ideas, fields, fiscalStart:7, fiscalName:'end'};
+  fields.push({id:'weighted',name:'Weighted score',type:'formula',options:[],expr:'{Impact} * 2 + {Confidence} / 25 - {Effort} + if({Committed}, 2, 0)'});
+  const views=[
+    {id:'v-quick',name:'Quick wins',description:'High impact, low effort, not yet shipped.',type:'list',q:'',rules:[{field:'impact',op:'gte',value:4},{field:'effort',op:'lte',value:2},{field:'status',op:'nin',value:['shipped','wontdo']}],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['confidence','reach','delivery','updated'],tlScale:'month'},
+    {id:'v-committed',name:'Committed roadmap',description:'Committed ideas on the fiscal timeline, grouped by domain.',type:'timeline',q:'',rules:[{field:'committed',op:'yes'}],sort:{key:'score',dir:-1},groupBy:'domain',boardBy:'status',hidden:[],tlScale:'quarter'},
+    {id:'v-domain',name:'Domain board',description:'Drag ideas between domains.',type:'board',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'domain',hidden:[],tlScale:'month'}
+  ];
+  return {version:1, name:'Finance Tech discovery (sample)', seq:ideas.length, ideas, fields, views, fiscalStart:7, fiscalName:'end'};
 }
 
 /* ---------- persistence ---------- */
@@ -576,7 +636,8 @@ function normalize(d){
   d.version = d.version||1;
   d.name = d.name||'Untitled project';
   d.ideas = (d.ideas||[]).map(i=>Object.assign({description:'',status:'discovery',impact:3,effort:3,confidence:50,reach:0,labels:[],owner:'',delivery:'',bucket:'none',start:'',end:'',insights:[],comments:[],history:[],created:now(),updated:now()}, i));
-  d.fields = (d.fields||[]).map(f=>Object.assign({options:[]},f));
+  d.fields = (d.fields||[]).map(f=>Object.assign({options:[],expr:''},f));
+  d.views = (d.views||[]).filter(v=>v&&v.id&&v.name);
   d.fiscalStart = Math.min(12,Math.max(1,Number(d.fiscalStart)||1));
   d.fiscalName = d.fiscalName==='start' ? 'start' : 'end';
   d.ideas.forEach(i=>{ i.custom=i.custom||{}; });
@@ -608,6 +669,11 @@ function fieldDefs(){
     {id:'labels',name:'Labels',type:'multiselect',options:allLabels().map(l=>({id:l,name:l}))},
     {id:'impact',name:'Impact',type:'rating'},
     {id:'effort',name:'Effort',type:'rating'},
+    {id:'confidence',name:'Confidence',type:'number'},
+    {id:'reach',name:'Reach',type:'number'},
+    {id:'score',name:'Score',type:'number',computed:score},
+    {id:'insights',name:'Insight weight',type:'number',computed:insightWeight},
+    {id:'delivery',name:'Delivery ticket',type:'text'},
     {id:'start',name:'Start date',type:'date'},
     {id:'end',name:'Target date',type:'date'},
     ...(data.fields||[]).map(f=>Object.assign({},f,{custom:true}))
@@ -615,10 +681,56 @@ function fieldDefs(){
 }
 const fieldById = id => fieldDefs().find(f=>f.id===id);
 const customFields = () => (data.fields||[]);
-function getVal(i,f){ return f.custom ? (i.custom||{})[f.id] : i[f.id]; }
+function getVal(i,f){ if(f.computed) return f.computed(i); if(f.type==='formula') return formulaVal(i,f,0); return f.custom ? (i.custom||{})[f.id] : i[f.id]; }
+const hasOpts=f=>f.type==='select'||f.type==='multiselect';
 const optName=(f,id)=>{ const o=(f.options||[]).find(o=>o.id===id); return o?o.name:String(id); };
-const isEmpty=v=>v==null||v===''||(Array.isArray(v)&&!v.length);
-function showVal(f,v){ if(isEmpty(v)) return 'empty'; if(f.type==='checkbox') return v?'yes':'no'; if(f.options){ return (Array.isArray(v)?v:[v]).map(o=>optName(f,o)).join(', '); } return String(v); }
+const isEmpty=v=>v==null||v===''||(Array.isArray(v)&&!v.length)||(typeof v==='number'&&isNaN(v));
+
+/* ---------- formula fields: a small parser, no eval ---------- */
+const FORMULA_FN={min:Math.min,max:Math.max,abs:Math.abs,sqrt:Math.sqrt,round:(x,d=0)=>{const m=Math.pow(10,d);return Math.round(x*m)/m;},if:(c,a,b)=>c?a:b};
+function tokenizeFormula(src){
+  const t=[]; let i=0;
+  while(i<src.length){
+    const c=src[i];
+    if(/\s/.test(c)){ i++; continue; }
+    if(/[0-9.]/.test(c)){ let j=i; while(j<src.length&&/[0-9.]/.test(src[j])) j++; t.push({t:'num',v:parseFloat(src.slice(i,j))}); i=j; continue; }
+    if(c==='{'){ const j=src.indexOf('}',i); if(j<0) throw new Error('Missing }'); t.push({t:'name',v:src.slice(i+1,j).trim()}); i=j+1; continue; }
+    if(/[A-Za-z_]/.test(c)){ let j=i; while(j<src.length&&/[A-Za-z0-9_]/.test(src[j])) j++; t.push({t:'name',v:src.slice(i,j)}); i=j; continue; }
+    if('+-*/^(),'.includes(c)){ t.push({t:c}); i++; continue; }
+    throw new Error('Unexpected "'+c+'"');
+  }
+  return t;
+}
+function parseFormula(src){
+  const t=tokenizeFormula(src); let p=0; const peek=()=>t[p], next=()=>t[p++];
+  function expr(){ let v=term(); while(peek()&&(peek().t==='+'||peek().t==='-')){ const op=next().t, r=term(), l=v; v=ctx=>op==='+'?l(ctx)+r(ctx):l(ctx)-r(ctx); } return v; }
+  function term(){ let v=unary(); while(peek()&&(peek().t==='*'||peek().t==='/')){ const op=next().t, r=unary(), l=v; v=ctx=>{ const a=l(ctx), b=r(ctx); return op==='*'?a*b:(b===0?0:a/b); }; } return v; }
+  function unary(){ if(peek()&&peek().t==='-'){ next(); const r=unary(); return ctx=>-r(ctx); } return power(); }
+  function power(){ const b=atom(); if(peek()&&peek().t==='^'){ next(); const e=unary(); return ctx=>Math.pow(b(ctx),e(ctx)); } return b; }
+  function atom(){
+    const k=next(); if(!k) throw new Error('Unexpected end of formula');
+    if(k.t==='num'){ const v=k.v; return ()=>v; }
+    if(k.t==='('){ const v=expr(); if(!peek()||next().t!==')') throw new Error('Missing )'); return v; }
+    if(k.t==='name'){
+      if(peek()&&peek().t==='('){ next(); const fn=FORMULA_FN[k.v.toLowerCase()]; if(!fn) throw new Error('Unknown function '+k.v); const args=[]; if(peek()&&peek().t!==')'){ args.push(expr()); while(peek()&&peek().t===','){ next(); args.push(expr()); } } if(!peek()||next().t!==')') throw new Error('Missing )'); return ctx=>fn(...args.map(a=>a(ctx))); }
+      const name=k.v; return ctx=>ctx(name);
+    }
+    throw new Error('Unexpected '+k.t);
+  }
+  const fn=expr(); if(p<t.length) throw new Error('Unexpected '+(t[p].t==='name'?t[p].v:t[p].t)); return fn;
+}
+const formulaCache=new Map();
+function compileFormula(src){ src=String(src||'').trim(); if(!formulaCache.has(src)){ let out; if(!src) out={error:'Empty formula'}; else { try{ out={fn:parseFormula(src)}; }catch(e){ out={error:e.message}; } } formulaCache.set(src,out); } return formulaCache.get(src); }
+function formulaCheck(f){ const c=compileFormula(f.expr); if(c.error) return c.error; try{ const names=[]; c.fn(n=>{ names.push(n); return 1; }); const defs=fieldDefs(); const bad=names.find(n=>!defs.find(d=>d.name.toLowerCase()===n.toLowerCase()||d.id.toLowerCase()===n.toLowerCase())); return bad?'Unknown field {'+bad+'}':''; }catch(e){ return e.message; } }
+function formulaVal(i,f,depth){
+  if(depth>8) return NaN;
+  const c=compileFormula(f.expr); if(c.error) return NaN;
+  const defs=fieldDefs();
+  const ctx=name=>{ const key=name.toLowerCase(); const d=defs.find(x=>x.name.toLowerCase()===key||x.id.toLowerCase()===key); if(!d) throw new Error('Unknown field '+name); const v=d.type==='formula'?formulaVal(i,d,depth+1):getVal(i,d); if(d.type==='checkbox') return v?1:0; if(d.type==='select') return isEmpty(v)?0:((d.options||[]).findIndex(o=>o.id===v)+1); if(d.type==='multiselect') return Array.isArray(v)?v.length:0; const n=Number(v); return isFinite(n)?n:0; };
+  try{ const v=c.fn(ctx); return typeof v==='number'&&isFinite(v)?Math.round(v*100)/100:NaN; }catch(e){ return NaN; }
+}
+const fmtNum=v=>isEmpty(v)?'—':(Number.isInteger(v)?String(v):v.toFixed(2).replace(/\.?0+$/,''));
+function showVal(f,v){ if(isEmpty(v)) return 'empty'; if(f.type==='checkbox') return v?'yes':'no'; if(hasOpts(f)){ return (Array.isArray(v)?v:[v]).map(o=>optName(f,o)).join(', '); } return String(v); }
 function setVal(i,f,v){
   if(!f.custom) return setField(i,f.id,v,f.name);
   i.custom=i.custom||{};
@@ -644,7 +756,7 @@ function groupKeys(i,f){
 function groupList(list,f){
   const map=new Map();
   list.forEach(i=>groupKeys(i,f).forEach(g=>{ if(!map.has(g.id)) map.set(g.id,Object.assign({items:[]},g)); map.get(g.id).items.push(i); }));
-  const order=f.options?f.options.map(o=>o.id):null;
+  const order=hasOpts(f)?f.options.map(o=>o.id):null;
   return [...map.values()].sort((a,b)=>{
     if(a.id==='__none') return 1; if(b.id==='__none') return -1;
     if(order) return order.indexOf(a.id)-order.indexOf(b.id);
@@ -653,8 +765,6 @@ function groupList(list,f){
     return a.name.localeCompare(b.name,undefined,{numeric:true});
   });
 }
-let groupBy={list:localStorage.getItem('discovery-desk:group:list')||'', timeline:localStorage.getItem('discovery-desk:group:timeline')||''};
-let boardBy=localStorage.getItem('discovery-desk:boardby')||'status';
 const collapsed=new Set();
 const groupHeaderLabel=g=>(g.color?'<span class="status" style="--sc:'+g.color+'">'+esc(g.name)+'</span>':esc(g.name));
 function addHistory(i, text){ i.history.push({ts:now(), text}); if(i.history.length>60) i.history.splice(0, i.history.length-60); i.updated=now(); }
@@ -683,14 +793,48 @@ function deleteIdea(id){
 }
 
 /* ---------- filtering + sorting ---------- */
+/* ---------- rule-based filters ---------- */
+const OPS={
+  select:[['in','is any of'],['nin','is none of'],['empty','is empty'],['notempty','is not empty']],
+  checkbox:[['yes','is yes'],['no','is no']],
+  text:[['contains','contains'],['ncontains','does not contain'],['empty','is empty'],['notempty','is not empty']],
+  number:[['eq','='],['ne','≠'],['gt','>'],['gte','≥'],['lt','<'],['lte','≤'],['empty','is empty'],['notempty','is not empty']],
+  date:[['before','is before'],['after','is after'],['on','is on'],['empty','is empty'],['notempty','is not empty']]
+};
+OPS.multiselect=OPS.select; OPS.rating=OPS.number; OPS.formula=OPS.number;
+const opsFor=f=>OPS[f.type]||OPS.text;
+const opNeedsValue=op=>!['empty','notempty','yes','no'].includes(op);
+function matchRule(i,r){
+  const f=fieldById(r.field); if(!f) return true;
+  const v=getVal(i,f), empty=isEmpty(v);
+  const arr=Array.isArray(v)?v:(empty?[]:[v]); const sel=Array.isArray(r.value)?r.value:[];
+  const n=Number(v), rv=Number(r.value);
+  switch(r.op){
+    case 'empty': return empty; case 'notempty': return !empty;
+    case 'in': return sel.length?arr.some(x=>sel.includes(x)):true;
+    case 'nin': return !arr.some(x=>sel.includes(x));
+    case 'yes': return !!v; case 'no': return !v;
+    case 'contains': return String(v||'').toLowerCase().includes(String(r.value||'').toLowerCase());
+    case 'ncontains': return !String(v||'').toLowerCase().includes(String(r.value||'').toLowerCase());
+    case 'eq': return !empty&&n===rv; case 'ne': return empty||n!==rv;
+    case 'gt': return !empty&&n>rv; case 'gte': return !empty&&n>=rv; case 'lt': return !empty&&n<rv; case 'lte': return !empty&&n<=rv;
+    case 'before': return !empty&&v<r.value; case 'after': return !empty&&v>r.value; case 'on': return v===r.value;
+  }
+  return true;
+}
+function ruleLabel(r){
+  const f=fieldById(r.field); if(!f) return '';
+  const op=(opsFor(f).find(o=>o[0]===r.op)||[r.op,r.op])[1];
+  let val='';
+  if(opNeedsValue(r.op)){ if(hasOpts(f)) val=(Array.isArray(r.value)?r.value:[]).map(id=>optName(f,id)).join(', ')||'…'; else if(f.type==='date') val=r.value?fmtD(r.value):'…'; else val=(r.value===''||r.value==null)?'…':String(r.value); }
+  return '<b>'+esc(f.name)+'</b> '+esc(op)+(val?' '+esc(val):'');
+}
+function statusRule(){ return ui.rules.find(r=>r.field==='status'&&r.op==='in'); }
 function visibleIdeas(){
-  const q=filters.q.trim().toLowerCase();
+  const q=ui.q.trim().toLowerCase();
   const cdefs=customFields().map(f=>Object.assign({},f,{custom:true}));
   return data.ideas.filter(i=>{
-    if(filters.statuses.size && !filters.statuses.has(i.status)) return false;
-    if(filters.bucket && (i.bucket||'none')!==filters.bucket) return false;
-    if(filters.label && !i.labels.includes(filters.label)) return false;
-    if(filters.owner && i.owner!==filters.owner) return false;
+    for(const r of ui.rules){ if(!matchRule(i,r)) return false; }
     if(q){
       const hay=[i.key,i.title,i.description,i.owner,i.delivery,...i.labels,...i.insights.map(x=>x.text),...i.comments.map(c=>c.text),...cdefs.flatMap(f=>isEmpty(getVal(i,f))?[]:[showVal(f,getVal(i,f))])].join(' ').toLowerCase();
       if(!hay.includes(q)) return false;
@@ -698,9 +842,9 @@ function visibleIdeas(){
     return true;
   });
 }
-function customSortVal(i,id){ const f=fieldById(id); if(!f) return ''; const v=getVal(i,f); if(isEmpty(v)) return f.type==='number'||f.type==='rating'?-Infinity:'\uffff'; if(f.type==='checkbox') return v?1:0; if(f.options){ const first=Array.isArray(v)?v[0]:v; return f.options.findIndex(o=>o.id===first); } return v; }
+function customSortVal(i,id){ const f=fieldById(id); if(!f) return ''; const v=getVal(i,f); const numeric=['number','rating','formula'].includes(f.type); if(isEmpty(v)) return numeric?-Infinity:'\uffff'; if(f.type==='checkbox') return v?1:0; if(hasOpts(f)){ const first=Array.isArray(v)?v[0]:v; return f.options.findIndex(o=>o.id===first); } return numeric?Number(v):v; }
 function sorted(list){
-  const k=sort.key, d=sort.dir;
+  const k=ui.sort.key, d=ui.sort.dir;
   const val = i => k==='score'?score(i):k==='insights'?insightWeight(i):k==='status'?STATUSES.findIndex(s=>s.id===i.status):k==='bucket'?BUCKETS.findIndex(b=>b.id===(i.bucket||'none')):k==='key'?Number(i.key.split('-')[1]):k==='labels'?i.labels.join(','):(k==='start'||k==='end')?(i[k]||'\uffff'):k.startsWith('c:')?customSortVal(i,k.slice(2)):i[k];
   return [...list].sort((a,b)=>{ const x=val(a), y=val(b); if(x==null&&y==null) return 0; if(typeof x==='number'&&typeof y==='number') return (x-y)*d; return String(x??'').localeCompare(String(y??''),undefined,{numeric:true,sensitivity:'base'})*d; });
 }
@@ -709,29 +853,104 @@ function allOwners(){ return [...new Set(data.ideas.map(i=>i.owner).filter(Boole
 
 /* ---------- render: chrome ---------- */
 function renderNavCounts(){ $('[data-count="list"]').textContent=data.ideas.length; }
+/* ---------- saved views ---------- */
+const VIEW_NAMES={list:'Ideas',board:'Board',matrix:'Impact vs effort',timeline:'Timeline',roadmap:'Buckets'};
+function normSnap(o){ return {type:o.type||o.view||'list',q:o.q||'',rules:o.rules||[],sort:o.sort||{key:'score',dir:-1},groupBy:o.groupBy||'',boardBy:o.boardBy||'status',hidden:[...(o.hidden||[])].sort(),tlScale:o.tlScale||'month'}; }
+function viewSnapshot(){ return JSON.parse(JSON.stringify(normSnap(ui))); }
+function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlScale:sn.tlScale}); $('#search').value=ui.q; }
+function activeView(){ return (data.views||[]).find(v=>v.id===activeViewId)||null; }
+function viewDirty(){ const v=activeView(); return !!v && JSON.stringify(normSnap(v))!==JSON.stringify(normSnap(ui)); }
+function selectView(id){ const v=data.views.find(x=>x.id===id); if(!v) return; activeViewId=id; applyView(v); render(); }
+function renderViewsNav(){
+  const box=$('#viewsNav');
+  if(!(data.views||[]).length){ box.innerHTML='<div class="small muted" style="padding:2px 10px">None yet. Set up filters and click Save as view.</div>'; return; }
+  const dirty=viewDirty();
+  box.innerHTML=data.views.map(v=>'<button class="sv'+(v.id===activeViewId?' active':'')+'" data-vid="'+v.id+'" title="'+esc(v.description||'')+'">'+($('#nav [data-view="'+(v.type||'list')+'"] svg')||{outerHTML:''}).outerHTML+'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(v.name)+'</span>'+(v.id===activeViewId&&dirty?'<span class="dirty" title="Unsaved changes">•</span>':'')+'</button>').join('');
+  box.querySelectorAll('[data-vid]').forEach(b=>b.onclick=()=>selectView(b.dataset.vid));
+}
+function openViewModal(mode){
+  const v=mode==='edit'?activeView():null;
+  $('#viewModalTitle').textContent=v?'Edit view':'Save view';
+  $('#vName').value=v?v.name:''; $('#vDesc').value=v?(v.description||''):'';
+  $('#vDelete').hidden=!v;
+  const sn=normSnap(ui);
+  $('#vSummary').textContent=VIEW_NAMES[sn.type]+' · '+(sn.rules.length?sn.rules.length+' filter'+(sn.rules.length>1?'s':''):'no filters')+(sn.q?' · search "'+sn.q+'"':'')+(sn.groupBy?' · grouped by '+(fieldById(sn.groupBy)||{}).name:'')+(sn.hidden.length?' · '+sn.hidden.length+' hidden column'+(sn.hidden.length>1?'s':''):'');
+  $('#viewModal').dataset.mode=mode; $('#viewModal').hidden=false; $('#vName').focus();
+}
+function saveViewFromModal(){
+  const name=$('#vName').value.trim(); if(!name){ $('#vName').focus(); return; }
+  const mode=$('#viewModal').dataset.mode; const desc=$('#vDesc').value.trim();
+  if(mode==='edit'&&activeView()){ Object.assign(activeView(),{name,description:desc}); }
+  else { const v=Object.assign({id:uid(),name,description:desc},viewSnapshot()); data.views.push(v); activeViewId=v.id; }
+  $('#viewModal').hidden=true; persist(); render(); toast('View saved');
+}
+function saveViewChanges(){ const v=activeView(); if(!v) return; Object.assign(v,viewSnapshot()); persist(); render(); toast('View updated'); }
+function deleteActiveView(){ const v=activeView(); if(!v) return; if(!confirm('Delete view "'+v.name+'"?')) return; data.views=data.views.filter(x=>x.id!==v.id); activeViewId=null; $('#viewModal').hidden=true; persist(); render(); }
+
+/* ---------- filters modal ---------- */
+function openFilters(){ renderRules(); $('#filtersModal').hidden=false; }
+function renderRules(){
+  const box=$('#rules'); const defs=fieldDefs();
+  box.innerHTML=ui.rules.length?ui.rules.map((r,idx)=>{ const f=fieldById(r.field)||defs[0]; const ops=opsFor(f); let val='';
+    if(opNeedsValue(r.op)){
+      if(hasOpts(f)) val='<div class="checks" data-vals>'+(f.options.length?f.options.map(o=>'<label><input type="checkbox" value="'+esc(o.id)+'"'+((Array.isArray(r.value)?r.value:[]).includes(o.id)?' checked':'')+'>'+esc(o.name)+'</label>').join(''):'<span class="muted small">No options</span>')+'</div>';
+      else if(f.type==='date') val='<input type="date" data-val value="'+esc(r.value||'')+'">';
+      else if(['number','rating','formula'].includes(f.type)) val='<input type="number" step="any" data-val value="'+esc(r.value==null?'':r.value)+'" placeholder="Value">';
+      else val='<input data-val value="'+esc(r.value||'')+'" placeholder="Text">';
+    } else val='<span></span>';
+    return '<div class="rule" data-idx="'+idx+'"><select data-field>'+defs.map(d=>'<option value="'+esc(d.id)+'"'+(d.id===f.id?' selected':'')+'>'+esc(d.name)+'</option>').join('')+'</select><select data-op>'+ops.map(o=>'<option value="'+o[0]+'"'+(o[0]===r.op?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select>'+val+'<button class="btn sm ghost" data-rm title="Remove">✕</button></div>'; }).join('')
+    :'<div class="small muted">No filters. Add one below.</div>';
+  box.querySelectorAll('.rule').forEach(el=>{
+    const r=ui.rules[Number(el.dataset.idx)];
+    el.querySelector('[data-field]').addEventListener('change',e=>{ const f=fieldById(e.target.value); r.field=f.id; r.op=opsFor(f)[0][0]; r.value=hasOpts(f)?[]:''; renderRules(); render(); });
+    el.querySelector('[data-op]').addEventListener('change',e=>{ r.op=e.target.value; renderRules(); render(); });
+    const vi=el.querySelector('[data-val]'); if(vi) vi.addEventListener('input',()=>{ r.value=vi.type==='number'?(vi.value===''?'':Number(vi.value)):vi.value; render(); });
+    const vc=el.querySelector('[data-vals]'); if(vc) vc.addEventListener('change',()=>{ r.value=[...vc.querySelectorAll('input:checked')].map(x=>x.value); render(); });
+    el.querySelector('[data-rm]').onclick=()=>{ ui.rules.splice(Number(el.dataset.idx),1); renderRules(); render(); };
+  });
+}
+
+/* ---------- columns modal ---------- */
+function listColumns(){
+  const cf=customFields().map(f=>Object.assign({},f,{custom:true}));
+  return [['key','Key'],['title','Idea'],['status','Status'],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket','Bucket'],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],...cf.map(f=>['c:'+f.id,f.name,['number','rating','formula'].includes(f.type)?'right':'']),['delivery','Delivery'],['updated','Updated']];
+}
+function openColumns(){ renderColumnPicker(); $('#columnsModal').hidden=false; }
+function renderColumnPicker(){
+  const box=$('#colpick');
+  box.innerHTML=listColumns().filter(c=>c[0]!=='key'&&c[0]!=='title').map(c=>'<label><input type="checkbox" value="'+esc(c[0])+'"'+(ui.hidden.includes(c[0])?'':' checked')+'>'+esc(c[1])+'</label>').join('');
+  box.querySelectorAll('input').forEach(cb=>cb.addEventListener('change',()=>{ ui.hidden=ui.hidden.filter(k=>k!==cb.value); if(!cb.checked) ui.hidden.push(cb.value); render(); }));
+}
+
 function renderToolbar(){
-  $('#viewTitle').textContent={list:'Ideas',board:'Board',matrix:'Impact vs effort',timeline:'Timeline',roadmap:'Buckets'}[view];
-  $$('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  const v=activeView(), dirty=viewDirty();
+  $('#viewTitle').textContent=v?v.name:VIEW_NAMES[ui.view];
+  $('#viewDesc').hidden=!(v&&v.description); $('#viewDesc').textContent=v?(v.description||''):'';
+  $$('#nav button').forEach(b=>b.classList.toggle('active',!v&&b.dataset.view===ui.view));
+  $('#btnSaveView').textContent=v?'Save changes':'Save as view'; $('#btnSaveView').hidden=!!v&&!dirty;
+  $('#btnViewMenu').hidden=!v;
   const chips=$('#statusChips'); chips.innerHTML='';
-  STATUSES.forEach(s=>{ const b=document.createElement('button'); b.className='chip'+(filters.statuses.has(s.id)?' on':''); b.textContent=s.name; b.onclick=()=>{ filters.statuses.has(s.id)?filters.statuses.delete(s.id):filters.statuses.add(s.id); render(); }; chips.appendChild(b); });
-  const fill=(sel,opts,cur,first)=>{ sel.innerHTML='<option value="">'+first+'</option>'+opts.map(o=>'<option value="'+esc(o)+'"'+(o===cur?' selected':'')+'>'+esc(o)+'</option>').join(''); };
-  fill($('#fLabel'),allLabels(),filters.label,'Any label');
-  fill($('#fOwner'),allOwners(),filters.owner,'Any owner');
-  $('#fBucket').value=filters.bucket;
-  const gsel=$('#groupBy'); gsel.hidden=!(view==='list'||view==='timeline');
-  if(!gsel.hidden){ const cur=groupBy[view]; gsel.innerHTML='<option value="">No grouping</option>'+fieldDefs().map(f=>'<option value="'+esc(f.id)+'"'+(f.id===cur?' selected':'')+'>Group: '+esc(f.name)+'</option>').join(''); }
-  const bsel=$('#boardBy'); bsel.hidden=view!=='board';
-  if(!bsel.hidden){ bsel.innerHTML=fieldDefs().filter(f=>(f.type==='select'&&f.id!=='bucket')||f.type==='checkbox').map(f=>'<option value="'+esc(f.id)+'"'+(f.id===boardBy?' selected':'')+'>Columns: '+esc(f.name)+'</option>').join(''); }
+  const sr=statusRule(); const on=new Set(sr?sr.value:[]);
+  STATUSES.forEach(s=>{ const b=document.createElement('button'); b.className='chip'+(on.has(s.id)?' on':''); b.textContent=s.name; b.onclick=()=>{ let r=statusRule(); if(!r){ r={field:'status',op:'in',value:[]}; ui.rules.unshift(r); } r.value=r.value.includes(s.id)?r.value.filter(x=>x!==s.id):[...r.value,s.id]; if(!r.value.length) ui.rules=ui.rules.filter(x=>x!==r); render(); }; chips.appendChild(b); });
+  ui.rules.forEach((r,idx)=>{ if(r===sr) return; const b=document.createElement('span'); b.className='chip rule'; b.innerHTML=ruleLabel(r)+'<span class="x" title="Remove filter">✕</span>'; b.querySelector('.x').onclick=()=>{ ui.rules.splice(idx,1); render(); }; b.onclick=e=>{ if(!e.target.classList.contains('x')) openFilters(); }; chips.appendChild(b); });
+  if(ui.rules.length||ui.q){ const c=document.createElement('button'); c.className='btn ghost sm'; c.textContent='Clear'; c.onclick=()=>{ ui.rules=[]; ui.q=''; $('#search').value=''; render(); }; chips.appendChild(c); }
+  $('#btnFilters').textContent=ui.rules.length?'Filter ('+ui.rules.length+')':'Filter';
+  $('#btnColumns').hidden=ui.view!=='list'; $('#btnColumns').textContent=ui.hidden.length?'Columns ('+ui.hidden.length+' hidden)':'Columns';
+  const gsel=$('#groupBy'); gsel.hidden=!(ui.view==='list'||ui.view==='timeline');
+  if(!gsel.hidden){ gsel.innerHTML='<option value="">No grouping</option>'+fieldDefs().filter(f=>!f.computed).map(f=>'<option value="'+esc(f.id)+'"'+(f.id===ui.groupBy?' selected':'')+'>Group: '+esc(f.name)+'</option>').join(''); }
+  const bsel=$('#boardBy'); bsel.hidden=ui.view!=='board';
+  if(!bsel.hidden){ bsel.innerHTML=fieldDefs().filter(f=>(f.type==='select'&&f.id!=='bucket')||f.type==='checkbox').map(f=>'<option value="'+esc(f.id)+'"'+(f.id===ui.boardBy?' selected':'')+'>Columns: '+esc(f.name)+'</option>').join(''); }
   $('#fieldsCount').textContent=customFields().length?'('+customFields().length+')':'';
-  $('#btnClear').hidden = !(filters.q||filters.statuses.size||filters.bucket||filters.label||filters.owner);
+  renderViewsNav();
 }
 function render(){
+  saveUi();
   renderToolbar();
   const c=$('#content'); c.innerHTML='';
   const list=visibleIdeas();
   if(!data.ideas.length){ c.innerHTML='<div class="empty"><b>No ideas yet</b>Press <kbd>N</kbd> or click New idea to add the first one.</div>'; return; }
-  if(!list.length){ c.innerHTML='<div class="empty"><b>Nothing matches these filters</b>Clear the search or status chips to see all '+data.ideas.length+' ideas.</div>'; return; }
-  ({list:renderList,board:renderBoard,matrix:renderMatrix,timeline:renderTimeline,roadmap:renderRoadmap})[view](c,list);
+  if(!list.length){ c.innerHTML='<div class="empty"><b>Nothing matches these filters</b>Clear the search or filters to see all '+data.ideas.length+' ideas.</div>'; return; }
+  ({list:renderList,board:renderBoard,matrix:renderMatrix,timeline:renderTimeline,roadmap:renderRoadmap})[ui.view](c,list);
 }
 
 /* ---------- helpers for cells ---------- */
@@ -745,10 +964,12 @@ const nums = [1,2,3,4,5].map(n=>({id:String(n),name:String(n)}));
 /* ---------- list view ---------- */
 function renderList(c, list){
   const cf=customFields().map(f=>Object.assign({},f,{custom:true}));
-  const cols=[['key','Key'],['title','Idea'],['status','Status'],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket','Bucket'],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],...cf.map(f=>['c:'+f.id,f.name]),['delivery','Delivery'],['updated','Updated']];
+  const cols=listColumns().filter(c=>!ui.hidden.includes(c[0]));
+  const show=k=>!ui.hidden.includes(k);
   const rows=sorted(list);
-  const gf=groupBy.list?fieldById(groupBy.list):null;
+  const gf=ui.groupBy?fieldById(ui.groupBy):null;
   const customCell=(i,f)=>{ const v=getVal(i,f);
+    if(f.type==='formula') return '<td class="right num" title="'+esc(f.expr)+'">'+fmtNum(v)+'</td>';
     if(f.type==='select') return '<td>'+selectHtml([{id:'',name:'—'},...f.options],v||'','data-c="'+f.id+'"')+'</td>';
     if(f.type==='multiselect') return '<td>'+(Array.isArray(v)&&v.length?v.map(o=>'<span class="label">'+esc(optName(f,o))+'</span>').join(''):'<span class="muted small">—</span>')+'</td>';
     if(f.type==='checkbox') return '<td><input type="checkbox" data-c="'+f.id+'"'+(v?' checked':'')+'></td>';
@@ -759,30 +980,30 @@ function renderList(c, list){
   const rowHtml=i=>'<tr data-id="'+i.id+'">'+
       '<td class="key">'+esc(i.key)+'</td>'+
       '<td style="min-width:280px"><div class="title">'+esc(i.title)+'</div></td>'+
-      '<td>'+selectHtml(STATUSES,i.status,'data-f="status"')+'</td>'+
-      '<td>'+selectHtml(nums,String(i.impact),'data-f="impact"')+'</td>'+
-      '<td>'+selectHtml(nums,String(i.effort),'data-f="effort"')+'</td>'+
-      '<td class="right"><input class="num" data-f="confidence" type="number" min="0" max="100" step="5" value="'+i.confidence+'" style="width:58px;text-align:right"></td>'+
-      '<td class="right"><input class="num" data-f="reach" type="number" min="0" value="'+i.reach+'" style="width:70px;text-align:right"></td>'+
-      '<td class="right score">'+score(i)+'</td>'+
-      '<td class="right num">'+insightWeight(i)+'</td>'+
-      '<td>'+selectHtml(BUCKETS,i.bucket||'none','data-f="bucket"')+'</td>'+
-      '<td class="small">'+(fmtD(i.start)||'<span class="muted">—</span>')+'</td>'+
-      '<td class="small">'+(fmtD(i.end)||'<span class="muted">—</span>')+'</td>'+
-      '<td>'+esc(i.owner||'')+'</td>'+
-      '<td>'+labelsHtml(i.labels)+'</td>'+
-      cf.map(f=>customCell(i,f)).join('')+
-      '<td class="key">'+esc(i.delivery||'')+'</td>'+
-      '<td class="small muted">'+fmtDate(i.updated)+'</td>'+
+      (show('status')?'<td>'+selectHtml(STATUSES,i.status,'data-f="status"')+'</td>':'')+
+      (show('impact')?'<td>'+selectHtml(nums,String(i.impact),'data-f="impact"')+'</td>':'')+
+      (show('effort')?'<td>'+selectHtml(nums,String(i.effort),'data-f="effort"')+'</td>':'')+
+      (show('confidence')?'<td class="right"><input class="num" data-f="confidence" type="number" min="0" max="100" step="5" value="'+i.confidence+'" style="width:58px;text-align:right"></td>':'')+
+      (show('reach')?'<td class="right"><input class="num" data-f="reach" type="number" min="0" value="'+i.reach+'" style="width:70px;text-align:right"></td>':'')+
+      (show('score')?'<td class="right score">'+score(i)+'</td>':'')+
+      (show('insights')?'<td class="right num">'+insightWeight(i)+'</td>':'')+
+      (show('bucket')?'<td>'+selectHtml(BUCKETS,i.bucket||'none','data-f="bucket"')+'</td>':'')+
+      (show('start')?'<td class="small">'+(fmtD(i.start)||'<span class="muted">—</span>')+'</td>':'')+
+      (show('end')?'<td class="small">'+(fmtD(i.end)||'<span class="muted">—</span>')+'</td>':'')+
+      (show('owner')?'<td>'+esc(i.owner||'')+'</td>':'')+
+      (show('labels')?'<td>'+labelsHtml(i.labels)+'</td>':'')+
+      cf.filter(f=>show('c:'+f.id)).map(f=>customCell(i,f)).join('')+
+      (show('delivery')?'<td class="key">'+esc(i.delivery||'')+'</td>':'')+
+      (show('updated')?'<td class="small muted">'+fmtDate(i.updated)+'</td>':'')+
     '</tr>';
   const body = gf
     ? groupList(rows,gf).map(g=>{ const key='list:'+g.id, open=!collapsed.has(key); return '<tr class="grp" data-g="'+esc(key)+'"><td colspan="'+cols.length+'"><span class="tri">'+(open?'▾':'▸')+'</span>'+groupHeaderLabel(g)+'<span class="count">'+g.items.length+'</span><span class="sum">Σ '+Math.round(g.items.reduce((a,i)=>a+score(i),0))+'</span></td></tr>'+(open?g.items.map(rowHtml).join(''):''); }).join('')
     : rows.map(rowHtml).join('');
   const wrap=document.createElement('div'); wrap.className='table-wrap';
-  wrap.innerHTML='<table><thead><tr>'+cols.map(([k,n,al])=>'<th data-sort="'+k+'" class="'+(al||'')+(sort.key===k?' sorted':'')+'">'+esc(n)+(sort.key===k?'<span class="arrow">'+(sort.dir>0?'▲':'▼')+'</span>':'')+'</th>').join('')+'</tr></thead><tbody>'+body+
+  wrap.innerHTML='<table><thead><tr>'+cols.map(([k,n,al])=>'<th data-sort="'+k+'" class="'+(al||'')+(ui.sort.key===k?' sorted':'')+'">'+esc(n)+(ui.sort.key===k?'<span class="arrow">'+(ui.sort.dir>0?'▲':'▼')+'</span>':'')+'</th>').join('')+'</tr></thead><tbody>'+body+
     '</tbody><tfoot><tr><td colspan="'+cols.length+'">'+rows.length+' of '+data.ideas.length+' ideas · score = reach × impact × confidence ÷ effort</td></tr></tfoot></table>';
   c.appendChild(wrap);
-  wrap.querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.sort; if(sort.key===k) sort.dir*=-1; else sort={key:k,dir:k==='score'||k==='insights'||k==='updated'?-1:1}; render(); });
+  wrap.querySelectorAll('th').forEach(th=>th.onclick=()=>{ const k=th.dataset.sort; if(ui.sort.key===k) ui.sort.dir*=-1; else ui.sort={key:k,dir:k==='score'||k==='insights'||k==='updated'||k.startsWith('c:')?-1:1}; render(); });
   wrap.querySelectorAll('tr.grp').forEach(tr=>tr.onclick=()=>{ const k=tr.dataset.g; collapsed.has(k)?collapsed.delete(k):collapsed.add(k); render(); });
   wrap.querySelectorAll('tbody tr[data-id]').forEach(tr=>{
     tr.addEventListener('click',e=>{ if(e.target.closest('select,input')) return; openPanel(tr.dataset.id); });
@@ -819,12 +1040,12 @@ function renderColumns(c, list, f){
     card.addEventListener('click',()=>openPanel(card.dataset.id));
   });
 }
-function renderBoard(c,list){ renderColumns(c,list,fieldById(boardBy)||fieldById('status')); }
+function renderBoard(c,list){ renderColumns(c,list,fieldById(ui.boardBy)||fieldById('status')); }
 function renderRoadmap(c,list){ renderColumns(c,list,fieldById('bucket')); }
 
 /* ---------- timeline view ---------- */
-let tlScale = localStorage.getItem('discovery-desk:tlscale')||'month';
 function renderTimeline(c, list){
+  const tlScale=ui.tlScale;
   const PX = tlScale==='month' ? 4 : 1.6;           // pixels per day
   const today=new Date(); today.setHours(0,0,0,0);
   const sched=list.filter(i=>i.start&&i.end).sort((a,b)=>a.start.localeCompare(b.start)||score(b)-score(a));
@@ -837,7 +1058,7 @@ function renderTimeline(c, list){
   const months=[]; for(let d=new Date(min); d<=max; d=new Date(d.getFullYear(),d.getMonth()+1,1)){ const end=new Date(d.getFullYear(),d.getMonth()+1,0); months.push({d,left:x(d),width:(dayDiff(d,end)+1)*PX}); }
   const quarters={}; months.forEach(m=>{ const q=quarterLabel(m.d); if(!quarters[q]) quarters[q]={left:m.left,width:0}; quarters[q].width+=m.width; });
   const lines=months.map(m=>'<i class="tl-line" style="left:'+m.left+'px"></i>').join('');
-  const gf=groupBy.timeline?fieldById(groupBy.timeline):null;
+  const gf=ui.groupBy?fieldById(ui.groupBy):null;
   const tlRows=(items,rowHtml)=> gf
     ? groupList(items,gf).map(g=>{ const key='tl:'+g.id, open=!collapsed.has(key); return '<div class="tl-row tl-grp" data-g="'+esc(key)+'"><div class="tl-side"><span class="tri">'+(open?'▾':'▸')+'</span>'+groupHeaderLabel(g)+'<span class="count">'+g.items.length+'</span></div><div class="tl-track" style="width:'+W+'px">'+lines+'</div></div>'+(open?g.items.map(rowHtml).join(''):''); }).join('')
     : items.map(rowHtml).join('');
@@ -861,7 +1082,7 @@ function renderTimeline(c, list){
       unsched.map(i=>'<div class="u"><span class="key">'+esc(i.key)+'</span><span class="t" data-open="'+i.id+'">'+esc(i.title)+'</span>'+statusBadge(i.status)+'<span class="score">'+score(i)+'</span><button class="btn sm" data-sched="'+i.id+'">Schedule</button></div>').join('')+'</div></div>':'');
   c.appendChild(wrap);
 
-  wrap.querySelectorAll('#tlScale button').forEach(b=>b.onclick=()=>{ tlScale=b.dataset.s; localStorage.setItem('discovery-desk:tlscale',tlScale); render(); });
+  wrap.querySelectorAll('#tlScale button').forEach(b=>b.onclick=()=>{ ui.tlScale=b.dataset.s; render(); });
   const scroller=wrap.querySelector('.tl-scroll');
   const jump=()=>{ scroller.scrollLeft=Math.max(0,x(today)-scroller.clientWidth/3+270); };
   wrap.querySelector('#tlToday').onclick=jump;
@@ -948,7 +1169,8 @@ function renderPanel(){
     '</div>'+
     '<div><div class="section-h"><h3>Fields</h3><span class="count">'+customFields().length+'</span><span class="spacer"></span><button class="btn sm ghost" id="pManageFields">Manage</button></div>'+
       (customFields().length?'<div class="fields" style="margin-top:8px">'+customFields().map(f=>{ f=Object.assign({},f,{custom:true}); const v=getVal(i,f); let ctl='';
-        if(f.type==='select') ctl=selectHtml([{id:'',name:'—'},...f.options],v||'','data-c="'+f.id+'"');
+        if(f.type==='formula') ctl='<div class="formula-val" title="'+esc(f.expr)+'">'+fmtNum(v)+'</div>';
+        else if(f.type==='select') ctl=selectHtml([{id:'',name:'—'},...f.options],v||'','data-c="'+f.id+'"');
         else if(f.type==='multiselect') ctl='<div class="checks" data-multi="'+f.id+'">'+(f.options.length?f.options.map(o=>'<label><input type="checkbox" value="'+esc(o.id)+'"'+((v||[]).includes(o.id)?' checked':'')+'>'+esc(o.name)+'</label>').join(''):'<span class="muted small">No options yet</span>')+'</div>';
         else if(f.type==='checkbox') ctl='<label class="one"><input type="checkbox" data-c="'+f.id+'"'+(v?' checked':'')+'> '+esc(f.name)+'</label>';
         else if(f.type==='rating') ctl='<div class="rating" data-crating="'+f.id+'">'+[1,2,3,4,5].map(n=>'<button class="'+(v===n?'on':'')+'" data-v="'+n+'">'+n+'</button>').join('')+'</div>';
@@ -997,16 +1219,20 @@ function openFields(){ renderFields(); $('#fieldsModal').hidden=false; }
 function closeFields(){ $('#fieldsModal').hidden=true; render(); if(openId) renderPanel(); }
 function renderFields(){
   const box=$('#fdefs');
-  const typeName={select:'Single select',multiselect:'Multi select',checkbox:'Checkbox',text:'Text',number:'Number',date:'Date',rating:'Rating 1 to 5'};
-  box.innerHTML=customFields().length?customFields().map(f=>'<div class="fdef" data-id="'+f.id+'"><input data-name value="'+esc(f.name)+'" aria-label="Field name"><span class="type">'+typeName[f.type]+'</span><button class="btn sm danger" data-del>Delete</button>'+
-    ((f.type==='select'||f.type==='multiselect')?'<textarea data-opts placeholder="One option per line">'+esc(f.options.map(o=>o.name).join('\n'))+'</textarea>':'')+'</div>').join('')
+  const typeName={select:'Single select',multiselect:'Multi select',checkbox:'Checkbox',text:'Text',number:'Number',date:'Date',rating:'Rating 1 to 5',formula:'Formula'};
+  const refs=fieldDefs().filter(d=>['number','rating','formula','checkbox','select','multiselect'].includes(d.type)).map(d=>'{'+d.name+'}').join(' ');
+  box.innerHTML=customFields().length?customFields().map(f=>{ const err=f.type==='formula'?formulaCheck(f):''; return '<div class="fdef" data-id="'+f.id+'"><input data-name value="'+esc(f.name)+'" aria-label="Field name"><span class="type">'+typeName[f.type]+'</span><button class="btn sm danger" data-del>Delete</button>'+
+    ((f.type==='select'||f.type==='multiselect')?'<textarea data-opts placeholder="One option per line">'+esc(f.options.map(o=>o.name).join('\n'))+'</textarea>':'')+
+    (f.type==='formula'?'<textarea class="expr" data-expr placeholder="{Impact} * {Confidence} / {Effort}">'+esc(f.expr||'')+'</textarea>'+(err?'<div class="ferr">'+esc(err)+'</div>':'')+'<div class="fhelp">Fields: '+esc(refs)+' · Functions: min, max, round, abs, sqrt, if(condition, a, b) · Checkbox is 1 or 0, single select is the option position, multi select is the count.</div>':'')+'</div>'; }).join('')
     :'<div class="small muted">No custom fields yet.</div>';
   box.querySelectorAll('.fdef').forEach(el=>{
     const f=customFields().find(x=>x.id===el.dataset.id);
     el.querySelector('[data-name]').addEventListener('change',e=>{ const n=e.target.value.trim(); if(n){ f.name=n; persist(); } else e.target.value=f.name; });
     const ta=el.querySelector('[data-opts]');
     if(ta) ta.addEventListener('change',()=>{ const names=[...new Set(ta.value.split('\n').map(s=>s.trim()).filter(Boolean))]; f.options=names.map((n,k)=>f.options.find(o=>o.name===n)||{id:uid(),name:n,color:OPTION_COLORS[(f.options.length+k)%OPTION_COLORS.length]}); persist(); });
-    el.querySelector('[data-del]').onclick=()=>{ if(!confirm('Delete field "'+f.name+'" and its values on every idea?')) return; data.fields=data.fields.filter(x=>x.id!==f.id); data.ideas.forEach(i=>{ if(i.custom) delete i.custom[f.id]; }); if(groupBy.list===f.id) groupBy.list=''; if(groupBy.timeline===f.id) groupBy.timeline=''; if(boardBy===f.id) boardBy='status'; persist(); renderFields(); };
+    const ex=el.querySelector('[data-expr]');
+    if(ex) ex.addEventListener('change',()=>{ f.expr=ex.value.trim(); persist(); renderFields(); });
+    el.querySelector('[data-del]').onclick=()=>{ if(!confirm('Delete field "'+f.name+'" and its values on every idea?')) return; data.fields=data.fields.filter(x=>x.id!==f.id); data.ideas.forEach(i=>{ if(i.custom) delete i.custom[f.id]; }); ui.rules=ui.rules.filter(r=>r.field!==f.id); if(ui.groupBy===f.id) ui.groupBy=''; if(ui.boardBy===f.id) ui.boardBy='status'; ui.hidden=ui.hidden.filter(k=>k!=='c:'+f.id); persist(); renderFields(); };
   });
 }
 
@@ -1027,22 +1253,29 @@ function init(){
   $('#projectName').value=data.name;
   applyTheme(localStorage.getItem(LS_THEME)||'auto');
   $$('#themeSeg button').forEach(b=>b.onclick=()=>applyTheme(b.dataset.theme));
-  $$('#nav button').forEach(b=>b.onclick=()=>{ view=b.dataset.view; localStorage.setItem(LS_VIEW,view); render(); });
+  $$('#nav button').forEach(b=>b.onclick=()=>{ activeViewId=null; ui.view=b.dataset.view; render(); });
+  $('#search').value=ui.q;
+  if(activeViewId&&!activeView()) activeViewId=null;
   const fySel=$('#fyStart'); fySel.innerHTML=[1,2,3,4,5,6,7,8,9,10,11,12].map(m=>'<option value="'+m+'">'+new Date(2000,m-1,1).toLocaleDateString(undefined,{month:'long'})+'</option>').join('');
   syncFy();
   fySel.addEventListener('change',e=>{ data.fiscalStart=Number(e.target.value); syncFy(); persist(); render(); });
   $('#fyName').addEventListener('change',e=>{ data.fiscalName=e.target.value; persist(); render(); });
   $('#projectName').addEventListener('change',e=>{ data.name=e.target.value.trim()||'Untitled project'; e.target.value=data.name; persist(); });
-  $('#search').addEventListener('input',e=>{ filters.q=e.target.value; render(); });
-  $('#fBucket').addEventListener('change',e=>{ filters.bucket=e.target.value; render(); });
-  $('#fLabel').addEventListener('change',e=>{ filters.label=e.target.value; render(); });
-  $('#fOwner').addEventListener('change',e=>{ filters.owner=e.target.value; render(); });
-  $('#btnClear').onclick=()=>{ filters={q:'',statuses:new Set(),bucket:'',label:'',owner:''}; $('#search').value=''; render(); };
+  $('#search').addEventListener('input',e=>{ ui.q=e.target.value; render(); });
   $('#btnNew').onclick=showNew; $('#newCancel').onclick=hideNew;
-  $('#groupBy').addEventListener('change',e=>{ groupBy[view]=e.target.value; localStorage.setItem('discovery-desk:group:'+view,groupBy[view]); render(); });
-  $('#boardBy').addEventListener('change',e=>{ boardBy=e.target.value; localStorage.setItem('discovery-desk:boardby',boardBy); render(); });
+  $('#groupBy').addEventListener('change',e=>{ ui.groupBy=e.target.value; render(); });
+  $('#boardBy').addEventListener('change',e=>{ ui.boardBy=e.target.value; render(); });
+  $('#btnFilters').onclick=openFilters; $('#filtersClose').onclick=()=>{ $('#filtersModal').hidden=true; };
+  $('#addRule').onclick=()=>{ ui.rules.push({field:'status',op:'in',value:[]}); renderRules(); render(); };
+  $('#clearRules').onclick=()=>{ ui.rules=[]; renderRules(); render(); };
+  $('#btnColumns').onclick=openColumns; $('#columnsClose').onclick=()=>{ $('#columnsModal').hidden=true; };
+  $('#colsAll').onclick=()=>{ ui.hidden=[]; renderColumnPicker(); render(); };
+  $('#btnSaveView').onclick=()=>{ if(activeView()) saveViewChanges(); else openViewModal('create'); };
+  $('#btnViewMenu').onclick=()=>openViewModal('edit');
+  $('#vSave').onclick=saveViewFromModal; $('#vCancel').onclick=()=>{ $('#viewModal').hidden=true; }; $('#vDelete').onclick=deleteActiveView;
+  $('#vName').addEventListener('keydown',e=>{ if(e.key==='Enter') saveViewFromModal(); });
   $('#btnFields').onclick=openFields; $('#fieldsClose').onclick=closeFields;
-  $('#addField').addEventListener('submit',e=>{ e.preventDefault(); const fd=new FormData(e.target); const name=fd.get('name').trim(); if(!name) return; const type=fd.get('type'); data.fields.push({id:uid(),name,type,options:[]}); e.target.reset(); persist(); renderFields(); const ta=$('#fdefs .fdef:last-child [data-opts]'); if(ta) ta.focus(); });
+  $('#addField').addEventListener('submit',e=>{ e.preventDefault(); const fd=new FormData(e.target); const name=fd.get('name').trim(); if(!name) return; const type=fd.get('type'); data.fields.push({id:uid(),name,type,options:[],expr:''}); e.target.reset(); persist(); renderFields(); const ta=$('#fdefs .fdef:last-child [data-opts], #fdefs .fdef:last-child [data-expr]'); if(ta) ta.focus(); });
   $('#newCreate').onclick=()=>{ const t=$('#newTitle').value.trim(); if(!t) return; hideNew(); createIdea(t); };
   $('#newTitle').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#newCreate').click(); });
   $('#pClose').onclick=closePanel; $('#scrim').onclick=closePanel;
@@ -1055,7 +1288,7 @@ function init(){
   if(!hasFS){ $('#btnOpen').disabled=true; $('#btnSaveAs').disabled=true; $('#fsNote').textContent = window.self!==window.top ? 'File access is unavailable inside an embedded preview. Open index.html directly in Chrome or Edge to sync a project file.' : 'This browser cannot write files directly. Use Export and Import, or open in Chrome or Edge to sync a project file.'; }
   document.addEventListener('keydown',e=>{
     const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-    if(e.key==='Escape'){ if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
+    if(e.key==='Escape'){ const open=['#filtersModal','#columnsModal','#viewModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
     if(typing) return;
     if(e.key==='n'||e.key==='N'){ e.preventDefault(); showNew(); }
     if(e.key==='/'){ e.preventDefault(); $('#search').focus(); }

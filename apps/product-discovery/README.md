@@ -26,7 +26,15 @@ Every idea has a detail panel with description, owner, labels, delivery ticket r
 
 ## Custom fields and grouping
 
-Click **Manage fields** in the rail to add fields the way you would in Jira Product Discovery. Types: single select, multi select, checkbox, text, number, date, and rating 1 to 5. Options for selects are one per line. Renaming a field or editing its options keeps existing values; deleting a field removes its values from every idea.
+Click **Manage fields** in the rail to add fields the way you would in Jira Product Discovery. Types: single select, multi select, checkbox, text, number, date, rating 1 to 5, and formula.
+
+**Formula** fields compute a number from other fields. Reference a field by name in braces, for example:
+
+```
+{Impact} * 2 + {Confidence} / 25 - {Effort} + if({Committed}, 2, 0)
+```
+
+Arithmetic, parentheses, and the functions `min`, `max`, `round`, `abs`, `sqrt`, and `if(condition, a, b)` are supported. A checkbox is 1 or 0, a single select is the option's position in its list, a multi select is the number of options chosen, and the built-in Score and Insight weight are available by name. Formulas are read-only, sortable, groupable, and filterable. The editor shows a message if a formula does not parse or names a field that does not exist. Options for selects are one per line. Renaming a field or editing its options keeps existing values; deleting a field removes its values from every idea.
 
 Custom fields appear as editable columns in the Ideas table and as inputs in the idea panel. Search matches their values.
 
@@ -42,7 +50,15 @@ Under the project name in the rail, set the month your fiscal year starts. The T
 
 **Score** is RICE style: `reach × impact × (confidence ÷ 100) ÷ effort`. Impact and effort are 1 to 5, confidence is a percentage, reach is any number you choose (people, transactions, hours).
 
-Filters and search apply to every view. Search covers titles, descriptions, labels, owners, insight text, and comments.
+## Filters, columns, and saved views
+
+**Filter** in the toolbar opens a rule editor. Each rule is a field, an operator, and a value, and every rule must match. Any field works, built in or custom: selects use "is any of" and "is none of", numbers and ratings and formulas use comparisons, text uses contains, dates use before, after, and on, and every type can test empty or not empty. The status chips under the toolbar are a shortcut for a Status "is any of" rule. Active rules show as chips you can remove one at a time.
+
+**Columns** on the Ideas table hides or shows any column, including custom fields.
+
+**Save as view** captures the current view type, search, filters, sort, grouping, board columns, hidden columns, and timeline scale under a name and optional description. Saved views list in the rail and are stored in the project file, so anyone opening the file gets them. Changing anything while a saved view is active shows an unsaved marker and a **Save changes** button. **Edit view** renames, describes, or deletes it. Clicking one of the base views in the rail leaves the saved view but keeps your filters so you can keep exploring.
+
+Search applies on top of filters in every view and covers titles, descriptions, labels, owners, insight text, comments, and custom field values.
 
 ## Keyboard
 
@@ -55,7 +71,7 @@ Filters and search apply to every view. Search covers titles, descriptions, labe
 
 ## Data file
 
-Plain JSON, one object with `name`, `seq`, a `fields` array of custom field definitions, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. Dates are `start` and `end` as `YYYY-MM-DD` strings; leave them empty for unscheduled ideas. Custom values live under `custom` keyed by field id. You can edit the file by hand or feed it to another tool. Statuses and buckets are fixed lists in the app: `parked`, `discovery`, `prioritized`, `delivery`, `shipped`, `wontdo` and `now`, `next`, `later`, `none`.
+Plain JSON, one object with `name`, `seq`, a `fields` array of custom field definitions, a `views` array of saved views, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. Dates are `start` and `end` as `YYYY-MM-DD` strings; leave them empty for unscheduled ideas. Custom values live under `custom` keyed by field id. You can edit the file by hand or feed it to another tool. Statuses and buckets are fixed lists in the app: `parked`, `discovery`, `prioritized`, `delivery`, `shipped`, `wontdo` and `now`, `next`, `later`, `none`.
 
 ## Theme
 
