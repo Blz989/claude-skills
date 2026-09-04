@@ -629,7 +629,7 @@ const LS_VIEW = 'discovery-desk:view';
 let data = null;
 /* Everything a saved view captures lives in `ui`. */
 const LS_UI='discovery-desk:ui';
-function defaultUi(){ return {view:'list',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['rank'],tlScale:'quarter',tlFy:'',showArchived:false,swimlane:'',cardFields:[],matrix:{x:'effort',y:'impact',size:'reach',color:'status'}}; }
+function defaultUi(){ return {view:'list',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['rank'],tlFy:'',showArchived:false,swimlane:'',cardFields:[],matrix:{x:'effort',y:'impact',size:'reach',color:'status'}}; }
 function loadUi(){ try{ const u=JSON.parse(localStorage.getItem(LS_UI)); if(u&&u.view) return Object.assign(defaultUi(),u); }catch(e){} return defaultUi(); }
 let ui = loadUi();
 let activeViewId = localStorage.getItem('discovery-desk:activeView') || null;
@@ -723,9 +723,9 @@ function sampleData(){
   ];
   fields.push({id:'weighted',name:'Weighted score',type:'formula',options:[],expr:'{Impact} * 2 + {Confidence} / 25 - {Effort} + if({Committed}, 2, 0)'});
   const views=[
-    {id:'v-quick',name:'Quick wins',description:'High impact, low effort, not yet shipped.',type:'list',q:'',rules:[{field:'impact',op:'gte',value:4},{field:'effort',op:'lte',value:2},{field:'status',op:'nin',value:['shipped','wontdo']}],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['confidence','reach','delivery','updated'],tlScale:'month'},
-    {id:'v-committed',name:'Committed roadmap',description:'Committed ideas on the fiscal timeline, grouped by domain.',type:'timeline',q:'',rules:[{field:'committed',op:'yes'}],sort:{key:'score',dir:-1},groupBy:'domain',boardBy:'status',hidden:[],tlScale:'quarter'},
-    {id:'v-domain',name:'Domain board',description:'Drag ideas between domains.',type:'board',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'domain',hidden:[],tlScale:'month'}
+    {id:'v-quick',name:'Quick wins',description:'High impact, low effort, not yet shipped.',type:'list',q:'',rules:[{field:'impact',op:'gte',value:4},{field:'effort',op:'lte',value:2},{field:'status',op:'nin',value:['shipped','wontdo']}],sort:{key:'score',dir:-1},groupBy:'',boardBy:'status',hidden:['confidence','reach','delivery','updated']},
+    {id:'v-committed',name:'Committed roadmap',description:'Committed ideas on the fiscal timeline, grouped by domain.',type:'timeline',q:'',rules:[{field:'committed',op:'yes'}],sort:{key:'score',dir:-1},groupBy:'domain',boardBy:'status',hidden:[]},
+    {id:'v-domain',name:'Domain board',description:'Drag ideas between domains.',type:'board',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'domain',hidden:[]}
   ];
   const templates=[{id:'t-auto',name:'Automation candidate',description:'Which process, who runs it today, how often, and what the manual step costs.',
     status:'discovery',bucket:'none',impact:3,effort:3,confidence:50,reach:0,owner:'',labels:['automation'],custom:{domain:'r2r'}}];
@@ -1115,9 +1115,9 @@ function allOwners(){ return [...new Set(data.ideas.map(i=>i.owner).filter(Boole
 function renderNavCounts(){ $('[data-count="list"]').textContent=data.ideas.length; }
 /* ---------- saved views ---------- */
 const VIEW_NAMES={list:'Ideas',board:'Board',matrix:'Impact vs effort',timeline:'Timeline',roadmap:'Buckets'};
-function normSnap(o){ return {type:o.type||o.view||'list',q:o.q||'',rules:o.rules||[],sort:o.sort||{key:'score',dir:-1},groupBy:o.groupBy||'',boardBy:o.boardBy||'status',hidden:[...(o.hidden||[])].sort(),tlScale:o.tlScale||'quarter',tlFy:o.tlFy||'',showArchived:!!o.showArchived,swimlane:o.swimlane||'',cardFields:[...(o.cardFields||[])],matrix:Object.assign({x:'effort',y:'impact',size:'reach',color:'status'},o.matrix||{})}; }
+function normSnap(o){ return {type:o.type||o.view||'list',q:o.q||'',rules:o.rules||[],sort:o.sort||{key:'score',dir:-1},groupBy:o.groupBy||'',boardBy:o.boardBy||'status',hidden:[...(o.hidden||[])].sort(),tlFy:o.tlFy||'',showArchived:!!o.showArchived,swimlane:o.swimlane||'',cardFields:[...(o.cardFields||[])],matrix:Object.assign({x:'effort',y:'impact',size:'reach',color:'status'},o.matrix||{})}; }
 function viewSnapshot(){ return JSON.parse(JSON.stringify(normSnap(ui))); }
-function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlScale:sn.tlScale,tlFy:sn.tlFy,showArchived:sn.showArchived,swimlane:sn.swimlane,cardFields:[...sn.cardFields],matrix:{...sn.matrix}}); $('#search').value=ui.q; }
+function applyView(v){ const sn=normSnap(v); ui=Object.assign(defaultUi(),{view:sn.type,q:sn.q,rules:JSON.parse(JSON.stringify(sn.rules)),sort:{...sn.sort},groupBy:sn.groupBy,boardBy:sn.boardBy,hidden:[...sn.hidden],tlFy:sn.tlFy,showArchived:sn.showArchived,swimlane:sn.swimlane,cardFields:[...sn.cardFields],matrix:{...sn.matrix}}); $('#search').value=ui.q; }
 function activeView(){ return (data.views||[]).find(v=>v.id===activeViewId)||null; }
 function viewDirty(){ const v=activeView(); return !!v && JSON.stringify(normSnap(v))!==JSON.stringify(normSnap(ui)); }
 function selectView(id){ const v=data.views.find(x=>x.id===id); if(!v) return; activeViewId=id; applyView(v); afterRailPick(); render(); }
@@ -1358,7 +1358,6 @@ function renderRoadmap(c,list){ renderColumns(c,list,fieldById('bucket')); }
 
 /* ---------- timeline view ---------- */
 function renderTimeline(c, list){
-  const tlScale=ui.tlScale;
   const today=new Date(); today.setHours(0,0,0,0);
   const sched=list.filter(i=>i.start&&i.end).sort((a,b)=>a.start.localeCompare(b.start)||score(b)-score(a));
   const unsched=list.filter(i=>!(i.start&&i.end)).sort((a,b)=>score(b)-score(a));
@@ -1387,7 +1386,9 @@ function renderTimeline(c, list){
   const vScrollbar=(rowsEst*44>window.innerHeight-210)?16:0;
   const avail=Math.max(320,wrap.querySelector('.tl-scroll').clientWidth-sideW-vScrollbar);
   /* Quarters fits the whole window to the pane; months keeps a readable density and scrolls. */
-  const PX = tlScale==='quarter' ? Math.max(0.8, avail/days) : 4;
+  /* One scale: fit the window to the pane, falling back to scrolling only when
+     "All dates" spans so long a range that fitting would be unreadable. */
+  const PX = Math.max(0.8, avail/days);
   const W=days*PX;
   const x=d=>dayDiff(min,d)*PX;
   const clampX=d=>Math.max(0,Math.min(W,x(d)));
@@ -1408,13 +1409,13 @@ function renderTimeline(c, list){
     '<option value="all"'+(ui.tlFy==='all'?' selected':'')+'>All dates</option></select>';
 
   wrap.innerHTML=
-    '<div class="tl-top">'+fySel+'<div class="seg" id="tlScale"><button data-s="month" class="'+(tlScale==='month'?'on':'')+'">Months</button><button data-s="quarter" class="'+(tlScale==='quarter'?'on':'')+'">Quarters</button></div>'+
+    '<div class="tl-top">'+fySel+
       '<span class="small muted">'+inRange.length+' in '+esc(windowLabel)+(outside.length?' · '+outside.length+' outside':'')+(unsched.length?' · '+unsched.length+' unscheduled':'')+' · drag a bar to move it, drag an edge to change a date</span>'+
       '<span class="spacer"></span>'+(W>avail?'<button class="btn sm" id="tlToday">Jump to today</button>':'')+'</div>'+
     '<div class="tl-scroll"><div class="tl-grid">'+
       '<div class="tl-head"><div class="tl-side">Idea</div><div class="tl-track" style="width:'+W+'px">'+
         Object.entries(quarters).map(([q,v])=>'<div class="tl-q" style="left:'+v.left+'px;width:'+v.width+'px">'+esc(q)+'</div>').join('')+
-        months.map(m=>'<div class="tl-m" style="left:'+m.left+'px;width:'+m.width+'px">'+m.d.toLocaleDateString(undefined,{month:'short'})+(tlScale==='month'?' '+String(m.d.getFullYear()).slice(2):'')+'</div>').join('')+
+        months.map(m=>'<div class="tl-m" style="left:'+m.left+'px;width:'+m.width+'px">'+m.d.toLocaleDateString(undefined,{month:'short'})+'</div>').join('')+
         (showToday?'<div class="tl-today-lbl" style="left:'+x(today)+'px">Today</div>':'')+
       '</div></div>'+
       tlRows(inRange, i=>{ const s=parseD(i.start), e=parseD(i.end);
@@ -1432,7 +1433,6 @@ function renderTimeline(c, list){
       unsched.map(i=>'<div class="u"><span class="key">'+esc(i.key)+'</span><span class="t" data-open="'+i.id+'">'+esc(i.title)+'</span>'+statusBadge(i.status)+'<span class="score">'+score(i)+'</span><button class="btn sm" data-sched="'+i.id+'">Schedule</button></div>').join('')+'</div></div>':'');
 
   wrap.querySelector('#tlFy').addEventListener('change',e=>{ ui.tlFy=e.target.value; render(); });
-  wrap.querySelectorAll('#tlScale button').forEach(b=>b.onclick=()=>{ ui.tlScale=b.dataset.s; render(); });
   const scroller=wrap.querySelector('.tl-scroll');
   const jumpBtn=wrap.querySelector('#tlToday');
   if(jumpBtn){
