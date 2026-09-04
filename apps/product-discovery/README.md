@@ -24,9 +24,11 @@ The first launch loads a sample project so the views have something to show. Del
 
 Every idea has a detail panel with description, owner, labels, ServiceNow demand reference, start and target dates, your custom fields, insights (text, source link, weight 1 to 3), comments, and a change history.
 
-## Custom fields and grouping
+## Fields and grouping
 
-Click **Manage fields** in the rail to add fields the way you would in Jira Product Discovery. Types: single select, multi select, checkbox, text, number, date, rating 1 to 5, and formula.
+Click **Manage fields** in the rail. The editor covers your own fields and the two built-in choice fields, Status and Bucket, on the same footing: rename the field, rename or recolour any option, reorder them, and add or delete options. Deleting an option tells you how many ideas it will move and reassigns them rather than leaving them stranded. You can rename Status and Bucket themselves, so Bucket can become Horizon and the label follows through the table, the panel, filters, and grouping.
+
+Add your own fields in the same place. Types: single select, multi select, checkbox, text, number, date, rating 1 to 5, and formula.
 
 **Formula** fields compute a number from other fields. Reference a field by name in braces, for example:
 
@@ -43,6 +45,23 @@ Custom fields appear as editable columns in the Ideas table and as inputs in the
 The **Board** has a "Columns" selector that switches its columns to any single select or checkbox field, so you can drag ideas between Domains or between Committed yes and no just as you drag them between statuses.
 
 Grouping and column choices are remembered per view.
+
+## Templates
+
+**Templates** in the rail lists your idea templates. Create one from any idea with **Save as template** in the idea panel: it captures the description, status, bucket, impact, effort, confidence, reach, owner, labels and custom field values. When you add an idea, the **Start from** picker applies a template so the skeleton is already filled in. Templates live in the project file.
+
+## Links, merging, archiving, and manual order
+
+- **Linked ideas** in the panel connects two ideas with a typed relationship: relates to, duplicates, blocks, blocked by, parent of, child of. The matching inverse is written onto the other idea automatically, and removing a link clears both sides. Click a linked idea to jump to it.
+- **Merge into…** folds a duplicate into another idea. Insights, comments, labels, links and any field the target left empty move across, the description is appended, and the source is archived and linked back as a duplicate. Nothing is deleted, so a merge can always be read back in the history.
+- **Archive** takes an idea out of every view without deleting it. Archived ideas come back with **Show archived ideas** in the Filter dialog, which saved views remember, and they carry an archived pill in the list.
+- **Manual order** is a `#` column, hidden by default. Show it from **Columns**, sort by it, then drag rows to reorder. New ideas go to the top.
+
+## Configuring the views
+
+- **Matrix**: the **Axes** button sets the horizontal and vertical fields, what dot size means, and what drives colour. Any number, rating or formula field works on an axis, and any single select or checkbox can drive colour. Axis ranges, ticks, quadrant labels and the view title follow whatever you pick, so Confidence against a weighted score reads as well as the default impact against effort.
+- **Board and Buckets**: **Columns** picks the field the columns come from, **Lanes** adds optional swimlanes from any choice field, and **Cards** picks which fields appear on each card.
+- All of it is captured when you save a view.
 
 ## Fiscal year
 
@@ -71,7 +90,7 @@ Search applies on top of filters in every view and covers titles, descriptions, 
 
 ## Data file
 
-Plain JSON, one object with `name`, `seq`, a `fields` array of custom field definitions, a `views` array of saved views, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. Dates are `start` and `end` as `YYYY-MM-DD` strings; leave them empty for unscheduled ideas. Custom values live under `custom` keyed by field id. You can edit the file by hand or feed it to another tool. Statuses and buckets are fixed lists in the app: `parked`, `discovery`, `prioritized`, `delivery`, `shipped`, `wontdo` and `now`, `next`, `later`, `none`.
+Plain JSON, one object with `name`, `seq`, `statuses` and `buckets` (the editable choice lists), `fieldNames` for renamed built-in fields, a `fields` array of custom field definitions, a `views` array of saved views, a `templates` array, and an `ideas` array. Each idea carries its fields plus `insights`, `comments`, and `history` arrays. Dates are `start` and `end` as `YYYY-MM-DD` strings; leave them empty for unscheduled ideas. Custom values live under `custom` keyed by field id, links under `links`, and `archived` plus `rank` carry lifecycle and manual order. You can edit the file by hand or feed it to another tool. A file saved by an earlier version still loads: missing statuses, buckets, templates, links, ranks and archive flags are filled in with defaults on open.
 
 ## Export
 
@@ -87,7 +106,7 @@ The filename is built from the project, the view, and today's date.
 
 Below 900px the left rail becomes a drawer. Tap the menu button at the top left to reach the view switcher, saved views, fiscal year settings, field manager, project file controls, and the theme toggle. Picking a view closes the drawer. The toolbar reflows so the view name gets its own row, and the Ideas table, board, and timeline scroll sideways within their own containers.
 
-One thing does not work by touch: dragging cards between board columns, and dragging bars on the timeline, both rely on a mouse. On a phone, tap a card or a row to open the idea and change its status, bucket, or dates there instead.
+One thing does not work by touch: dragging cards between board columns, dragging rows to reorder them manually, and dragging bars on the timeline all rely on a mouse. On a phone, tap a card or a row to open the idea and change its status, bucket, or dates there instead.
 
 ## Theme
 

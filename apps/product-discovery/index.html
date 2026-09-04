@@ -302,7 +302,7 @@ tr.drop-target td{box-shadow:inset 0 2px 0 var(--accent)}
 .comment .m{font-size:11px;color:var(--ink-3)}
 .history{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--ink-2)}
 .history .ts{font-family:var(--mono);color:var(--ink-3);margin-right:8px}
-.panel-f{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+.panel-f{padding:10px 16px;border-top:1px solid var(--line);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 
 /* ---------- overlays ---------- */
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:15}
@@ -429,6 +429,7 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
     <div class="rail-section">
       <div class="eyebrow">Fields</div>
       <button class="btn sm" id="btnFields">Manage fields <span class="muted" id="fieldsCount"></span></button>
+      <button class="btn sm" id="btnTpl">Templates <span class="muted" id="tplCount"></span></button>
     </div>
 
     <div class="rail-section" style="margin-top:auto">
@@ -480,6 +481,7 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
   <div class="panel-f">
     <span class="small muted" id="pMeta"></span>
     <span class="spacer"></span>
+    <button class="btn sm ghost" id="pTemplate">Save as template</button>
     <button class="btn sm" id="pMerge">Merge into…</button>
     <button class="btn sm" id="pArchive">Archive</button>
     <button class="btn sm danger" id="pDelete">Delete idea</button>
@@ -497,6 +499,15 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
       <button class="btn sm primary">Add field</button>
     </form>
     <div class="btn-row" style="justify-content:flex-end"><button class="btn" id="fieldsClose">Done</button></div>
+  </div>
+</div>
+
+<div class="modal" id="tplModal" hidden>
+  <div class="box">
+    <h2>Idea templates</h2>
+    <div class="small muted">A template prefills a new idea's description, status, bucket, scores, owner, labels and custom fields. Create one from any idea with "Save as template".</div>
+    <div class="fdefs" id="tpls"></div>
+    <div class="btn-row" style="justify-content:flex-end"><button class="btn primary" id="tplClose">Done</button></div>
   </div>
 </div>
 
@@ -575,6 +586,7 @@ kbd{font-family:var(--mono);font-size:11px;border:1px solid var(--line-strong);b
   <div class="box">
     <h2>New idea</h2>
     <input id="newTitle" placeholder="What is the idea? One line." autocomplete="off">
+    <div class="field"><label>Start from</label><select id="newTemplate"></select></div>
     <div class="btn-row" style="justify-content:flex-end">
       <button class="btn" id="newCancel">Cancel</button>
       <button class="btn primary" id="newCreate">Create</button>
@@ -698,7 +710,9 @@ function sampleData(){
     {id:'v-committed',name:'Committed roadmap',description:'Committed ideas on the fiscal timeline, grouped by domain.',type:'timeline',q:'',rules:[{field:'committed',op:'yes'}],sort:{key:'score',dir:-1},groupBy:'domain',boardBy:'status',hidden:[],tlScale:'quarter'},
     {id:'v-domain',name:'Domain board',description:'Drag ideas between domains.',type:'board',q:'',rules:[],sort:{key:'score',dir:-1},groupBy:'',boardBy:'domain',hidden:[],tlScale:'month'}
   ];
-  return {version:1, name:'Finance Tech discovery (sample)', seq:ideas.length, ideas, fields, views, fiscalStart:7, fiscalName:'end'};
+  const templates=[{id:'t-auto',name:'Automation candidate',description:'Which process, who runs it today, how often, and what the manual step costs.',
+    status:'discovery',bucket:'none',impact:3,effort:3,confidence:50,reach:0,owner:'',labels:['automation'],custom:{domain:'r2r'}}];
+  return {version:1, name:'Finance Tech discovery (sample)', seq:ideas.length, ideas, fields, views, templates, fiscalStart:7, fiscalName:'end'};
 }
 
 /* ---------- persistence ---------- */
@@ -795,6 +809,7 @@ function normalize(d){
   d.fields = (d.fields||[]).map(f=>Object.assign({options:[],expr:''},f));
   d.fields.forEach(f=>{ if(hasOpts(f)) f.options=f.options.map((o,k)=>Object.assign({},o,{color:(typeof o.color==='string'&&/^#/.test(o.color))?o.color:OPTION_COLORS[k%OPTION_COLORS.length]})); });
   d.views = (d.views||[]).filter(v=>v&&v.id&&v.name);
+  d.templates = (d.templates||[]).filter(t=>t&&t.id&&t.name);
   d.ideas.forEach((i,k)=>{ i.links=Array.isArray(i.links)?i.links:[]; i.archived=!!i.archived; if(typeof i.rank!=='number') i.rank=k; });
   d.fiscalStart = Math.min(12,Math.max(1,Number(d.fiscalStart)||1));
   d.fiscalName = d.fiscalName==='start' ? 'start' : 'end';
@@ -938,10 +953,17 @@ function setField(i, field, value, label){
   addHistory(i, (label||field)+': '+show(old)+' → '+show(value));
   return true;
 }
-function createIdea(title){
+const TEMPLATE_KEYS=['description','status','bucket','impact','effort','confidence','reach','owner','labels'];
+function createIdea(title,templateId){
   data.seq=(data.seq||0)+1;
-  const i={id:uid(), key:'IDEA-'+data.seq, title, description:'', status:'discovery', impact:3, effort:3, confidence:50, reach:0, labels:[], owner:'', delivery:'', bucket:'none', start:'', end:'', insights:[], comments:[], history:[{ts:now(),text:'Created'}], created:now(), updated:now()};
-  i.custom={}; i.links=[]; i.archived=false;
+  const i={id:uid(), key:'IDEA-'+data.seq, title, description:'', status:(statuses().find(x=>x.id==='discovery')||statuses()[0]).id, impact:3, effort:3, confidence:50, reach:0, labels:[], owner:'', delivery:'', bucket:'none', start:'', end:'', insights:[], comments:[], history:[{ts:now(),text:'Created'}], created:now(), updated:now()};
+  const t=(data.templates||[]).find(x=>x.id===templateId);
+  if(t){
+    TEMPLATE_KEYS.forEach(k=>{ if(t[k]!==undefined&&t[k]!=='') i[k]=Array.isArray(t[k])?[...t[k]]:t[k]; });
+    i.custom=Object.assign({},t.custom||{});
+    i.history=[{ts:now(),text:'Created from template "'+t.name+'"'}];
+  }
+  i.custom=i.custom||{}; i.links=[]; i.archived=false;
   i.rank=Math.min(0,...data.ideas.map(x=>x.rank))-1;
   data.ideas.unshift(i);
   commit();
@@ -1167,6 +1189,7 @@ function renderToolbar(){
   const bsel=$('#boardBy'); bsel.hidden=ui.view!=='board';
   if(!bsel.hidden){ bsel.innerHTML=fieldDefs().filter(f=>(f.type==='select'&&f.id!=='bucket')||f.type==='checkbox').map(f=>'<option value="'+esc(f.id)+'"'+(f.id===ui.boardBy?' selected':'')+'>Columns: '+esc(f.name)+'</option>').join(''); }
   $('#fieldsCount').textContent=customFields().length?'('+customFields().length+')':'';
+  $('#tplCount').textContent=(data.templates||[]).length?'('+data.templates.length+')':'';
   renderViewsNav();
 }
 function render(){
@@ -1627,6 +1650,16 @@ function renderFields(){
   });
 }
 
+function renderTemplates(){
+  const box=$('#tpls');
+  box.innerHTML=(data.templates||[]).length?data.templates.map(t=>'<div class="fdef" data-id="'+t.id+'" style="grid-template-columns:1fr auto"><input data-tname value="'+esc(t.name)+'" aria-label="Template name"><button class="btn sm danger" data-tdel>Delete</button><div class="fhelp">'+esc([statusOf(t.status).name,(buckets().find(b=>b.id===(t.bucket||'none'))||{}).name,'impact '+t.impact,'effort '+t.effort,(t.labels||[]).join(', ')].filter(Boolean).join(' · '))+'</div></div>').join('')
+    :'<div class="small muted">No templates yet.</div>';
+  box.querySelectorAll('.fdef').forEach(el=>{
+    const t=data.templates.find(x=>x.id===el.dataset.id);
+    el.querySelector('[data-tname]').addEventListener('change',e=>{ const n=e.target.value.trim(); if(n){ t.name=n; persist(); } else e.target.value=t.name; });
+    el.querySelector('[data-tdel]').onclick=()=>{ if(!confirm('Delete template "'+t.name+'"?')) return; data.templates=data.templates.filter(x=>x.id!==t.id); persist(); renderTemplates(); renderToolbar(); };
+  });
+}
 function renderCardPick(){
   const box=$('#cardpick');
   const skip=['rank','key','title','score','impact','effort'];
@@ -1770,8 +1803,17 @@ function init(){
   $('#vSave').onclick=saveViewFromModal; $('#vCancel').onclick=()=>{ $('#viewModal').hidden=true; }; $('#vDelete').onclick=deleteActiveView;
   $('#vName').addEventListener('keydown',e=>{ if(e.key==='Enter') saveViewFromModal(); });
   $('#btnFields').onclick=openFields; $('#fieldsClose').onclick=closeFields;
+  $('#btnTpl').onclick=()=>{ renderTemplates(); $('#tplModal').hidden=false; };
+  $('#tplClose').onclick=()=>{ $('#tplModal').hidden=true; };
+  $('#pTemplate').onclick=()=>{
+    const i=ideaById(openId); if(!i) return;
+    const name=prompt('Template name', i.title); if(!name||!name.trim()) return;
+    const t={id:uid(),name:name.trim(),custom:Object.assign({},i.custom||{})};
+    TEMPLATE_KEYS.forEach(k=>{ t[k]=Array.isArray(i[k])?[...i[k]]:i[k]; });
+    data.templates.push(t); persist(); renderToolbar(); toast('Template saved');
+  };
   $('#addField').addEventListener('submit',e=>{ e.preventDefault(); const fd=new FormData(e.target); const name=fd.get('name').trim(); if(!name) return; const type=fd.get('type'); data.fields.push({id:uid(),name,type,options:[],expr:''}); e.target.reset(); persist(); renderFields(); const ta=$('#fdefs .fdef:last-child [data-opts], #fdefs .fdef:last-child [data-expr]'); if(ta) ta.focus(); });
-  $('#newCreate').onclick=()=>{ const t=$('#newTitle').value.trim(); if(!t) return; hideNew(); createIdea(t); };
+  $('#newCreate').onclick=()=>{ const t=$('#newTitle').value.trim(); if(!t) return; const tpl=$('#newTemplate').value; hideNew(); createIdea(t,tpl); };
   $('#newTitle').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#newCreate').click(); });
   $('#pClose').onclick=closePanel; $('#scrim').onclick=closePanel;
   $('#pPrev').onclick=()=>stepPanel(-1); $('#pNext').onclick=()=>stepPanel(1);
@@ -1801,7 +1843,7 @@ function init(){
   if(!hasFS){ $('#btnOpen').disabled=true; $('#btnSaveAs').disabled=true; $('#fsNote').textContent = window.self!==window.top ? 'File access is unavailable inside an embedded preview. Open index.html directly in Chrome or Edge to sync a project file.' : 'This browser cannot write files directly. Use Export and Import, or open in Chrome or Edge to sync a project file.'; }
   document.addEventListener('keydown',e=>{
     const typing=/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
-    if(e.key==='Escape'){ const open=['#mergeModal','#exportModal','#filtersModal','#columnsModal','#viewModal','#cardsModal','#axesModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(railOpen()) closeRail(); else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
+    if(e.key==='Escape'){ const open=['#mergeModal','#exportModal','#filtersModal','#columnsModal','#viewModal','#cardsModal','#axesModal','#tplModal'].find(m=>!$(m).hidden); if(open) $(open).hidden=true; else if(railOpen()) closeRail(); else if(!$('#fieldsModal').hidden) closeFields(); else if(!$('#newModal').hidden) hideNew(); else if(openId) closePanel(); else document.activeElement.blur(); }
     if(typing) return;
     if(e.key==='n'||e.key==='N'){ e.preventDefault(); showNew(); }
     if(e.key==='/'){ e.preventDefault(); $('#search').focus(); }
@@ -1812,7 +1854,12 @@ function init(){
   render(); renderNavCounts(); setFileState('none');
   tryRestoreHandle();
 }
-function showNew(){ $('#newModal').hidden=false; $('#newTitle').value=''; $('#newTitle').focus(); }
+function showNew(){
+  const sel=$('#newTemplate');
+  sel.innerHTML='<option value="">Blank idea</option>'+(data.templates||[]).map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');
+  sel.parentElement.hidden=!(data.templates||[]).length;
+  $('#newModal').hidden=false; $('#newTitle').value=''; $('#newTitle').focus();
+}
 function hideNew(){ $('#newModal').hidden=true; }
 init();
 </script>
