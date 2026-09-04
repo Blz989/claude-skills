@@ -22,7 +22,7 @@ The first launch loads a sample project so the views have something to show. Del
 | Timeline | Dated roadmap. Each idea with a start and target date is a bar across months and quarters. Drag a bar to move it, drag an edge to change one date. Months or Quarters scale, today marker, and an Unscheduled list with a one-click Schedule button |
 | Buckets | Now / Next / Later / Unplaced columns for coarse planning. Drag to move |
 
-Every idea has a detail panel with description, owner, labels, delivery ticket reference, start and target dates, your custom fields, insights (text, source link, weight 1 to 3), comments, and a change history.
+Every idea has a detail panel with description, owner, labels, ServiceNow demand reference, start and target dates, your custom fields, insights (text, source link, weight 1 to 3), comments, and a change history.
 
 ## Custom fields and grouping
 
@@ -79,4 +79,4 @@ Auto, Light, and Dark toggle in the rail. Auto follows the operating system.
 
 ## Not included
 
-Multi-user editing and Jira Software integration. The delivery ticket field is free text so you can paste a key or a link.
+Multi-user editing and Jira Software integration. The ServiceNow demand field is free text so you can paste a demand number or a link. It is stored under the `delivery` key in the project file.

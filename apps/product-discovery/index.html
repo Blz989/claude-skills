@@ -522,9 +522,9 @@ function sampleData(){
     mk('Intercompany reconciliation dashboard', {status:'discovery', impact:4, effort:4, confidence:50, reach:15, labels:['reporting','intercompany'], owner:'', bucket:'later', start:rel(120), end:rel(200),
       description:'Show unmatched intercompany balances by entity pair before close starts.'}),
     mk('Vendor master duplicate detection', {status:'parked', impact:3, effort:3, confidence:40, reach:30, labels:['master-data','AP'], owner:'Marcus'}),
-    mk('Replace SFTP bank statement pull with API feed', {status:'delivery', impact:4, effort:4, confidence:90, reach:10, labels:['treasury','integration'], owner:'Brandon', bucket:'now', delivery:'FT-412', start:rel(-45), end:rel(20),
+    mk('Replace SFTP bank statement pull with API feed', {status:'delivery', impact:4, effort:4, confidence:90, reach:10, labels:['treasury','integration'], owner:'Brandon', bucket:'now', delivery:'DMND0004120', start:rel(-45), end:rel(20),
       insights:[{id:uid(),text:'SFTP job failed 6 times in Q2, each needing a manual rerun by treasury.',url:'',weight:3,created:now()}]}),
-    mk('Fixed asset sub-ledger tie-out report', {status:'shipped', impact:3, effort:2, confidence:100, reach:8, labels:['reporting'], owner:'Priya', bucket:'now', delivery:'FT-388', start:rel(-90), end:rel(-30)}),
+    mk('Fixed asset sub-ledger tie-out report', {status:'shipped', impact:3, effort:2, confidence:100, reach:8, labels:['reporting'], owner:'Priya', bucket:'now', delivery:'DMND0003880', start:rel(-90), end:rel(-30)}),
     mk('Chatbot for expense policy questions', {status:'wontdo', impact:2, effort:4, confidence:30, reach:500, labels:['T&E'], owner:'',
       comments:[{id:uid(),text:'Parked. Policy doc rewrite solves most of the questions.',created:now()}]}),
     mk('Allocation engine rule editor', {status:'discovery', impact:5, effort:5, confidence:40, reach:12, labels:['allocations'], owner:'Marcus', bucket:'later', start:rel(150), end:rel(260),
@@ -673,7 +673,7 @@ function fieldDefs(){
     {id:'reach',name:'Reach',type:'number'},
     {id:'score',name:'Score',type:'number',computed:score},
     {id:'insights',name:'Insight weight',type:'number',computed:insightWeight},
-    {id:'delivery',name:'Delivery ticket',type:'text'},
+    {id:'delivery',name:'ServiceNow demand',type:'text'},
     {id:'start',name:'Start date',type:'date'},
     {id:'end',name:'Target date',type:'date'},
     ...(data.fields||[]).map(f=>Object.assign({},f,{custom:true}))
@@ -913,7 +913,7 @@ function renderRules(){
 /* ---------- columns modal ---------- */
 function listColumns(){
   const cf=customFields().map(f=>Object.assign({},f,{custom:true}));
-  return [['key','Key'],['title','Idea'],['status','Status'],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket','Bucket'],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],...cf.map(f=>['c:'+f.id,f.name,['number','rating','formula'].includes(f.type)?'right':'']),['delivery','Delivery'],['updated','Updated']];
+  return [['key','Key'],['title','Idea'],['status','Status'],['impact','Impact'],['effort','Effort'],['confidence','Conf.','right'],['reach','Reach','right'],['score','Score','right'],['insights','Insights','right'],['bucket','Bucket'],['start','Start'],['end','Target'],['owner','Owner'],['labels','Labels'],...cf.map(f=>['c:'+f.id,f.name,['number','rating','formula'].includes(f.type)?'right':'']),['delivery','SN demand'],['updated','Updated']];
 }
 function openColumns(){ renderColumnPicker(); $('#columnsModal').hidden=false; }
 function renderColumnPicker(){
@@ -1163,7 +1163,7 @@ function renderPanel(){
       '<div class="field"><label>Start date</label><input data-f="start" type="date" value="'+esc(i.start)+'"></div>'+
       '<div class="field"><label>Target date</label><input data-f="end" type="date" value="'+esc(i.end)+'"></div>'+
       '<div class="field"><label>Owner</label><input data-f="owner" value="'+esc(i.owner)+'" list="ownerList"><datalist id="ownerList">'+allOwners().map(o=>'<option value="'+esc(o)+'">').join('')+'</datalist></div>'+
-      '<div class="field"><label>Delivery ticket</label><input data-f="delivery" value="'+esc(i.delivery)+'" placeholder="FT-123 or a URL"></div>'+
+      '<div class="field"><label>ServiceNow demand</label><input data-f="delivery" value="'+esc(i.delivery)+'" placeholder="DMND0012345 or a URL"></div>'+
       '<div class="field wide"><label>Labels</label><input data-f="labels" value="'+esc(i.labels.join(', '))+'" placeholder="comma, separated" list="labelList"><datalist id="labelList">'+allLabels().map(o=>'<option value="'+esc(o)+'">').join('')+'</datalist></div>'+
       '<div class="field wide"><label>Description</label><textarea data-f="description" placeholder="Problem, who has it, what we would build.">'+esc(i.description)+'</textarea></div>'+
     '</div>'+

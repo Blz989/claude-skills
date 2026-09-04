@@ -11,7 +11,7 @@ Replace a paid Jira Product Discovery seat for a single user with a tool that co
 
 - **Single user, file-based.** One `.json` project file synced through Box or Drive. No backend, no accounts.
 - **One HTML file.** No build toolchain, no dependencies beyond Google Fonts, which fall back to system fonts when offline.
-- **Standalone.** Delivery work is a free-text reference on the idea, not a live Jira link.
+- **Standalone.** Delivery work is a free-text ServiceNow demand reference on the idea (JSON key `delivery`), not a live integration.
 - **Features in scope.** Ideas table with custom fields and a computed score, board by status, impact-vs-effort matrix, dated timeline roadmap plus Now / Next / Later buckets, insights and comments per idea, filters and search, Auto / Light / Dark theme.
 
 ## Approaches considered
