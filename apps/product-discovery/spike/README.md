@@ -20,6 +20,51 @@ embedded approach cannot work at all, and it is much cheaper to learn that now.
 
 Configuration is kept in the page URL, so a configured probe can be bookmarked and shared.
 
+## Getting the values for the sign-in section
+
+The greyed text in those fields is placeholder hint text, not values. You need an Entra app
+registration first, which takes about five minutes.
+
+1. [entra.microsoft.com](https://entra.microsoft.com) → **Applications** → **App registrations** →
+   **New registration**.
+2. Name it something obvious, for example `Discovery Desk probe`.
+3. Supported account types: **Accounts in this organizational directory only**.
+4. Redirect URI: switch the platform dropdown to **Single-page application (SPA)** and enter the
+   probe's URL with no query string, for example
+   `https://intranet.yourco.com/tools/embed-probe.html`.
+5. Register. Do **not** add a client secret. SPA registrations use PKCE, and a secret would be
+   wrong here.
+
+| Field | Where it comes from |
+| --- | --- |
+| Application (client) ID | The registration's **Overview** page |
+| Directory (tenant) ID | Same Overview page, directly beneath it |
+| SharePoint site | Derived from the site URL: `https://contoso.sharepoint.com/sites/FinanceTech` becomes `contoso.sharepoint.com:/sites/FinanceTech` |
+| MSAL script URL | Leave as-is unless your network blocks the CDN |
+
+### Test in two stages
+
+Leave the site field **blank** on the first run. That path needs only `User.Read`, which a new
+registration gets by default and which users can normally consent to themselves. If sign-in and
+"read my profile" go green, authentication works and the hard part is proven without needing anyone
+else.
+
+Only then add the site. That needs a Sites permission under **API permissions** → **Add a
+permission** → **Microsoft Graph** → **Delegated**, and will almost certainly need admin consent.
+Ask for **`Sites.Selected`** rather than `Sites.Read.All` where possible: it is granted per site
+rather than across the whole tenant, which is a much easier request to justify.
+
+### Three things that commonly go wrong
+
+- **Registered as "Web" rather than "Single-page application."** The error says cross-origin token
+  redemption is permitted only for the Single-Page Application client type. Fix it under
+  **Authentication** by moving the redirect URI to the SPA platform.
+- **Redirect URI mismatch.** It must match exactly: scheme, host, full path, no trailing query.
+  After you click sign-in the probe prints the exact value it sent in the "Initialise MSAL" row;
+  compare against that.
+- **Your tenant may block app registration by ordinary users.** If **New registration** is greyed
+  out, that is a tenant policy. Hand an admin the five settings above; it is a two-minute job.
+
 ## Reading the result
 
 | Result | Meaning |
