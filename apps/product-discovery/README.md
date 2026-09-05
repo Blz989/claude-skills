@@ -19,7 +19,7 @@ The first launch loads a sample project so the views have something to show. Del
 | Ideas | Sortable table with inline editing of status, impact, effort, confidence, reach, and roadmap bucket |
 | Board | Kanban by status. Drag cards between columns |
 | Matrix | Impact vs effort scatter. Dot size is reach, color is status. Quadrant counts and top five by score |
-| Timeline | Dated roadmap for one fiscal year at a time. Each idea with a start and target date is a bar. Drag a bar to move it, drag an edge to change one date. Today marker, plus lists of anything scheduled outside the year or not scheduled at all |
+| Timeline | Dated roadmap for one fiscal year at a time, fitted to the pane. Each idea with a start and target date is a bar. Drag a bar to move it, drag an edge to change one date. Today marker, plus lists of anything scheduled outside the year or not scheduled at all |
 | Buckets | Now / Next / Later / Unplaced columns for coarse planning. Drag to move |
 
 Every idea has a detail panel with description, owner, labels, ServiceNow demand reference, start and target dates, your custom fields, insights (text, source link, weight 1 to 3), comments, and a change history.
@@ -67,14 +67,11 @@ Grouping and column choices are remembered per view.
 
 The timeline shows **one fiscal year at a time**, defaulting to the current one, so a roadmap you print or hand over does not trail into last year's quarters. The picker at the top left switches between **Current fiscal year** (which follows the calendar as time passes), any specific year your ideas touch, and **All dates**.
 
-Two scales:
-
-- **Quarters** fits the whole window to the pane, so the four quarters are always fully visible with no sideways scrolling.
-- **Months** uses a fixed, readable density and scrolls, with a Jump to today button.
+The chart always fits the pane, so the four quarters are fully visible with no sideways scrolling. Only **All dates** over a very long range falls back to scrolling, and a Jump to today button appears when it does.
 
 An idea that starts before the window or ends after it is still shown, clipped at the edge with a squared-off end; its full dates are in the row label and the tooltip. Dragging a clipped bar still moves the real dates. Ideas scheduled entirely in another year are listed under **Outside FY27** below the chart rather than silently disappearing, and date-less ideas stay under **Unscheduled**.
 
-The chosen year and scale are captured when you save a view.
+The chosen year is captured when you save a view.
 
 ## Fiscal year
 
