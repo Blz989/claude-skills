@@ -131,7 +131,7 @@ Four lists in one site. Names are suggestions.
 | Column | Type | Notes |
 | --- | --- | --- |
 | Title | Single line | The idea title |
-| IdeaKey | Single line | `IDEA-12`, indexed |
+| IdeaKey | Single line | `IDEA-12`, indexed. See the note on key allocation below |
 | Status, Bucket | Single line | Store the **option id**, not the label. Labels live in config and are renameable |
 | Impact, Effort, Confidence, Reach, Rank | Number | |
 | StartDate, TargetDate | Date | |
@@ -145,8 +145,16 @@ Four lists in one site. Names are suggestions.
 **`DiscoveryInsights`** and **`DiscoveryComments`** — child items with a lookup to the idea. These
 are genuinely list-shaped, people will want to report on them, and they grow independently.
 
-**`DiscoveryConfig`** — a handful of items, each holding one JSON document: field definitions,
-statuses, buckets, saved views, templates, fiscal settings.
+**`DiscoveryConfig`** — configuration, **one item per entity, not one item per category**. One
+item per saved view, one per custom field definition, one per status option, one per bucket, one
+per template, plus a single item for project-level settings such as the fiscal calendar. Columns:
+`Kind` (`view` / `field` / `status` / `bucket` / `template` / `settings`), `EntityId`, `SortOrder`,
+and `Json` holding that one entity.
+
+The granularity matters. An earlier draft of this document put each category in a single JSON
+document, which would mean that renaming a field while a colleague adds a saved view silently
+destroys one of the two changes. Ideas are naturally partitioned into rows; configuration has to
+be partitioned deliberately, or it becomes the contention hotspot of the whole system.
 
 ### Why custom values go in a JSON column rather than real columns
 
@@ -156,6 +164,32 @@ leaves orphaned columns behind. A JSON column keeps the field registry contract 
 of server-side querying on custom fields. That cost is acceptable here because the app already
 filters, sorts and groups **client-side** over the full set, and the set is small. Revisit only if
 the backlog ever passes a few thousand ideas.
+
+### Key allocation: drop the counter
+
+The file-based app mints keys from a shared counter, `data.seq`. With concurrent editors that is a
+duplicate-key bug waiting to happen: two clients read the same value and both write `IDEA-12`.
+
+Use SharePoint's own auto-increment item ID instead, so a new idea's key is `IDEA-{item id}`. No
+coordination, guaranteed unique, and gaps after a deletion are normal and match what Jira does.
+Preserve keys from imported files as-is in `IdeaKey`; only mint new keys this way.
+
+### Concurrency in practice
+
+There is no locking and no client-held transaction. Each write is an independent request, and
+SharePoint serializes writes to a given item server-side.
+
+- **Two people creating ideas at once**: no contention. Independent inserts into different rows.
+- **Two people editing the same idea**: send the ETag you last read in an `If-Match` header.
+  SharePoint returns **412 Precondition Failed** if the item changed underneath you, rather than
+  overwriting. Do not send `If-Match: *`; that is last-writer-wins and is exactly the silent
+  data loss requirement 4 forbids.
+- **Recovering from a 412**: refetch the item. If the other edit touched a different field,
+  reapply the user's change and retry without bothering them. Prompt only when both edits hit the
+  same field. The app saves one field at a time, so this covers most real collisions quietly.
+- **Nobody gets pushed updates.** SharePoint webhooks are server-to-server and there is no server
+  here, so poll the lists filtered on `Modified` greater than the last check, every 30 to 60
+  seconds, and merge changed items into `data`. Filtering on `Modified` keeps it cheap.
 
 ### The list limit that actually matters
 
